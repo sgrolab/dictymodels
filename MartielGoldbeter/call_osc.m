@@ -83,3 +83,19 @@ tspan=[0 80];
 plot(t1,x1(:,1),'k',t1,x1(:,2),'r',t1,x1(:,3),'b')
 title('Three variable simulation')
 legend('rho_T: total fraction of active receptor','[cAMP]in/K_R','[cAMP]ex/K_R')
+
+% Plot figure 3a
+rho_T=x1(:,1);beta=x1(:,2);gamma=x1(:,3);
+c=100;k1=0.4; k2=0.04; L1=10;L2=0.1; 
+
+Y_bar=rho_T.*gamma./(ones(size(gamma))+gamma)+(ones(size(gamma))-rho_T).*c.*gamma./((ones(size(gamma))+c.*gamma));
+subplot(2,1,1)
+plot(t1,Y_bar,'b',t1,rho_T,'r',t1,gamma,'g')
+legend('Y_bar: total binding of cAMP to receptor R and D','rho_T: fraction of in active receptor ','gamma: [cAMP]ex/KR')
+
+% plot Net modification fluxes
+phi_1=-rho_T.*k1./(ones(size(gamma))+gamma)+(ones(size(gamma))-rho_T).*k1*L1./((ones(size(gamma))+c.*gamma));
+phi_2=-rho_T.*k2.*gamma./(ones(size(gamma))+gamma)+(ones(size(gamma))-rho_T).*k2*L2.*c.*gamma./((ones(size(gamma))+c.*gamma));
+subplot(2,1,1)
+plot(t1,phi_1,t1,phi_2)
+legend('Net modification fluxes min-1, phi_1','phi_2')
