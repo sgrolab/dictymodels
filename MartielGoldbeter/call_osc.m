@@ -72,12 +72,12 @@ L2=0.005;
 c=10; 
 theta=0.01; % not available from experimental data
 lambda=0.01;% not available from experimental data
-eps=1; % not available from experimental data
+epsilon=1; % not available from experimental data
 
 x0=[0.7 0 0];
 tspan=[0 80];
 
-[t1,x1]=ode45(@(t,x) three_variable_fun(t,x,alpha,sigma,q,ki,kt,h,ke,k1,k2,L1,L2,c,theta,lambda,eps),tspan,x0);
+[t1,x1]=ode45(@(t,x) three_variable_fun(t,x,alpha,sigma,q,ki,kt,h,ke,k1,k2,L1,L2,c,theta,lambda,epsilon),tspan,x0);
 
 % plot figure 2a
 plot(t1,x1(:,1),'k',t1,x1(:,2),'r',t1,x1(:,3),'b')
