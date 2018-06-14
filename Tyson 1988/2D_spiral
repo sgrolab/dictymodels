@@ -23,12 +23,13 @@ rho = 0.1.*ones(numofgrids,numofgrids);
 beta = zeros(numofgrids,numofgrids);
 gamma = zeros(numofgrids,numofgrids);
 
-% randomly assign high and zero intracellular cAMP in the middle square
+% randomly assign high and zero intracellular cAMP in the middle square- does not generate spiral pattern
 cAMP_high=10;
  w_outer=20;w_inner=10;
  x1=floor(numofgrids/2);x2=floor(numofgrids/2)+w_outer;  
  y1=floor(numofgrids/2);y2=floor(numofgrids/2)+w_outer;
  beta(y1:y2,x1:x2)=cAMP_high.*randi([0 1], y2-y1+1,x2-x1+1);
+ 
 % plot initial conditions
 f1 = figure(1)
        subplot(2,2,1)
@@ -50,9 +51,10 @@ f2gamma=@(gamma,rho) (L1+kappa.*L2.*c.*gamma)./(1+c.*gamma);
 phi=@(gamma,rho) (lambda1+(rho.*gamma./(1+gamma)).^2)./(lambda2+(rho.*gamma./(1+gamma)).^2);
 
 for i = 1:1:length(t)
-   % zero-flux boundaries
+   % zero-flux boundaries- is this correct?
      rho(2,1:end)=rho(1,1:end);beta(2,1:end)=beta(1,1:end);gamma(2,1:end)=gamma(1,1:end);
      rho(1:end,2)=rho(1:end,1);beta(1:end,2)=beta(1:end,1);gamma(1:end,2)=gamma(1:end,1);
+     
      L=4*del2(gamma,step);
      
      rho_new= rho+dt.*k1.*(-f1gamma(gamma,rho).*rho+f2gamma(gamma,rho).*(ones(numofgrids,numofgrids)-rho));
