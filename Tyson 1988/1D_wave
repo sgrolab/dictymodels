@@ -44,10 +44,11 @@ for i = 1:1:length(t)
    rho=rho_new;
    beta=beta_new;
    gamma=gamma_new;
-   % periodic boundary condition
-%    rho(end)=rho(1);beta(end)=beta(1);
-%    gamma(end)=gamma(1);
-   % Plot real time 
+   % periodic boundary condition: is this correct?
+   rho(end)=rho(1);beta(end)=beta(1);
+   gamma(end)=gamma(1);
+   
+   % Plot in real time 
    if (0 == mod(i,10) )       
        f2 = figure(2);
 %        subplot(2,2,1) 
