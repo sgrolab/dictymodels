@@ -1,4 +1,4 @@
-function [A,R,t,lineVal]=single_cell(cAMP,t_tot)
+function [A,R,t,lineVal,A_orig,R_orig]=single_cell_old(cAMP,t_tot)
 e=0.1; %tauA/tauR; %episilon
 tauA=0.09;
 tauR=tauA/e;
@@ -49,6 +49,8 @@ for i = 1:n-1
     end
     R(i+1) = R(i)+ fR(t(i),[A(i) R(i)])*dt/tauR;
 end
+A_orig=A;R_orig=R;% un-scaled, un-offset A and R after simulation
+
 A=(A+offset_A)./Na;
 % R=R./Na;
 t=t./Nt;

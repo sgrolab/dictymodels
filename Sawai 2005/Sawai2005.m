@@ -9,7 +9,7 @@
 % The cells can have three states: state 0 (excitable), state 1 (excited,
 % either releasing cAMP or in absolute refractory period), and state 2
 % (relative refractory period). The function goes over all the grid squares
-% in the field to update C, E, C_T, release_mask, and statewiith every
+% in the field to update C, E, C_T, release_mask, and state with every
 % simulation time step.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [C,E,C_T,state,release_mask]=Sawai2005(eta,beta,dt,t,C,E,C_T,state,release_mask)

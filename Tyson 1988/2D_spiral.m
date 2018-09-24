@@ -5,16 +5,43 @@ clear all, clc, close all
 add_extra=true; % extra stimulation
 
 % Some parameters based on Table 2, parameter set C
-L1=10; L2=0.005; kappa=18.5; c=10;  lambda1=1e-3; lambda2=2.4; 
-s1=950; s2=0.05; epsilon_prime=0.0182 ;  D=0.024; % mm2/min
-kt=3.0;ke=12;k1=0.12; k_1=1.2;k2=2.22;k_2=0.011;h=5;
-
+L1=10; L2=0.005; kappa=18.5; c=10;  
+lambda1=1e-3;
+lambda2=2.4; 
+s1=950; 
+s2=0.05; 
+epsilon=0.01;
+epsilon_prime=0.0182 ;  
+D=0.024;% mm2/min
+kt=3.0;
+ke=12;
+k1=0.12; 
+k_1=1.2;
+k2=2.22;
+k_2=0.011;
+h=5;
+% parametr set A (Goldbeter oscillation)
+% L1=10; L2=0.005; kappa=18.5; c=10;  
+% lambda1=1e-4; % 1e-3;
+% lambda2=0.26; %2.4; 
+% s1=690;% 950; 
+% s2=0.033;% 0.05; 
+% epsilon_prime=0.014; % 0.0182 ;  
+% D=0.024; % mm2/min
+% kt=0.9; % 3.0;
+% ke=5.4; % 12;
+% k1=0.036; %0.12; 
+% k_1=0.36; % 1.2;
+% k2=0.666;% 2.22;
+% k_2=0.0033;% 0.011;
+% h=5;
 % Initializations
 [X,Y]=meshgrid(0:0.045:9,0:0.045:9); %% field of observation 9mm X 9mm
+ X=k1/sqrt(ke*D)*X; Y=k1/sqrt(ke*D)*Y; % dimensionless X and Y
 numofgrids=length(X(1,:));
 step=X(1,2)-X(1,1);
 % Time step size
-dt = 0.002;
+dt = 0.12/60*k1; % min
 % Time vector
 t= 0:dt:90;
 
@@ -23,13 +50,14 @@ rho = 0.1.*ones(numofgrids,numofgrids);
 beta = zeros(numofgrids,numofgrids);
 gamma = zeros(numofgrids,numofgrids);
 
-% randomly assign high and zero intracellular cAMP in the middle square- does not generate spiral pattern
+%% randomly assign high and zero intracellular cAMP in the middle square- does not generate spiral pattern
 cAMP_high=10;
- w_outer=20;w_inner=10;
- x1=floor(numofgrids/2);x2=floor(numofgrids/2)+w_outer;  
- y1=floor(numofgrids/2);y2=floor(numofgrids/2)+w_outer;
- beta(y1:y2,x1:x2)=cAMP_high.*randi([0 1], y2-y1+1,x2-x1+1);
- 
+x=linspace(0,2,numofgrids);
+y=cAMP_high./(1+exp(5.*(-x+1)));
+beta=repmat(y,numofgrids,1)
+% surf(X,Y,beta)
+
+
 % plot initial conditions
 f1 = figure(1)
        subplot(2,2,1)
@@ -46,26 +74,30 @@ movegui(f1,'northwest')
 
 % Start simulation
 
-f1gamma=@(gamma,rho) (1+kappa.*gamma)./(1+gamma);
-f2gamma=@(gamma,rho) (L1+kappa.*L2.*c.*gamma)./(1+c.*gamma);
+f1gamma=@(gamma) (1+kappa.*gamma)./(1+gamma);
+f2gamma=@(gamma) (L1+kappa.*L2.*c.*gamma)./(1+c.*gamma);
 phi=@(gamma,rho) (lambda1+(rho.*gamma./(1+gamma)).^2)./(lambda2+(rho.*gamma./(1+gamma)).^2);
 
 for i = 1:1:length(t)
-   % zero-flux boundaries- is this correct?
-     rho(2,1:end)=rho(1,1:end);beta(2,1:end)=beta(1,1:end);gamma(2,1:end)=gamma(1,1:end);
-     rho(1:end,2)=rho(1:end,1);beta(1:end,2)=beta(1:end,1);gamma(1:end,2)=gamma(1:end,1);
-     
+   % zero-flux boundaries
+   gamma(2,1:end)=gamma(1,1:end);  gamma(end-1,1:end)=gamma(end,1:end);
+   gamma(1:end,2)=gamma(1:end,1);  gamma(1:end,end-1)=gamma(1:end,end);
+   
      L=4*del2(gamma,step);
      
-     rho_new= rho+dt.*k1.*(-f1gamma(gamma,rho).*rho+f2gamma(gamma,rho).*(ones(numofgrids,numofgrids)-rho));
-     beta_new= beta+dt.*k1./epsilon_prime.*(s1.*phi(gamma,rho)-beta);
-     gamma_new = gamma+dt.*(kt./h.*beta-ke.*gamma+D.*L);
+     rho_new= rho+dt.*(-f1gamma(gamma).*rho+f2gamma(gamma).*(ones(numofgrids,numofgrids)-rho));
+     beta_new= beta+dt./epsilon_prime.*(s1.*phi(gamma,rho)-beta);
+     gamma_new = gamma+dt.*((s2.*beta-gamma)./epsilon+epsilon.*L);
+     
+%      rho_new= rho+dt.*k1.*(-f1gamma(gamma).*rho+f2gamma(gamma).*(ones(numofgrids,numofgrids)-rho));
+%      beta_new= beta+dt.*k1./epsilon_prime.*(s1.*phi(gamma,rho)-beta);
+%      gamma_new = gamma+dt.*(kt./h.*beta-ke.*gamma+D.*L);
    rho=rho_new;
    beta=beta_new;
    gamma=gamma_new;
    
    % Plotting every tenth time step
-   if (0 == mod(i,10) )       
+   if (0 == mod(i,50) )       
        f2 = figure(2);
 %        subplot(2,2,1)
 %        surf(X,Y,rho)
@@ -88,7 +120,7 @@ for i = 1:1:length(t)
        title(['Extracellular cAMP at time point #: ', num2str(i)])
        colorbar
        
-       pause(0.06)
+       pause(0.00000001)
    end
    
    % Adding some extra stimulation
