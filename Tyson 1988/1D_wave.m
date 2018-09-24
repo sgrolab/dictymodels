@@ -1,18 +1,30 @@
 % Tyson 1988 three component model. 1D wave
 clear all, clc, close all
-% Some parameters based on Table 2, parameter set C
-L1=10; L2=0.005; kappa=18.5; c=10;  lambda1=1e-3; lambda2=2.4; 
-s1=950; s2=0.05; epsilon_prime=0.0182 ;  D=0.024; % mm2/min
-kt=3.0;ke=12;k1=0.12; k_1=1.2;k2=2.22;k_2=0.011;h=5;
+% Some parameters based on Table 2, parameter set A
+L1=10; L2=0.005; kappa=18.5; c=10;  
+lambda1=1e-4; % 1e-3;
+lambda2=0.26; %2.4; 
+s1=690;% 950; 
+s2=0.033;% 0.05; 
+epsilon_prime=0.014; % 0.0182 ;  
+D=0.024; % mm2/min
+kt=0.9; % 3.0;
+ke=5.4; % 12;
+k1=0.036; %0.12; 
+k_1=0.36; % 1.2;
+k2=0.666;% 2.22;
+k_2=0.0033;% 0.011;
+h=5;
 
 % Initializations
 X=0:0.045:9; %% length of observation 9mm 
+X=
 numofgrids=length(X);
 step=X(2)-X(1);
 % Time step size
-dt = 0.002;
+dt = 0.12;
 % Time vector
-t= 0:dt:30;
+t= 0:dt:50;
 
 % Initializing gamma beta and rho
 rho = 0.1.*ones(1,numofgrids);
@@ -49,7 +61,7 @@ for i = 1:1:length(t)
    gamma(end)=gamma(1);
    
    % Plot in real time 
-   if (0 == mod(i,10) )       
+   if (0 == mod(i,1) )       
        f2 = figure(2);
 %        subplot(2,2,1) 
        plot(X,rho)
@@ -57,7 +69,7 @@ for i = 1:1:length(t)
        xlabel('mm')
        ylabel('rho: active receptor ratio')
        title(['Active receptor ratio at time point #: ', num2str(i)])
-       
+   end
 %        subplot(2,2,2)
 %        plot(X,beta)
 %        xlabel('mm')

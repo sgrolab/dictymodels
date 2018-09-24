@@ -1,14 +1,17 @@
-%% Levine 1996 without feedback (constant E)
-% Images and movies saved at a set path. Please change the path.
+%% Levine 1996 
 clear all; close all;
+
+my_dir='U:\cilse_research_sgro\Chuqiao\cAMP modeling\Levine 1996\outputs\';
+filename='E_const_dt_0.215_2_';
+
 % Parameters
 conc_release=300; t_release=1; gamma=8; 
-E_max=0.93; E_min=0.1; % not mentioned in the paper?
+E_max=0.93;
 alpha=0.0005; beta=1.24;
 D=1; % diffusian coefficient
 % time step and period, non-dimensional
-dt=1;
-t=0:dt:400;
+dt=0.212;
+t=0:dt:600;
 num_of_dt_release=t_release./dt;
 conc_release_dt=conc_release./(t_release./dt); % cAMP release every time step
 T_ARP=8./dt; T_RRP=2./dt; % # of time steps in ARP and RRP
@@ -23,25 +26,30 @@ X=x(:);Y=y(:); % reshape into a vector
 
 % Initializations
 C=1.*ones(length(Y),1); % extracellular cAMP concentration
-cell_mask=zeros(length(Y),1);
-% where there are cells
-cell_ratio=0.98; % cell density
-cell_num=floor(cell_ratio.*length(cell_mask));
-cell_index=randperm(length(cell_mask), cell_num);
-cell_mask(cell_index)=1;
+% cell_mask=zeros(length(Y),1);
+% % where there are cells
+% cell_ratio=0.98; % cell density
+% cell_num=floor(cell_ratio.*length(cell_mask));
+% cell_index=randperm(length(cell_mask), cell_num);
+% cell_mask(cell_index)=1;
 
-E=E_min*ones(length(Y),1);E(cell_mask==0)=-1; % excitability, mark grids w/o cells as -1
+load ('U:\cilse_research_sgro\Chuqiao\cAMP modeling\Levine 1996\outputs\initial_state0.003.mat');
+E=E_max*ones(length(Y),1);E(cell_mask==0)=-1; % excitability, mark grids w/o cells as -1
 
 C_T=C_min*ones(length(Y),1); C_T(cell_mask==0)=-1;% excitation threshold
-release_mask=zeros(length(Y),1);release_mask(cell_mask==0)=-1; % initialize release to be 0
+% release_mask=zeros(length(Y),1);release_mask(cell_mask==0)=-1; % initialize release to be 0
 % Most cells  start at state 0, and a few cells start at state 1
-state=zeros(length(Y),1);state(cell_mask==0)=-1; 
-firing_ratio=0.001; firing_num=floor(firing_ratio.*sum(cell_mask));
-index=find(cell_mask); select=index(randperm(length(index), firing_num)); state(select)=1;
+% state=zeros(length(Y),1);state(cell_mask==0)=-1; 
+% firing_ratio=0.001; firing_num=floor(firing_ratio.*sum(cell_mask));
+% index=find(cell_mask); select=index(randperm(length(index), firing_num)); state(select)=1;
 
 figure % show the cell initial states
 surf(x,y,reshape(state,[w,l]))
 shading interp; view(2);
+
+% imname='initial state.jpg';
+% saveas(gcf,strcat(my_dir,filename,imname));
+
 %% Start simulation
 figure
 for i=2:1:length(t)%  go through all the time points length(t)
@@ -112,7 +120,7 @@ for i=2:1:length(t)%  go through all the time points length(t)
     C_present=C_present(:); C(:,i)=C_present; 
 
     % plot in real time
-    if (0 == mod(i,10) ) 
+    if (0 == mod(i,20) ) 
         C_plot=C(:,i);
         C_plot=reshape(C_plot,[w,l]);
         surf(x,y,C_plot)
@@ -121,6 +129,36 @@ for i=2:1:length(t)%  go through all the time points length(t)
         xlabel('mm'); ylabel('mm'); zlabel('extracellular cAMP')
         colorbar
         pause(0.001)
-    end
+%         % save images
+%         if (0==mod(i,50))
+%             imname=['Econst at frame ' num2str(i) '.jpg'];
+%             saveas(gcf,strcat(my_dir,filename,imname));
+%         end
+     end
 end
-
+disp('simulation ended')
+%% save results as video
+frame_interval=10;
+C_plot=C(:,1);
+C_plot=reshape(C_plot,[w,l]);
+surf(x,y,C_plot);
+title('Extracellular cAMP at time point #: 1')
+shading interp;  view(2);
+zlabel('extracellular cAMP')
+colorbar
+I(1)=getframe(gcf);
+for ii=frame_interval:frame_interval:length(t) 
+    C_plot=C(:,ii);
+    C_plot=reshape(C_plot,[w,l]);
+    surf(x,y,C_plot);
+    title(['Extracellular cAMP at time point #: ', num2str(ii)])
+    shading interp;  view(2);
+    zlabel('extracellular cAMP')
+    colorbar
+    I(ii./frame_interval)=getframe(gcf);
+end
+movname='.avi';
+video = VideoWriter(strcat(my_dir,filename,movname)); %create the video object
+open(video); %open the file for writing
+writeVideo(video,I); %write the image to file
+close(video); %close the file
