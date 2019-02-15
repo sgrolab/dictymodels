@@ -1,10 +1,10 @@
 clc; clear; close all;
-
-%% fig. 1G&H
+% fig. 1G&H
 % cAMP=1 ;         %Small Stimulus ; cAmp=1 nM  Fig 1G
- cAMP=10000;     %Small Stimulus ; cAmp=10 uM  Fig 1H
+cAMP=10000;     %Small Stimulus ; cAmp=10 uM  Fig 1H
 t_tot=175 ;      %Total simulation time in absolute units
-[A,R,t,lineVal,A_orig,R_orig]=single_cell(cAMP,t_tot);% 
+[A,R,t,lineVal,A_orig,R_orig]=single_cell_new(cAMP,t_tot);% 
+
 
 figure(); 
 h=axes;
@@ -32,7 +32,42 @@ hold on
 plot(A_orig,R_orig,'k','LineWidth',2)
 ylabel('Repressor (R)')
 xlabel('Activator (A)')
-set(gca,'yLim',[-1 2.5],'xlim',[-2.5 2.5],'FontSize',10)
+set(gca,'yLim',[-1 2.5],'FontSize',10)
+%%
+A_null=linspace(-2.5,2.5,200);
+dAdt_null_no_stim=A_null-1/3*A_null.^3;% dA/dt=0 nullcline w/o stim
+a=0.058;Kd= 1e-5;
+dAdt_null_stim=A_null-1/3*A_null.^3+a*log(1+cAMP/Kd)*ones(size(A_null));% dA/dt=0 nullcline with stim
+c0=1.2;g=0.5; %gamma
+dRdt_null=1/g*(A_null+c0*ones(size(A_null))); % dR/dt=0 nullcline
+
+figure()
+subplot(1,2,1)
+plot(A_null,dRdt_null,'r','LineWidth',2)
+hold on
+plot(A_null,dAdt_null_no_stim,'g','LineWidth',2)
+hold on 
+plot(A_null,dAdt_null_stim,'k','LineWidth',2)
+hold on
+
+for i=1:length(t)
+    if mod(i,200)==0
+        subplot(1,2,1)
+        scatter(A_orig(i),R_orig(i),'b.')
+        hold on
+        
+        subplot(1,2,2)
+        % h=axes;
+        scatter(t(i),A(i)); hold on
+        % line([lineVal lineVal],get(h,'YLim'),'Color',[0 1 0],'LineWidth',3,'LineStyle','--');hold on
+        ylabel('Amplitude')
+        xlabel('Time (T)')
+        set(gca,'FontSize',20,'xLim',[0 6.5])
+        
+        pause(0.0001)
+    end
+end
+title(['\epsilon=',])
 %% fig. 2 C - initial peak width
 
 logcAMP=0:0.33:4;
@@ -44,7 +79,7 @@ t_tot=1000;
 for i=1:n% n=1 to test findpeaks 
 cAMP=10.^(logcAMP(i));
 % cAmp=10^2; % test findpeaks
-[A,R,t,lineVal,A_orig,R_orig]=single_cell(cAMP,t_tot);
+[A,R,t,lineVal,A_orig,R_orig]=single_cell_new(cAMP,t_tot);
 yy = smooth(A,200,'moving'); % moving average filter
 % plot(t,A,'color',[0 1 0],'LineWidth',3); hold on % test findpeaks
 % findpeaks(yy,t,'Annotate','extents','WidthReference','halfheight','MinPeakHeight',0.5,'MinPeakDistance',0.5,'MinPeakProminence',0.5);hold on % test findpeaks
@@ -68,7 +103,7 @@ cAMP=10.^(logcAMP(i));
 [A,R,t,lineVal]=single_cell_old(cAMP,t_tot);
 yy = smooth(A,200,'moving'); % moving average filter
  plot(t,A,'color',[0 1 0],'LineWidth',3); hold on
- findpeaks(yy,t,'Annotate','extents','WidthReference','halfheight','MinPeakHeight',0.5,'MinPeakDistance',0.5,'MinPeakProminence',0.5);hold on
+ %findpeaks(yy,t,'Annotate','extents','WidthReference','halfheight','MinPeakHeight',0.5,'MinPeakDistance',0.5,'MinPeakProminence',0.5);hold on
 [PKS,LOCS,W]=findpeaks(yy,t,'WidthReference','halfheight','MinPeakHeight',0.5,'MinPeakDistance',0.5,'MinPeakProminence',0.5);
 Osctime=diff(LOCS);
 MeanOscPk(i)=mean(Osctime);
