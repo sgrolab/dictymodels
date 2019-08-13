@@ -12,7 +12,7 @@
 % A: activator concentration. 
 % R: repressor concentration
 % cAMP: external cAMP concentration
-function [A,R,cAMP] =multi_cell (alphaf,j,rho,para,dt,t)
+function [A,R,cAMP] =multi_cell (alphaf,j,rho,para,dt,t,time_separation)
 e=para.e; %tauA/tauR: episilon, ratio between activator and repressor time scales
 tauA=para.tauA;
 tauR=para.tauR;
@@ -47,7 +47,11 @@ for i = 1:n-1
     
     A(:,i+1)     = A(:,i)+fA(A(:,i),R(:,i),cAMP(:,i)).*dt+sigma*r(:,i);
     R(:,i+1)     = R(:,i)+ fR(A(:,i),R(:,i)).*dt;
-    cAMP(:,i+1)  = cAMP(:,i) + fcAMP(A(:,i),cAMP(:,i)).*dt ;
+    if time_separation==0
+        cAMP(:,i+1)  = cAMP(:,i) + fcAMP(A(:,i),cAMP(:,i)).*dt ;
+    else
+        cAMP(:,i+1) = (alphaf + rho.*alpha0 + rho.*S.*sum(heaviside(A(:,i)))./N)./(alpha_pde.*rho +j);
+    end
 end
 
 

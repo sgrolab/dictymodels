@@ -103,7 +103,7 @@ cAMP=10.^(logcAMP(i));
 [A,R,t,lineVal]=single_cell_old(cAMP,t_tot);
 yy = smooth(A,200,'moving'); % moving average filter
  plot(t,A,'color',[0 1 0],'LineWidth',3); hold on
- %findpeaks(yy,t,'Annotate','extents','WidthReference','halfheight','MinPeakHeight',0.5,'MinPeakDistance',0.5,'MinPeakProminence',0.5);hold on
+% findpeaks(yy,t,'Annotate','extents','WidthReference','halfheight','MinPeakHeight',0.5,'MinPeakDistance',0.5,'MinPeakProminence',0.5);hold on
 [PKS,LOCS,W]=findpeaks(yy,t,'WidthReference','halfheight','MinPeakHeight',0.5,'MinPeakDistance',0.5,'MinPeakProminence',0.5);
 Osctime=diff(LOCS);
 MeanOscPk(i)=mean(Osctime);

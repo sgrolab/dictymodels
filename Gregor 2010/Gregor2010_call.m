@@ -1,7 +1,7 @@
 % Gregor 2010- phase equation model
 % Fig 4A
-clear all
-clc
+% clear all
+% clc
 dt=0.1;
 k=5;% ml/min
 Nc=100; % number of cells in the population

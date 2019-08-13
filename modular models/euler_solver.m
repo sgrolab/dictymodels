@@ -5,7 +5,7 @@ function [tout,xout]=euler_solver(fun,t,x0,param,stim)
     if nargin < 5
       stim=zeros(size(t)); % zero extracellular cAMP stimulus at all time points
       if nargin < 4
-            error(message('euler_colver:NotEnoughInputs'));
+            error(message('euler_solver:NotEnoughInputs'));
       end
     end
     n=length(t); dt=t(2)-t(1);
@@ -14,7 +14,7 @@ function [tout,xout]=euler_solver(fun,t,x0,param,stim)
     if param.sigma==[]
        sigma=zeros(size(x0));% no noise case
     end
-    rng('default')
+    % rng('default')
     r = sqrt(dt)*randn(1,n-1);
     r=[r;repmat(zeros(size(r)),odesize-1,1)]; % noise term added to the first ode equation, others set as zero
     for i=1:n-1

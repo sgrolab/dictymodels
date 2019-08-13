@@ -5,6 +5,7 @@ param_WT.e=0.1; %tauA/tauR; %episilon
 param_WT.tauA=0.09;
 param_WT.tauR=param_WT.tauA/param_WT.e;
 
+param_WT.a0=1; % stretching factor of dA/dt nullcline
 param_WT.g=0.5; %gamma
 param_WT.c0=1.2;
 param_WT.sigma=0.15; %sigma, noise strength
@@ -25,7 +26,10 @@ param_PKAR.e=0.1; %tauA/tauR; %episilon
 param_PKAR.tauA=0.09;
 param_PKAR.tauR=param_PKAR.tauA/param_PKAR.e;
 
-a1=0.61; b1=1.25;
+param_PKAR.a0=1;% stretching factor of dA/dt nullcline
+% cAMP 1000 have spike a1=0.62; b1=1.2;
+% a1=1.25; b1=2.45;
+a1=0.61;b1=1.25;
 param_PKAR.g=1/a1; 
 param_PKAR.c0=b1/a1;
 param_PKAR.sigma=0.15; %sigma, noise strength
@@ -41,10 +45,10 @@ param_PKAR.Nt=27; % normalization factor of t
 param_PKAR.Na=3.5;  % normalization factor of A
 param_PKAR.offset_A=1.5;
 
-%% Step stimulus, fig 1 G& H
+% Step stimulus, fig 1 G& H
 dt=0.005;t=0:dt:15*param_WT.Nt;
 t_plot=t./param_WT.Nt;
-cAMP=1;
+cAMP=10000;
 StimInitTime=2.5; % stimulation time after Nt normalization 
 stim=zeros(size(t));stim(StimInitTime/dt*param_WT.Nt:end)=cAMP;
 A0=-1.5;R0=-0.5;
@@ -56,8 +60,8 @@ R_WT=R_WT_orig./param_WT.Na;
 
 % Nullclines
 A_null_WT=linspace(-2.5,2.5,200);
-dAdt_null_no_stim_WT=A_null_WT-1/3*A_null_WT.^3;% dA/dt=0 nullcline w/o stim
-dAdt_null_stim_WT=A_null_WT-1/3*A_null_WT.^3+param_WT.a*log(1+cAMP/param_WT.Kd)*ones(size(A_null_WT));% dA/dt=0 nullcline with stim
+dAdt_null_no_stim_WT=param_WT.a0*(A_null_WT-1/3*A_null_WT.^3);% dA/dt=0 nullcline w/o stim
+dAdt_null_stim_WT=param_WT.a0*(A_null_WT-1/3*A_null_WT.^3+param_WT.a*log(1+cAMP/param_WT.Kd)*ones(size(A_null_WT)));% dA/dt=0 nullcline with stim
 dRdt_null_WT=1/param_WT.g*(A_null_WT+param_WT.c0*ones(size(A_null_WT))); % dR/dt=0 nullcline
 
 % traces and nullclines for PKAR mutant
@@ -67,8 +71,8 @@ A_PKAR=(A_PKAR_orig+param_PKAR.offset_A)./param_PKAR.Na;
 R_PKAR=R_PKAR_orig./param_PKAR.Na;
 
 A_null_PKAR=linspace(-2.5,2.5,200);
-dAdt_null_no_stim_PKAR=A_null_PKAR-1/3*A_null_PKAR.^3;% dA/dt=0 nullcline w/o stim
-dAdt_null_stim_PKAR=A_null_PKAR-1/3*A_null_PKAR.^3+param_PKAR.a*log(1+cAMP/param_PKAR.Kd)*ones(size(A_null_PKAR));% dA/dt=0 nullcline with stim
+dAdt_null_no_stim_PKAR=param_PKAR.a0*(A_null_PKAR-1/3*A_null_PKAR.^3);% dA/dt=0 nullcline w/o stim
+dAdt_null_stim_PKAR=param_PKAR.a0*(A_null_PKAR-1/3*A_null_PKAR.^3+param_PKAR.a*log(1+cAMP/param_PKAR.Kd)*ones(size(A_null_PKAR)));% dA/dt=0 nullcline with stim
 dRdt_null_PKAR=1/param_PKAR.g*(A_null_PKAR+param_PKAR.c0*ones(size(A_null_PKAR))); % dR/dt=0 nullcline
 
 figure();  
@@ -78,7 +82,7 @@ hold on
 plot(A_null_WT,dAdt_null_no_stim_WT,'Color',[0 0.5 0],'LineWidth',1)
 hold on 
 plot(A_null_WT,dAdt_null_stim_WT,'k','LineWidth',1)
-ylim([-2 2.5])
+ylim([-1 2.5])
 hold on
 scatter(A_WT_orig(1:200:end),R_WT_orig(1:200:end),30,'.','k')
 
@@ -96,7 +100,7 @@ hold on
 plot(A_null_PKAR,dAdt_null_no_stim_PKAR,'Color',[0 0.5 0],'LineWidth',1)
 hold on 
 plot(A_null_PKAR,dAdt_null_stim_PKAR,'k','LineWidth',1)
-ylim([-2 2.5])
+ylim([-1 2.5])
 hold on
 scatter(A_PKAR_orig(1:200:end),R_PKAR_orig(1:200:end),30,'.','k')
 
@@ -106,6 +110,7 @@ plot(t_plot,A_PKAR,'color',[0.1 0.5 0.25],'LineWidth',1.5); hold on
 ylabel('Amplitude'); xlabel('Time (T)')
 title(['PKAR-,','cAMP=',num2str(cAMP),', a1=',num2str(a1),', b1=',num2str(b1),', \epsilon=',num2str(param_PKAR.e),])
 set(gca,'FontSize',10)
+%%
 
 OutFolderName='E:\bu\research\cAMP modeling\PKA mutant modeling\20190125_gamma_c0_single cell\';
 saveas(gcf,[OutFolderName,'a1_',num2str(a1),'_b1_',num2str(b1),'_e_',num2str(param_WT.e),'_cAMP_',num2str(cAMP),'.png'])
