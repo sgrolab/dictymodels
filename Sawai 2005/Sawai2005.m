@@ -9,7 +9,7 @@
 % The cells can have three states: state 0 (excitable), state 1 (excited,
 % either releasing cAMP or in absolute refractory period), and state 2
 % (relative refractory period). The function goes over all the grid squares
-% in the field to update C, E, C_T, release_mask, and statewiith every
+% in the field to update C, E, C_T, release_mask, and state with every
 % simulation time step.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [C,E,C_T,state,release_mask]=Sawai2005(eta,beta,dt,t,C,E,C_T,state,release_mask)
@@ -20,11 +20,13 @@ filename=strcat('FR',num2str( firing_ratio),' dt',num2str(dt),'D',num2str(D),' E
 figure
 
 for i=2:1:length(t)%  go through all the time points length(t)
+    
     E_prev=E(:,i-1);state_prev=state(:,i-1);release_mask_prev=release_mask(:,i-1);
     C_T_prev=C_T(:,i-1);C_prev=C(:,i-1);
     E_now=E(:,i);state_now=state(:,i);release_mask_now=release_mask(:,i);
     C_T_now=C_T(:,i);C_now=C(:,i);
     for j=1:1:length(cell_mask) % cycle through all the grids
+        tic
         if cell_mask(j,1)==1 % where there is cell
              E_new=E_prev(j)+dt.*(eta+beta.*C_prev(j));
              if E_new>=E_max
@@ -75,6 +77,7 @@ for i=2:1:length(t)%  go through all the time points length(t)
             state_now(j)=-1;
             release_mask_now(j)=0; 
         end
+        toc
     end
    
    E(:,i)=E_now;state(:,i)=state_now;release_mask(:,i)=release_mask_now;

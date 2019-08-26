@@ -34,7 +34,6 @@ cell_ratio=0.98; D=0.02;%0.0138; % mm2/min
 A=(7+2).*(C_max-C_min)./7;
 C0=0.1;
 global num_of_dt_release T_ARP T_RRP
-
 % start simulation
 E_min=0.5; 
 dt=0.01; % min
@@ -50,7 +49,7 @@ state0=state;
 % start simulation 
 tic
 
-t=0:dt:25;
+t=0:dt:175;
 num_of_dt_release=t_release./dt; % cAMP released in 1 time step
 T_ARP=2./dt; T_RRP=7./dt; % # of time steps in ARP and RRP
 
