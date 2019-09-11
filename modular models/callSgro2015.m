@@ -203,13 +203,13 @@ xlabel('[cAMP]_{ex}')
 ylabel('Time (Rel. U.)')
 set(gca,'Xscale','log','FontSize',20,'Xlim',[0.9e2 1.1e4],'Ylim',[0.38 1.1])
 %% Fig 3 not the same with paper
-dt=0.005;t=0:dt:30*param_WT.Nt;
-cAMP=10000;
+dt=0.005;t=0:dt:22.5*param_WT.Nt;
+cAMP=1;
 stim=zeros(size(t));
 param_WT.e=0.1;
 
-tStepOn=floor(1.25./dt.*param_WT.Nt); % at this time step step trigger happens
-tStepOff=floor(3.75./dt.*param_WT.Nt);% at this time step step trigger stops
+tStepOn=floor(2.5./dt.*param_WT.Nt); % at this time step step trigger happens
+tStepOff=floor(7.5./dt.*param_WT.Nt);% at this time step step trigger stops
 stim(tStepOn:tStepOff)=cAMP;
 % % linear ramp
 % tRampOn=10./dt.*param_WT.Nt; % at this time step ramp trigger happens
@@ -219,27 +219,27 @@ stim(tStepOn:tStepOff)=cAMP;
 
 % exponential ramp, take the left tail of y=a*exp(bx) and fit function
 tRampOn=10./dt.*param_WT.Nt; % at this time step ramp trigger happens
-tRampOff=25./dt.*param_WT.Nt;% at this time step ramp trigger stops
+tRampOff=20./dt.*param_WT.Nt;% at this time step ramp trigger stops
 tRamp=linspace(tRampOn,tRampOff,tRampOff-tRampOn+1); 
 
-a=log(cAMP+1)/15; % Ramp stimulus at t=0: cAMP=exp(a*t)-1
-temp_t=linspace(0,15,length(tRamp));
+a=log(cAMP+1)/1; % Ramp stimulus at t=0: cAMP=exp(a*t)-1
+temp_t=linspace(0,1,length(tRamp));
 stim(tRampOn:tRampOff)=exp(a.*temp_t)-1;
 
-tStepOn=25./dt.*param_WT.Nt; % at this time step trigger happens
-tStepOff=30./dt.*param_WT.Nt;% at this time step trigger stops
-stim(tStepOn:tStepOff)=cAMP;
+% tStepOn=25./dt.*param_WT.Nt; % at this time step trigger happens
+% tStepOff=30./dt.*param_WT.Nt;% at this time step trigger stops
+% stim(tStepOn:tStepOff)=cAMP;
 
 A0=-1.5;R0=-0.5;
-[tout,xout]=euler_solver(@Sgro_single_cell_new,t,[A0;R0],param_PKAR,stim);
+[tout,xout]=euler_solver(@Sgro_single_cell_new,t,[A0;R0],param_WT,stim);
 
-% A_WT_orig=xout(1,:);R_WT_orig=xout(2,:); % un-scaled, un-offset A and R after simulation
-% A_WT=(A_WT_orig+param_WT.offset_A)./param_WT.Na;
-% R_WT=R_WT_orig./param_WT.Na; 
+A_WT_orig=xout(1,:);R_WT_orig=xout(2,:); % un-scaled, un-offset A and R after simulation
+A_WT=(A_WT_orig+param_WT.offset_A)./param_WT.Na;
+R_WT=R_WT_orig./param_WT.Na; 
 
-A_PKAR_orig=xout(1,:);R_PKAR_orig=xout(2,:); % un-scaled, un-offset A and R after simulation
-A_PKAR=(A_PKAR_orig+param_WT.offset_A)./param_WT.Na;
-R_PKAR=R_PKAR_orig./param_WT.Na; 
+% A_PKAR_orig=xout(1,:);R_PKAR_orig=xout(2,:); % un-scaled, un-offset A and R after simulation
+% A_PKAR=(A_PKAR_orig+param_WT.offset_A)./param_WT.Na;
+% R_PKAR=R_PKAR_orig./param_WT.Na; 
 t_plot=tout./param_WT.Nt;
 
 figure();  
@@ -247,7 +247,7 @@ subplot(2,1,1)
 plot(t_plot,stim)
 %ylim([0 310])
 subplot(2,1,2)
-plot(t_plot,A_PKAR,'color',[0.1 0.5 0.25],'LineWidth',3); hold on
+plot(t_plot,A_WT,'color',[0.1 0.5 0.25],'LineWidth',3); hold on
 % line([StimInitLine StimInitLine],get(h,'YLim'),'Color',[0 1 0],'LineWidth',3,'LineStyle','--')
 ylabel('Amplitude'); xlabel('Time (T)')
-title('step and ramp response to 10000nM cAMP, PKAR')
+title(['step and ramp response to',num2str(cAMP),'nM cAMP, WT cells'])
