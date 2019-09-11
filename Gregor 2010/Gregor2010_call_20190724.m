@@ -2,41 +2,46 @@
 % Fig 4A
 % clear all
 % clc
-dt=0.1;
+dt=0.005;
 k=5;% ml/min
 Nc=100; % number of cells in the population
 noise=0.002; % noise larger than in the paper
 
-t1=0:dt:50;
+t1=0:dt:1000;
 camp_cyt0=0.4*ones(Nc,1);
-rho1=0;% ML, monolayer
+rho1=1/12;% ML, monolayer
 [camp_cyt1,camp_ex1,thetai1,noise1]=Gregor2010_fun(camp_cyt0,rho1,k,t1,noise);
 
-t2=50+dt:dt:83;
-rho2=1/768;% ML, monolayer
-[camp_cyt2,camp_ex2,thetai2,noise2]=Gregor2010_fun(camp_cyt1(:,end),rho2,k,t2,noise);
-
-t3=83+dt:dt:125;
-rho3=1/192;% ML, monolayer
-[camp_cyt3,camp_ex3,thetai3,noise3]=Gregor2010_fun(camp_cyt2(:,end),rho3,k,t3,noise);
-
-t4=125+dt:dt:163;
-rho4=1/48;% ML, monolayer, different with paper
-[camp_cyt4,camp_ex4,thetai4,noise4]=Gregor2010_fun(camp_cyt3(:,end),rho4,k,t4,noise);
-
-t5=163+dt:dt:210;
-rho5=1/12;% ML, monolayer
-[camp_cyt5,camp_ex5,thetai5,noise5]=Gregor2010_fun(camp_cyt4(:,end),rho5,k,t5,noise);
-
-t6=210+dt:dt:250;
-rho6=1/3;% ML, monolayer
-[camp_cyt6,camp_ex6,thetai6,noise6]=Gregor2010_fun(camp_cyt5(:,end),rho6,k,t6,noise);
+% t2=50+dt:dt:83;
+% rho2=1/768;% ML, monolayer
+% [camp_cyt2,camp_ex2,thetai2,noise2]=Gregor2010_fun(camp_cyt1(:,end),rho2,k,t2,noise);
+% 
+% t3=83+dt:dt:125;
+% rho3=1/192;% ML, monolayer
+% [camp_cyt3,camp_ex3,thetai3,noise3]=Gregor2010_fun(camp_cyt2(:,end),rho3,k,t3,noise);
+% 
+% t4=125+dt:dt:163;
+% rho4=1/48;% ML, monolayer, different with paper
+% [camp_cyt4,camp_ex4,thetai4,noise4]=Gregor2010_fun(camp_cyt3(:,end),rho4,k,t4,noise);
+% 
+% t5=163+dt:dt:210;
+% rho5=1/12;% ML, monolayer
+% [camp_cyt5,camp_ex5,thetai5,noise5]=Gregor2010_fun(camp_cyt4(:,end),rho5,k,t5,noise);
+% 
+% t6=210+dt:dt:250;
+% rho6=1/3;% ML, monolayer
+% [camp_cyt6,camp_ex6,thetai6,noise6]=Gregor2010_fun(camp_cyt5(:,end),rho6,k,t6,noise);
 
 Amax=20;
 t=[ t2 t3 t4 t5 t6];
 camp_cyt=[camp_cyt2,camp_cyt3,camp_cyt4,camp_cyt5,camp_cyt6 ];
 camp_ex=[camp_ex2,camp_ex3,camp_ex4,camp_ex5,camp_ex6];
 
+plot(t1, mean(camp_cyt1))
+
+figure()
+pks=findpeaks(mean(camp_cyt1),'MinPeakProminence',10,'Annotate','extents');
+%% 
 figure()
 [hAx,hLine1,hLine2]=plotyy(t,camp_cyt(1,:),t,camp_ex);hold on
 set(hAx(1),'Ylim',[0 21]);
