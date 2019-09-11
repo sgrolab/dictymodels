@@ -39,9 +39,10 @@ A(:,1) =-3.*rand;
 R(:,1) =-1.*rand;
 cAMP(1,1) =0;
 
-stream=RandStream('mt19937ar','Seed',4);
-RandStream.setGlobalStream(stream);
-r = sqrt(dt)*randn(N,n-1);
+% stream=RandStream('mt19937ar','Seed',4);
+% RandStream.setGlobalStream(stream);
+% r = sqrt(dt)*randn(N,n-1);
+r = rand(N,n-1);
 
 for i = 1:n-1
     

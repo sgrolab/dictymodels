@@ -9,10 +9,17 @@ import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
-
+from scipy import signal
+from scipy.signal import chirp, find_peaks, peak_widths
+#%% 
+Nt_Gregor = 6 
+Nt_Sgro = 27
+Nt_Goldbeter = 6.94
+Nt_Maeda = 3.57
+Nt_Maeda = 5.22
 #%% Adaptive spiking
 # Gregor 2010
-from Gregor2010_agent import *
+from Gregor2010_agent_and_pop_FUN import  Gregor2010_agent
 
 Amax=20;  Abas=0.4 # uM
 w=2*pi/6 # min-1
@@ -33,10 +40,10 @@ campExt0 = 0
 
 Gregor_agent=Gregor2010_agent([1,1],[campCyto0, thetai0, campExt0],GregorAgentParam)
 
-dt=0.00005; t_tot=100; t=list(np.arange(0,t_tot,dt))
+dt=0.00005; t_tot=5*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
-constant_signal=1e-6 # randomly set 2019/7/17
+constant_signal=1e-6
 stim_time_step=int(round(0.2*t_tot/dt)) # at this time step input is applied
 signal_trace=np.zeros(len(t))
 signal_trace[stim_time_step:] = constant_signal
@@ -57,11 +64,12 @@ for i in range(len(t)-1):
 #Traces
 gregor_thetai_trace= np.array(gregor_thetai_trace) 
 gregor_campCyto_trace= np.array(gregor_campCyto_trace) 
-t_plot_Gregor = np.array(t)/(t_tot/25)
+Nt_Gregor = 6 # Time scale normalization factor
+t_plot_Gregor = np.array(t)*30/(5*Nt_Gregor)
 
 # Plot adaptive spike
 label_font_size = 25
-trace_width = 6.0
+trace_width = 6.0 # tim scale normalization factor based on intrinsic period
 
 fig5 = plt.figure(figsize=(6, 6))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.2)
@@ -95,21 +103,21 @@ ax3.yaxis.label.set_color('b')
 plt.show()
 
 #%% Sgro 2015
-from Sgro2015_agent import *
+from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
 
 e=0.1; tauA=0.09; tauR=tauA/e; g=0.5
 SgroAgentParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
             'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
-Nt=27; # normalization factor of t
+# Nt=27; # normalization factor of t
 Na=3.5;  # normalization factor of A
 A0=-1.5; R0=-0.5
 Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
-
-dt=0.001 ; t_tot=5*Nt; t=list(np.arange(0,t_tot,dt))
+Nt_Sgro = 27
+dt=0.005 ; t_tot=5*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
-constant_signal=1; # randomly set 2019/7/17
+constant_signal=1 
 stim_time_step=int(round(0.2*t_tot/dt)) # at this time step input is applied
 signal_trace=np.zeros(len(t))
 signal_trace[stim_time_step:] = constant_signal
@@ -126,7 +134,7 @@ for i in range(len(t)-1):
     R_now=R_trace_orig[i]
     signal_now=signal_trace[i]
     
-    A_next,R_next,r_now=Sgro_agent.update(signal_now,dt)
+    A_next,R_next,r_now=Sgro_agent.update(dt,signal_now)
     A_trace_orig.append(A_next)
     R_trace_orig.append(R_next)
     r_trace.append(r_now)
@@ -135,7 +143,20 @@ for i in range(len(t)-1):
 A_trace_offset=1.5
 A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
 A_trace_plot=(A_trace_orig+A_trace_offset)/Na;
-t_plot_Sgro = np.array(t)/Nt
+
+## Check find_peaks
+#peaks, properties = find_peaks(A_trace_plot,  prominence=0.95)
+#plt.plot(A_trace_plot)
+#plt.plot(peaks, A_trace_plot[peaks], "x")
+#Wdths = peak_widths(A_trace_plot, peaks, rel_height=0.95)
+#plt.hlines(*Wdths[1:], color="C2")
+#plt.show()
+#Nt_Sgro = round(Wdths[0][0] * dt,2)
+#print(Nt_Sgro)
+
+Nt_Sgro = 14
+print('Time normalization factor for Sgro 2015 is '+str(Nt_Sgro))
+t_plot_Sgro = np.array(t)*30/(5*Nt_Sgro)
 
 label_font_size = 10
 trace_width = 6.0
@@ -159,20 +180,34 @@ ax2.set_xlabel('Time',fontsize=label_font_size)
 plt.show()
 
 #%% Goldbeter 1987
-from Goldbeter1987_agent import Goldbeter1987_agent_3var
-
+from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
+##Fig 5 parameters
+#k1 = 0.036     # per min
+#k2 = 0.666    # per min
+#L1 = 10; L2 = 0.005 
+#c = 10;           # 0.15 ~ 50
+#lamda=0.01; theta=0.01
+#e=  0.108 # compared to 1
+#q=4000
+#sig= 0.57 # compared to 0.6
+#v=12; k= 4 # k prime in the paper
+#ki=0.958 # compared to 1.7 
+#kt=0.9
+#kc=3.58 # compared to 5.4
+#h=5
+# Table 2 parameters
 k1 = 0.036     # per min
 k2 = 0.666    # per min
 L1 = 10; L2 = 0.005 
 c = 10;           # 0.15 ~ 50
 lamda=0.01; theta=0.01
-e=  0.108 # compared to 1
+e=  1 
 q=4000
-sig= 0.57 # compared to 0.6
+sig= 0.6
 v=12; k= 4 # k prime in the paper
-ki=0.958 # compared to 1.7 
+ki=1.7
 kt=0.9
-kc=3.58 # compared to 5.4
+kc=5.4
 h=5
 
 Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
@@ -186,20 +221,16 @@ Goldbeter3_agent=Goldbeter1987_agent_3var([1,1],[p0,a0,b0,g0],Goldbeter3AgentPar
 # initializations
 p_trace=[p0]; b_trace=[b0]; g_trace=[g0]
 
-dt=0.00005; t_tot=40; t=list(np.arange(0,t_tot,dt))
+dt=0.0005; t_tot=5*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
 
-stim_time_step=int(round(0.5*t_tot/dt)) # at this time step step input is applied
+stim_time_step=int(round(0.2*t_tot/dt)) # at this time step step input is applied
 constant_signal=1
 signal_trace=np.zeros(len(t))
 signal_trace[stim_time_step:] = constant_signal
 
 
 for i in range(len(t)-1):
-    p_now=p_trace[i]
-    if i< stim_time_step:
-        p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0,'none')
-    else:
-        p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0,constant_signal)
+    p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0,signal_trace[i])
     p_trace.append(p_next)
     b_trace.append(b_next)
     g_trace.append(g_next)
@@ -208,7 +239,16 @@ for i in range(len(t)-1):
 # Convert into np array
 b_trace = np.array(b_trace); b_trace = b_trace/np.amax(b_trace)
 p_trace = np.array(p_trace); p_trace = p_trace/np.amax(p_trace)
-t_plot_Goldbeter = np.array(t)
+
+## Check find_peaks
+#peaks, properties = find_peaks(b_trace,   prominence=0.95)
+#plt.plot(b_trace)
+#plt.plot(peaks, b_trace[peaks], "x")
+#Wdths = peak_widths(b_trace, peaks, rel_height=0.95)
+#plt.hlines(*Wdths[1:], color="C2")
+#plt.show()
+#Nt_Goldbeter = round(Wdths[0][0] * dt,2)
+t_plot_Goldbeter = np.array(t)*30/(5*Nt_Goldbeter)
 
 #label_font_size = 25; trace_width = 6.0
 #fig5 = plt.figure(figsize=(6, 6))
@@ -240,7 +280,6 @@ ax1= fig5.add_subplot(grid[0, 0])
 ax1.plot(t_plot_Goldbeter,signal_trace, linewidth=trace_width)
 
 # ax1.set_ylim([-0.1,1.1*np.amax(signal_trace)])
-ax1.set_xlim([0,t_tot])
 ax1.set_ylabel( r'$cAMP_{ext}$'+'\n input, A.U.' ,fontsize=label_font_size)
 ax1.get_xaxis().set_visible(False)
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
@@ -251,7 +290,6 @@ ax2= fig5.add_subplot(grid[1:, 0])
 ax2.plot(t_plot_Goldbeter, b_trace,linewidth=trace_width, label='Goldbeter 1987, oscillation parameters')
 
 ax2.set_ylim([-0.2,1.3])
-ax2.set_xlim([0,25])
 ax2.set_ylabel(r'$cAMP_{cyto}$, A.U.',fontsize=label_font_size)
 ax2.set_xlabel('Time, A.U.',fontsize=label_font_size)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
@@ -261,19 +299,25 @@ ax2.legend( frameon=False,loc='upper center',ncol=3,prop={'size': 15})
 # ax2.legend((line1, line2), ('Gregor 2010','Sgro & Mehta 2015'))
 
 plt.show()
-#%% Laub and Loomis 1998
-from LaubLoomis1998_agent import LaubLoomis1998_agent
+#%% Maeda Loomis 2003
+from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_agent
 
-k1=1.4; k2=0.9; k3=2.5; k4=1.5; k5=0.6
-k6=0.8; k7=2.0; k8=1.3; k9=0.7; k10=1.0
-k11=0.3; k12=3.1; k13=1.8; k14=1.5
+## Laub loomis parameters
+#k1=1.4; k2=0.9; k3=2.5; k4=1.5; k5=0.6
+#k6=0.8; k7=2.0; k8=1.3; k9=0.7; k10=1.0
+#k11=0.3; k12=3.1; k13=1.8; k14=1.5
+
+# Maeda & Loomis 2004 parameters
+k1=2.0; k2=0.9; k3=2.5; k4=1.5; k5=0.6
+k6=0.8; k7=1.0; k8=1.3; k9=0.3; k10=0.8
+k11=0.7; k12=4.9; k13=23; k14=4.5
 LaubAgentParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
             'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
             'k13':k13,'k14':k14}
 ACA0=0.1; PKA0=0.1; ERK20=0.1; RegA0=0.1; cAMPi0=0.01; 
 cAMPe0=0.1; CAR10=0.1
 state0= [ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10]
-LaubLoomis_agent=LaubLoomis1998_agent([1,1],state0,LaubAgentParam)
+Maeda_agent=MaedaLoomis2004_agent([1,1],state0,LaubAgentParam)
 
 # Simulate time traces
 """
@@ -291,10 +335,10 @@ ACA_trace=[ACA0]; PKA_trace=[PKA0]; ERK2_trace=[ERK20]
 RegA_trace=[RegA0]; cAMPi_trace=[cAMPi0]; # cAMPe_trace=[cAMPe0]
 CAR1_trace=[CAR10]
 
-dt=0.00005; t_tot=25; t=list(np.arange(0,t_tot,dt))
+dt=0.001; t_tot=5*Nt_Maeda; t=list(np.arange(0,t_tot,dt))
 
 stim_time_step=int(round(0.2*t_tot/dt)) # at this time step input is applied
-constant_signal=1 # randomly set 2019/7/17
+constant_signal=1# randomly set 2019/7/17
 signal_trace=np.zeros(len(t))
 signal_trace[stim_time_step:] = constant_signal
 
@@ -308,7 +352,7 @@ for i in range(len(t)-1):
     CAR1_now=CAR1_trace[i]
     
     ACA_next,PKA_next,ERK2_next,RegA_next,\
-    cAMPi_next,cAMPe_next,CAR1_next=LaubLoomis_agent.update(dt,signal_trace[i])
+    cAMPi_next,cAMPe_next,CAR1_next=Maeda_agent.update(dt,signal_trace[i])
     
     ACA_trace.append(ACA_next)
     PKA_trace.append(PKA_next)
@@ -321,29 +365,40 @@ for i in range(len(t)-1):
 
 ERK2_trace = np.array(ERK2_trace) # vectorize p_trace
 cAMPi_trace = np.array(cAMPi_trace)
-t_plot_Laub = np.array(t)
+
+## Check find_peaks
+#peaks, properties = find_peaks(cAMPi_trace,   prominence=1)
+#plt.plot(cAMPi_trace)
+#plt.plot(peaks, cAMPi_trace[peaks], "x")
+#Wdths = peak_widths(cAMPi_trace, peaks, rel_height=0.95)
+#plt.hlines(*Wdths[1:], color="C2")
+#plt.show()
+#Nt_Maeda = round(Wdths[0][0] * dt,2)
+
+t_plot_Maeda = np.array(t)*30/(5*Nt_Maeda)
 
 
 # Figure single cell adaptive spike 
 label_font_size = 25
+
 trace_width = 6.0
 
 fig5 = plt.figure(figsize=(6, 6))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.2)
 
 ax1= fig5.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Laub,signal_trace, linewidth=trace_width)
+ax1.plot(t_plot_Maeda,signal_trace, linewidth=trace_width)
 ax1.set_ylabel( r'$cAMP_{ext}$ input' ,fontsize=label_font_size)
 # ax1.set_xlabel('Time',fontsize=label_font_size)
 ax1.set_title('cAMP stim:'+str(constant_signal))
 
 ax2= fig5.add_subplot(grid[1:, 0])
-line1=ax2.plot(t_plot_Laub,cAMPi_trace, color='g',linewidth=trace_width)
+line1=ax2.plot(t_plot_Maeda,cAMPi_trace, color='g',linewidth=trace_width)
 ax2.set_ylabel(r'$cAMP_{cyto}$',fontsize=label_font_size)
 ax2.yaxis.label.set_color('g')
 
 ax3 = fig5.add_subplot(grid[1:, 0], sharex=ax2, frameon=False)
-line2=ax3.plot(t_plot_Laub,ERK2_trace, color='b', linewidth=trace_width) # right axis
+line2=ax3.plot(t_plot_Maeda,ERK2_trace, color='b', linewidth=trace_width) # right axis
 ax3.yaxis.tick_right()
 ax3.yaxis.set_label_position("right")
 ax3.set_ylabel('ERK2' ,fontsize=label_font_size)
@@ -353,7 +408,7 @@ ax3.set_xlabel('Time',fontsize=label_font_size)
 plt.show()
 
 #%% Adaptive spike for individual cells
-from Kamino_agent_single_cell import Kamino2017_agent 
+from Kamino2017_agent_and_pop_FUN import Kamino2017_agent 
 
 tau=1.5; n=2; K=4; kt=2; delta=0.01
 gamma=3; rho= 0.01 # population density, doesn't matter for single cells
@@ -364,7 +419,7 @@ Kamino_agent=Kamino2017_agent([x0,y0,z0],AgentParam)
 
 x_trace=[x0]; y_trace=[y0]
 
-dt=0.001; t_tot=100; t=list(np.arange(0,t_tot,dt))
+dt=0.001; t_tot=5*Nt_Kamino; t=list(np.arange(0,t_tot,dt))
 
 #stim_time_step=int(round(0.2*t_tot/dt)) # at this time step input is applied
 #constant_signal=1
@@ -373,7 +428,7 @@ dt=0.001; t_tot=100; t=list(np.arange(0,t_tot,dt))
 
 stim_time_step1=int(round(0.2*t_tot/dt)) # at this time step input is applied
 stim_time_step2=int(round(0.6*t_tot/dt)) 
-constant_signal1=1; constant_signal2=3
+constant_signal1=1; constant_signal2=1
 signal_trace=np.zeros(len(t))
 signal_trace[stim_time_step1:stim_time_step2] = constant_signal1
 signal_trace[stim_time_step2:] = constant_signal2
@@ -382,15 +437,26 @@ signal_trace[stim_time_step2:] = constant_signal2
 for i in range(len(t)-1):
     x_now=x_trace[i]
     y_now=y_trace[i]
-    x_next,y_next,z_next= Kamino_agent.update(1, dt, signal_trace[i])
+    x_next,y_next,z_next= Kamino_agent.update( dt, signal_trace[i])
     x_trace.append(x_next)
     y_trace.append(y_next)
         
    
 # Convert into np array
-x_trace = np.array(x_trace) # vectorize p_trace
+x_trace = np.array(x_trace) 
 y_trace = np.array(y_trace)
-t_plot_Kamino = np.array(t)
+
+## Check find_peaks
+#peaks, properties = find_peaks(y_trace,   prominence=0.2)
+#plt.plot(y_trace)
+#plt.plot(peaks, y_trace[peaks], "x")
+#Wdths = peak_widths(y_trace, peaks, rel_height=0.95)
+#plt.hlines(*Wdths[1:], color="C2")
+#plt.show()
+#Nt_Kamino = round(Wdths[0][0] * dt,2)
+#print(Nt_Kamino)
+
+t_plot_Kamino = np.array(t)*30/(5*Nt_Kamino)
 
 #label_font_size = 25; trace_width = 6.0
 #fig5 = plt.figure(figsize=(6, 6))
@@ -444,16 +510,17 @@ plt.show()
 # Signal normalization
 cAMPi_trace = cAMPi_trace/(np.amax(cAMPi_trace)) # Laub Loomis 1998
 b_trace = b_trace/(np.amax(b_trace)) # Goldbeter 1987
-gregor_campCyto_trace=(gregor_campCyto_trace-np.amin(gregor_campCyto_trace))/np.amax(gregor_campCyto_trace-np.amin(gregor_campCyto_trace)) # Gregor2010
+# gregor_campCyto_trace=(gregor_campCyto_trace-np.amin(gregor_campCyto_trace))/np.amax(gregor_campCyto_trace-np.amin(gregor_campCyto_trace)) # Gregor2010 max 1
+gregor_campCyto_trace=gregor_campCyto_trace-np.amin(gregor_campCyto_trace) # Gregor2010 baseline corrected
 y_trace= (y_trace-np.amin(y_trace))/np.max((y_trace-np.amin(y_trace)))  # Kamino2017
 
 A_trace_plot = A_trace_plot/(np.amax(A_trace_plot))
-A_t_norm_param=5
-A_trace_plot = A_trace_plot
-t_plot_Sgro = t_plot_Sgro*A_t_norm_param # Sgro 2015
+#A_t_norm_param=5
+#A_trace_plot = A_trace_plot
+#t_plot_Sgro = t_plot_Sgro*A_t_norm_param # Sgro 2015
 
 #%% Plot single cell adaptive spikes
-t_tot=25
+t_tot=5*6
 dt=0.1
 t_plot_signal= np.arange(0,t_tot,dt)
 stim_time_step=int(round(0.2*t_tot/dt)) # at this time step input is applied
@@ -461,11 +528,11 @@ constant_signal=1
 signal_trace_plot=np.zeros(len(t_plot_signal))
 signal_trace_plot[stim_time_step:] = constant_signal
  
-label_font_size=25
+label_font_size=30
 trace_width=5
-tick_font_size=18
+tick_font_size=20
 
-fig5 = plt.figure(figsize=(10, 12))
+fig5 = plt.figure(figsize=(12, 12))
 grid = plt.GridSpec(3, 1, wspace=0.2, hspace=0.2)
 
 ax1= fig5.add_subplot(grid[0, 0])
@@ -481,19 +548,19 @@ ax1.set_title('Adaptive spike after step cAMP input')
 
 ax2= fig5.add_subplot(grid[1:, 0])
 ax2.plot(t_plot_Goldbeter, b_trace,linewidth=trace_width, label='Goldbeter 1987')
-ax2.plot(t_plot_Laub, cAMPi_trace,linewidth=trace_width, label='Laub & Loomis 1998')
+ax2.plot(t_plot_Maeda, cAMPi_trace,linewidth=trace_width, label='Laub & Loomis 1998')
 ax2.plot(t_plot_Gregor,gregor_campCyto_trace,linewidth=trace_width, label='Gregor 2010')
-ax2.plot(t_plot_Sgro, A_trace_plot,linewidth=trace_width, label='Sgro & Mehta 2010')
+ax2.plot(t_plot_Sgro, A_trace_plot,linewidth=trace_width, label='Sgro & Mehta 2015')
 ax2.plot(t_plot_Kamino, y_trace,linewidth=trace_width, label='Kamino & Sawai 2017')
 
 ax2.set_ylim([-0.2,1.3])
-ax2.set_xlim([0,25])
+ax2.set_xlim([0,5*6])
 ax2.set_ylabel(r'$cAMP_{cyto}$, A.U.',fontsize=label_font_size)
 ax2.set_xlabel('Time, A.U.',fontsize=label_font_size)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
-leg = ax2.legend();
-ax2.legend( frameon=False,loc='upper center',ncol=3,prop={'size': 15})
+# leg = ax2.legend();
+# ax2.legend( frameon=False,loc='upper center',ncol=3,prop={'size': 15})
 # ax2.legend((line1, line2), ('Gregor 2010','Sgro & Mehta 2015'))
 
 plt.show()

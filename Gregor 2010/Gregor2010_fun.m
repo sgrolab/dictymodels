@@ -16,7 +16,8 @@ camp_cyt=zeros(Nc,n);
 camp_cyt(:,1)=camp_cyt0;
 
 camp_ex=zeros(1,n);
-camp_ex(1)=Vc*St/Sc*rho/k*c_sec*1/Nc*sum(camp_cyt(:,1));
+%camp_ex(1)=Vc*St/Sc*rho/k*c_sec*1/Nc*sum(camp_cyt(:,1));
+camp_ex(1)=0;
 
 sinthetai0=(camp_cyt0*2-Amax-Abas)./(-Amax+Abas);% Initial sin theta_i calculated from cAMP_cyt_i
 

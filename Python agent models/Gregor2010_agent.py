@@ -47,6 +47,7 @@ class Gregor2010_agent:
         
         return thetai_next, campCyto_next, r
     
+    
     def flux(self,signals):
         if self.A>self.AgentParam['flux_thrs']:
             agent_flux=True
