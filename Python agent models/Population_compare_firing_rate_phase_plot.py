@@ -40,49 +40,10 @@ from scipy.signal import find_peaks
 # remove all variables in the work space
 # sys.modules[__name__].__dict__.clear()
 
-class Kamino2017_agent:
-    def __init__(self,state,Param):
-        self.state=state
-        self.Param=Param
-        self.x_now=state[0]
-        self.y_now=state[1] 
-        self.z_now=state[2] # initial state input as a list variable [x0,y0,z0]
-        
-    
-    def update(self, signals, dt, overriding_sig = 'none'):
-        tau=self.Param['tau']   
-        n=self.Param['n'] 
-        K=self.Param['K'] 
-        kt=self.Param['kt'] 
-        gamma=self.Param['gamma'] 
-        delta=self.Param['delta'] 
-        rho=self.Param['rho'] 
-        
-        dxdt=((self.z_now+delta)-self.x_now)/tau
-        dydt=(self.z_now+delta)**n/((self.z_now+delta)**n+(K*self.x_now)**n)-self.y_now
-        
-        x_next=self.x_now+dxdt*dt
-        y_next=self.y_now+dydt*dt
-        if isinstance(overriding_sig, str):
-            dzdt=rho*kt*self.y_now-gamma*(self.z_now-signals)
-            z_next=self.z_now+dzdt*dt
-        else:
-            z_next = overriding_sig
-        
-        self.x_now=x_next
-        self.y_now=y_next 
-        self.z_now=z_next # update the current x,y,z state
-        
-        return x_next,y_next,z_next
-    
 
-
-    def print_state(self):
-        print('past x:'+str(self.x_now))
-        print('past y:'+str(self.y_now)) 
-        print('past z:'+str(self.z_now)) 
         
   #%%  
+from Kamino2017_agent_and_pop_FUN import Kamino2017_pop
 from time import perf_counter 
    
 tau=1.5; n=2; K=4; kt=2; delta=0.01
@@ -102,7 +63,7 @@ pop_rate_Kamino = np.zeros((len(gamma_space), len(rho_space))) # population firi
 dt=0.0005 
 t_tot=150
 t=np.arange(0,t_tot,dt)
-signal_trace=np.zeros(len(t)) # z0, background cAMP signal
+z0_influx = 0
 
 # start simulation
 tic = perf_counter() 
@@ -121,14 +82,13 @@ for j in range(len(gamma_space)):
         y_trace=[y0]
         z_trace=[z0]
         
-        test_agent=Kamino2017_agent([x0,y0,z0],Param)
+        test_agent=Kamino2017_pop([x0,y0,z0],Param)
 
         for i in range(len(t)-1):
             x_now=x_trace[i]
             y_now=y_trace[i]
-            signal_now=signal_trace[i]
             
-            x_next,y_next,z_next=test_agent.update(signal_now,dt)
+            x_next,y_next,z_next=test_agent.update(z0_influx,dt)
             x_trace.append(x_next)
             y_trace.append(y_next)
             z_trace.append(z_next)

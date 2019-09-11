@@ -439,11 +439,11 @@ state0= [ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10]
 
 dt=0.0005
 cAMP = 1 # extracellular cAMP
-NumofCycle = 4 # cycle stimulation
+NumofCycle = 8# cycle stimulation
 
-j_test=[3]; k_test=[0,2]
+j_test=[0,1,2,3,4,5,6]; k_test=[0]
 
-for j in range(len(period_space_Gold)):# j_test:# 
+for j in range(len(period_space_Laub)):# j_test:# 
     period = period_space_Laub[j]
     for k in range(len(PkWdth_space_Laub)): # k_test:#
         PkWdth = PkWdth_space_Laub[k]
