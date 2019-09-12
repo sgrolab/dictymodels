@@ -47,9 +47,9 @@ from Kamino2017_agent_and_pop_FUN import Kamino2017_pop
 from time import perf_counter 
    
 tau=1.5; n=2; K=4; kt=2; delta=0.01
-gamma_space=np.logspace(0, 2.0, num=21)
+gamma_space=np.logspace(0, 2.0, num=3)
 loggamma_space_Kamino=np.log10(gamma_space)
-rho_space=np.logspace(0, 2.0, num=26)
+rho_space=np.logspace(0, 2.0, num=4)
 logrho_space_Kamino = np.log10(rho_space)
 
 # Initialize oscillation phase matrix, based on z trace
@@ -60,7 +60,7 @@ OscOrNot = np.zeros((len(gamma_space), len(rho_space))) # OscOrNot - 1 or 0, osc
 pop_rate_Kamino = np.zeros((len(gamma_space), len(rho_space))) # population firing rate
 
 
-dt=0.0005 
+dt=0.0005
 t_tot=150
 t=np.arange(0,t_tot,dt)
 z0_influx = 0
@@ -93,27 +93,28 @@ for j in range(len(gamma_space)):
             y_trace.append(y_next)
             z_trace.append(z_next)
             
-#        #  check simulation traces
-#        fig = plt.figure()
-#        t_plot_Kamino = np.array(t)
-#        plt.plot(t_plot_Kamino,y_trace,t_plot_Kamino,z_trace)
-#        plt.xlabel('Time')
-#        plt.ylabel('x,y,z')
-#        plt.title('Fig5D with gamma= '+str(gamma)+' rho= '+str(rho))
-#        plt.gca().legend(('y','z'))
-#        plt.show()
+            #  check simulation traces
+            fig = plt.figure()
+            t_plot_Kamino = np.array(t)
+            plt.plot(t_plot_Kamino,y_trace,t_plot_Kamino,z_trace)
+            plt.xlabel('Time')
+            plt.ylabel('x,y,z')
+            plt.title('Fig5D with gamma= '+str(gamma)+' rho= '+str(rho))
+            plt.gca().legend(('y','z'))
+            plt.show()
         
         y_trace=np.array(y_trace) # convert list to array
         y_trace_later=y_trace[math.floor(len(t)*0.5):] # the later part of trace
         PkPos, PkProperties = find_peaks(y_trace_later, prominence=(0.02,100))
         # Check find_peaks
-        # plt.plot(z_trace_later)
-        # plt.plot(peaks, z_trace_later[peaks], "x")
+        fig = plt.figure()
+        plt.plot(y_trace_later)
+        plt.plot(PkPos, y_trace_later[PkPos], "x")
         if PkPos.size: # if there is oscillation
             # PkWdthMean[k,j]=dt*np.mean(np.diff(PkPos))
             # PkPrmMean[k,j]=np.mean(PkProperties["prominences"])
             OscOrNot[j,k]=1
-            pop_rate_Kamino[j,k]=len(PkProperties["prominences"])
+            pop_rate_Kamino[j,k]=t_tot/len(PkProperties["prominences"])
     
 
     print('Finished gamma='+str(gamma))
