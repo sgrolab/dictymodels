@@ -89,7 +89,7 @@ class MaedaLoomis2004_pop:
         self.CAR1_now=state[6] # initial state input as a list variable [ACA0,PKA0,....]
         
     
-    def update(self,dt,campExt_influx):
+    def update(self,dt,campExt_influx,rho = 1,gamma = 0):
         k1=self.AgentParam['k1']   
         k2=self.AgentParam['k2']  
         k3=self.AgentParam['k3']  
@@ -112,8 +112,10 @@ class MaedaLoomis2004_pop:
         RegA_next=self.RegA_now+(k7-k8*self.ERK2_now*self.RegA_now)*dt
         cAMPi_next=self.cAMPi_now+(k9*self.ACA_now-k10*self.RegA_now*self.cAMPi_now)*dt
         
-        cAMPe_next=self.cAMPe_now+(k11*self.ACA_now-k12*(self.cAMPe_now - campExt_influx))*dt
-        CAR1_next=self.CAR1_now+(k13*self.cAMPe_now-k14*self.CAR1_now)*dt
+        cAMPe_next=self.cAMPe_now+(k11*rho*self.ACA_now-(k12+gamma)*(self.cAMPe_now - campExt_influx))*dt
+        if cAMPe_next < 0 :
+            cAMPe_next = 0
+        CAR1_next=self.CAR1_now+(k13*self.cAMPe_now - k14*self.CAR1_now)*dt
         
         
         self.ACA_now=ACA_next
