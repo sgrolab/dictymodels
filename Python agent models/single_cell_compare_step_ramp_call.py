@@ -9,15 +9,22 @@ import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
+import scipy.io
+import pandas as pd
 
-#%% 
 Nt_Gregor = 6 
 Nt_Sgro = 27
 Nt_Goldbeter = 6.94
 Nt_Maeda = 3.57
-Nt_Maeda = 5.22
-#%% Single cell step cs. ramp inputs
+Nt_Kamino = 5.22
 
+##%% Get ramp input from experimental data
+#Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
+#Exp_time = Exp_time[~np.isnan(Exp_time)]
+#RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
+#RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
+
+#%% Single cell step cs. ramp inputs
 # Sgro 2015
 from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
 
@@ -30,26 +37,34 @@ Na=3.5;  # normalization factor of A
 A0=-1.5; R0=-0.5
 Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
 
-# stimulation settings
-cAMP=1
-T_tot = 22.5
-dt=0.005 ; t_tot=T_tot*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
-signal_trace_Sgro=np.zeros(len(t))
+## stimulation settings
+#cAMP=1
+T_tot = 20; T_tot=T_tot*Nt_Sgro
+dt=0.001 ;  t=list(np.arange(0,T_tot,dt))
+#signal_trace_Sgro=np.zeros(len(t))
+#
+## define step stimulus
+#TStepOn = 2.5; tStepOn = math.floor(TStepOn/dt*Nt_Sgro); 
+#TStepOff = 7.5; tStepOff = math.floor(TStepOff/dt*Nt_Sgro); 
+#signal_trace_Sgro[tStepOn:tStepOff] = cAMP
+#
+## define exponential ramp stimulus
+##TRampOn=10; tRampOn=math.floor(TRampOn/dt*Nt_Sgro)
+##TRampOff=24; tRampOff=math.floor(TRampOff/dt*Nt_Sgro)
+#TRampOn=12.5; tRampOn=math.floor(TRampOn/dt*Nt_Sgro)
+#TRampOff=17.5; tRampOff=math.floor(TRampOff/dt*Nt_Sgro)######################## 10/23 here!!!!
+#tRamp=np.linspace(tRampOn, tRampOff, num=tRampOff-tRampOn+1)
+#
+#a=math.log(cAMP+1)
+#temp_t=np.linspace(0,1,len(tRamp))
+#signal_trace_Sgro[tRampOn:tRampOff+1] = np.exp(a*temp_t)-1
+Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
+Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Sgro
+RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
+RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-# define step stimulus
-TStepOn = 2.5; tStepOn = math.floor(TStepOn/dt*Nt); 
-TStepOff = 7.5; tStepOff = math.floor(TStepOff/dt*Nt); 
-signal_trace_Sgro[tStepOn:tStepOff] = cAMP
-
-# define exponential ramp stimulus
-TRampOn=10; tRampOn=math.floor(TRampOn/dt*Nt)
-TRampOff=20; tRampOff=math.floor(TRampOff/dt*Nt)
-tRamp=np.linspace(tRampOn, tRampOff, num=tRampOff-tRampOn+1)
-
-a=math.log(cAMP+1)
-temp_t=np.linspace(0,1,len(tRamp))
-signal_trace_Sgro[tRampOn:tRampOff+1] = np.exp(a*temp_t)-1
-
+Sgro_time = np.arange(0,20*Nt_Sgro,dt)
+RampInput_Sgro= np.interp(Sgro_time, Exp_time,RampInput_Exp)
 
 # test update function with one step caculations
 # A,R,r=test_agent.update(1,dt)
@@ -57,10 +72,10 @@ signal_trace_Sgro[tRampOn:tRampOff+1] = np.exp(a*temp_t)-1
 # initializations
 A_trace_orig=[A0]; R_trace_orig=[R0]; r_trace=[]
 
-for i in range(len(t)-1):
+for i in range(len(Sgro_time)-1):
     A_now=A_trace_orig[i]
     R_now=R_trace_orig[i]
-    signal_now=signal_trace_Sgro[i]
+    signal_now=RampInput_Sgro[i]
     
     A_next,R_next,r_now=Sgro_agent.update(dt,signal_now)
     A_trace_orig.append(A_next)
@@ -75,17 +90,17 @@ t_plot_Sgro = np.array(t)/Nt
 # plot stimulus and traces
 label_font_size = 10
 trace_width = 3.0
-
+#
 fig5 = plt.figure(figsize=(6, 4))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.2)
 
 ax1= fig5.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Sgro,signal_trace_Sgro, linewidth=trace_width)
+ax1.plot(t_plot_Sgro,RampInput_Sgro, linewidth=trace_width)
 ax1.set_ylabel( r'$cAMP_{ext}$ input' ,fontsize=label_font_size)
-ax1.set_title('cAMP stim:'+str(cAMP) + \
-              ', step stim:'+str(TStepOn)+'~'+str(TStepOff) + \
-              ', ramp stim:'+str(TRampOn)+'~'+str(TRampOff) )
-
+#ax1.set_title('cAMP stim:'+str(cAMP) + \
+#              ', step stim:'+str(TStepOn)+'~'+str(TStepOff) + \
+#              ', ramp stim:'+str(TRampOn)+'~'+str(TRampOff) )
+ax1.set_title('cAMP stim:'+str(cAMP))
 # ax1.set_xlabel('Time',fontsize=label_font_size)
 
 ax2= fig5.add_subplot(grid[1:, 0])
@@ -94,9 +109,11 @@ ax2.set_ylabel('Activator',fontsize=label_font_size)
 ax2.yaxis.label.set_color('g')
 # ax3.legend((line1, line2), (r'$\beta$',r'$\rho_T$'))
 ax2.set_xlabel('Time',fontsize=label_font_size)
-
 plt.show()
-
+#%%
+np.savetxt('Single_cell_ramp_Sgro_OUT_1203.txt', (t_plot_Sgro, A_trace_plot))
+# read out the saved traces
+[t_plot_Sgro, A_trace_plot] = np.loadtxt('Single_cell_ramp_Sgro_OUT_1023.txt', dtype=float)
 
 #%% Goldbeter 1987
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
@@ -128,28 +145,21 @@ p_trace=[p0]; b_trace=[b0]; g_trace=[g0]
 
 # stimulation settings
 cAMP=1
-T_tot = 225
+T_tot = 20; T_tot = T_tot*Nt_Goldbeter
 dt=0.001; t=list(np.arange(0,T_tot,dt))
-signal_trace_Gold=np.zeros(len(t))
 
-# define step stimulus
-TStepOn = 25; tStepOn = math.floor(TStepOn/dt); 
-TStepOff = 75; tStepOff = math.floor(TStepOff/dt); 
-signal_trace_Gold[tStepOn:tStepOff] = cAMP
+Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
+Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Goldbeter
+RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
+RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-# define exponential ramp stimulus
-TRampOn=100; tRampOn=math.floor(TRampOn/dt)
-TRampOff=200; tRampOff=math.floor(TRampOff/dt)
-tRamp=np.linspace(tRampOn, tRampOff, num=tRampOff-tRampOn+1)
-
-a=math.log(cAMP+1)
-temp_t=np.linspace(0,1,len(tRamp))
-signal_trace_Gold[tRampOn:tRampOff+1] = np.exp(a*temp_t)-1
-
+Goldbeter_time = np.arange(0,20*Nt_Goldbeter,dt)
+RampInput_Goldbeter= np.interp(Goldbeter_time, Exp_time,RampInput_Exp)
 
 for i in range(len(t)-1):
     p_now=p_trace[i]
-    p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0, signal_trace_Gold[i])
+    signal_now = RampInput_Goldbeter[i]
+    p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0, signal_now)
     p_trace.append(p_next)
     b_trace.append(b_next)
     g_trace.append(g_next)
@@ -158,7 +168,7 @@ for i in range(len(t)-1):
 # Convert into np array
 b_trace = np.array(b_trace); # b_trace = b_trace/np.amax(b_trace)
 p_trace = np.array(p_trace); # p_trace = p_trace/np.amax(p_trace)
-t_plot_Goldbeter = np.array(t)
+t_plot_Goldbeter = np.array(t)/Nt_Goldbeter
 
 # plot stimulus and traces
 label_font_size = 10
@@ -168,11 +178,11 @@ fig5 = plt.figure(figsize=(6, 4))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.2)
 
 ax1= fig5.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Goldbeter,signal_trace_Gold, linewidth=trace_width)
+ax1.plot(t_plot_Goldbeter,RampInput_Goldbeter, linewidth=trace_width)
 ax1.set_ylabel( r'$cAMP_{ext}$ input' ,fontsize=label_font_size)
-ax1.set_title('cAMP stim:'+str(cAMP) + \
-              ', step stim:'+str(TStepOn)+'~'+str(TStepOff) + \
-              ', ramp stim:'+str(TRampOn)+'~'+str(TRampOff) )
+#ax1.set_title('cAMP stim:'+str(cAMP) + \
+#              ', step stim:'+str(TStepOn)+'~'+str(TStepOff) + \
+#              ', ramp stim:'+str(TRampOn)+'~'+str(TRampOff) )
 
 # ax1.set_xlabel('Time',fontsize=label_font_size)
 
@@ -185,37 +195,6 @@ ax2.yaxis.label.set_color('g')
 ax2.set_xlabel('Time',fontsize=label_font_size)
 
 plt.show()
-
-''''
-label_font_size=25; trace_width=3; tick_font_size=18
-fig5 = plt.figure(figsize=(10, 12))
-grid = plt.GridSpec(3, 1, wspace=0.2, hspace=0.2)
-
-ax1= fig5.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Goldbeter,signal_trace, linewidth=trace_width)
-
-# ax1.set_ylim([-0.1,1.1*np.amax(signal_trace)])
-ax1.set_xlim([0,t_tot])
-ax1.set_ylabel( r'$cAMP_{ext}$'+'\n input, A.U.' ,fontsize=label_font_size)
-ax1.get_xaxis().set_visible(False)
-ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-# ax1.set_xlabel('Time',fontsize=label_font_size)
-ax1.set_title('Oscillation after step cAMP input, different parameter regime')
-
-ax2= fig5.add_subplot(grid[1:, 0])
-ax2.plot(t_plot_Goldbeter, b_trace,linewidth=trace_width, label='Goldbeter 1987, oscillation parameters')
-
-ax2.set_ylim([-0.2,1.3])
-ax2.set_xlim([0,25])
-ax2.set_ylabel(r'$cAMP_{cyto}$, A.U.',fontsize=label_font_size)
-ax2.set_xlabel('Time, A.U.',fontsize=label_font_size)
-ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-
-leg = ax2.legend();
-ax2.legend( frameon=False,loc='upper center',ncol=3,prop={'size': 15})
-# ax2.legend((line1, line2), ('Gregor 2010','Sgro & Mehta 2015'))
-plt.show()
-'''
 #%% Maeda and Loomis 2004
 from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_agent
 # Maeda & Loomis 2004 parameters
@@ -237,26 +216,19 @@ CAR1_trace=[CAR10]
 
 # stimulation settings
 cAMP=1
-T_tot = 225
+T_tot = 20 * Nt_Maeda
 dt=0.001; t=list(np.arange(0,T_tot,dt))
-signal_trace_Maeda=np.zeros(len(t))
 
-# define step stimulus
-TStepOn = 25; tStepOn = math.floor(TStepOn/dt); 
-TStepOff = 75; tStepOff = math.floor(TStepOff/dt); 
-signal_trace_Maeda[tStepOn:tStepOff] = cAMP
+Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
+Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Maeda
+RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
+RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-# define exponential ramp stimulus
-TRampOn=100; tRampOn=math.floor(TRampOn/dt)
-TRampOff=200; tRampOff=math.floor(TRampOff/dt)
-tRamp=np.linspace(tRampOn, tRampOff, num=tRampOff-tRampOn+1)
-
-a=math.log(cAMP+1)
-temp_t=np.linspace(0,1,len(tRamp))
-signal_trace_Maeda[tRampOn:tRampOff+1] = np.exp(a*temp_t)-1
-
+Maeda_time = np.arange(0,20*Nt_Maeda,dt)
+RampInput_Maeda= np.interp(Maeda_time, Exp_time,RampInput_Exp)
 
 for i in range(len(t)-1):
+    signal_now = RampInput_Maeda[i]
     ACA_now=ACA_trace[i]
     PKA_now=PKA_trace[i]
     ERK2_now=ERK2_trace[i]
@@ -266,7 +238,7 @@ for i in range(len(t)-1):
     CAR1_now=CAR1_trace[i]
     
     ACA_next,PKA_next,ERK2_next,RegA_next,\
-    cAMPi_next,cAMPe_next,CAR1_next=MaedaLoomis_agent.update(dt,signal_trace_Maeda[i])
+    cAMPi_next,cAMPe_next,CAR1_next=MaedaLoomis_agent.update(dt,signal_now)
     
     ACA_trace.append(ACA_next)
     PKA_trace.append(PKA_next)
@@ -279,7 +251,7 @@ for i in range(len(t)-1):
 
 ERK2_trace = np.array(ERK2_trace) # vectorize p_trace
 cAMPi_trace = np.array(cAMPi_trace)
-t_plot_Laub = np.array(t)
+t_plot_Maeda = np.array(t)/Nt_Maeda
 
 # plot stimulus and traces
 label_font_size = 10
@@ -289,19 +261,17 @@ fig5 = plt.figure(figsize=(5, 4))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.2)
 
 ax1= fig5.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Laub,signal_trace_Maeda, linewidth=trace_width)
-ax1.set_title('cAMP stim:'+str(cAMP) + \
-              ', step stim:'+str(TStepOn)+'~'+str(TStepOff) + \
-              ', ramp stim:'+str(TRampOn)+'~'+str(TRampOff) )
+ax1.plot(t_plot_Maeda,RampInput_Maeda, linewidth=trace_width)
+ax1.set_title('cAMP stim:'+str(cAMP))
 ax1.set_ylabel( r'$cAMP_{ext}$ input' ,fontsize=label_font_size)
 
 ax2= fig5.add_subplot(grid[1:, 0])
-line1=ax2.plot(t_plot_Laub,cAMPi_trace, color='g',linewidth=trace_width)
+line1=ax2.plot(t_plot_Maeda,cAMPi_trace, color='g',linewidth=trace_width)
 ax2.set_ylabel(r'$cAMP_{cyto}$',fontsize=label_font_size)
 ax2.yaxis.label.set_color('g')
 
 ax3 = fig5.add_subplot(grid[1:, 0], sharex=ax2, frameon=False)
-line2=ax3.plot(t_plot_Laub,ERK2_trace, color='b', linewidth=trace_width) # right axis
+line2=ax3.plot(t_plot_Maeda,ERK2_trace, color='b', linewidth=trace_width) # right axis
 ax3.yaxis.tick_right()
 ax3.yaxis.set_label_position("right")
 ax3.set_ylabel('ERK2' ,fontsize=label_font_size)
@@ -324,29 +294,23 @@ x_trace=[x0]; y_trace=[y0]
 
 # stimulation settings
 cAMP=1
-T_tot = 225
+T_tot = 20 * Nt_Kamino
 dt=0.001; t=list(np.arange(0,T_tot,dt))
-signal_trace_Kamino=np.zeros(len(t))
 
-# define step stimulus
-TStepOn = 25; tStepOn = math.floor(TStepOn/dt); 
-TStepOff = 75; tStepOff = math.floor(TStepOff/dt); 
-signal_trace_Kamino[tStepOn:tStepOff] = cAMP
+Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
+Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Kamino
+RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
+RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-# define exponential ramp stimulus
-TRampOn=100; tRampOn=math.floor(TRampOn/dt)
-TRampOff=200; tRampOff=math.floor(TRampOff/dt)
-tRamp=np.linspace(tRampOn, tRampOff, num=tRampOff-tRampOn+1)
-
-a=math.log(cAMP+1)
-temp_t=np.linspace(0,1,len(tRamp))
-signal_trace_Kamino[tRampOn:tRampOff+1] = np.exp(a*temp_t)-1
+Kamino_time = np.arange(0,20*Nt_Kamino,dt)
+RampInput_Kamino= np.interp(Kamino_time, Exp_time,RampInput_Exp)
 
 
 for i in range(len(t)-1):
+    signal_now = RampInput_Kamino[i]
     x_now=x_trace[i]
     y_now=y_trace[i]
-    x_next,y_next,z_next= Kamino_agent.update(dt, signal_trace_Kamino[i])
+    x_next,y_next,z_next= Kamino_agent.update(dt, signal_now)
     x_trace.append(x_next)
     y_trace.append(y_next)
         
@@ -354,7 +318,7 @@ for i in range(len(t)-1):
 # Convert into np array
 x_trace = np.array(x_trace) # vectorize p_trace
 y_trace = np.array(y_trace)
-t_plot_Kamino = np.array(t)
+t_plot_Kamino = np.array(t)/Nt_Kamino
 
 # plot stimulus and traces
 label_font_size = 10
@@ -364,10 +328,8 @@ fig5 = plt.figure(figsize=(5, 4))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.2)
 
 ax1= fig5.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Kamino,signal_trace_Kamino, linewidth=trace_width)
-ax1.set_title('cAMP stim:'+str(cAMP) + \
-              ', step stim:'+str(TStepOn)+'~'+str(TStepOff) + \
-              ', ramp stim:'+str(TRampOn)+'~'+str(TRampOff) )
+ax1.plot(t_plot_Kamino,RampInput_Kamino, linewidth=trace_width)
+ax1.set_title('cAMP stim:'+str(cAMP))
 ax1.set_ylabel( r'$cAMP_{ext}$ input' ,fontsize=label_font_size)
 
 ax2= fig5.add_subplot(grid[1:, 0])
@@ -391,52 +353,154 @@ cAMPi_trace = cAMPi_trace/(np.amax(cAMPi_trace)) # Laub Loomis 1998
 b_trace = b_trace/(np.amax(b_trace)) # Goldbeter 1987
 # gregor_campCyto_trace=(gregor_campCyto_trace-np.amin(gregor_campCyto_trace))/np.amax(gregor_campCyto_trace-np.amin(gregor_campCyto_trace)) # Gregor2010
 y_trace= (y_trace-np.amin(y_trace))/np.max((y_trace-np.amin(y_trace)))  # Kamino2017
-
 A_trace_plot = A_trace_plot/(np.amax(A_trace_plot))
-A_t_norm_param=5
-A_trace_plot = A_trace_plot
-t_plot_Sgro = t_plot_Sgro*A_t_norm_param # Sgro 2015
 
-#%% Plottitle_font_size = 20 
-label_font_size = 8
-tick_font_size = 8
-legend_font_size = 8
-trace_width = 3
-title_font_size = 12
+#%% experimental data
+my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheetname='Figure3')
 
-#fig3 = plt.figure(figsize=(16, 14))
-#grid = plt.GridSpec(2, 2, wspace=0.15, hspace=0.25)
-fig3 = plt.figure(figsize=(3,13))
-grid = plt.GridSpec(9, 1, wspace=0.05, hspace=1)
+#%% Save all outputs in npz file
+np.savez('single_cell_StepRamp_191203.npz', 
+         t_plot_Goldbeter = t_plot_Goldbeter , b_trace=b_trace,
+         t_plot_Maeda = t_plot_Maeda , cAMPi_trace = cAMPi_trace,
+         t_plot_Sgro=t_plot_Sgro, A_trace_plot=A_trace_plot,
+         t_plot_Kamino=t_plot_Kamino, y_trace=y_trace)
+#%% load saved npz output file
+npzfile = np.load('single_cell_StepRamp_191203.npz')
+t_plot_Goldbeter =  npzfile['t_plot_Goldbeter'] ; b_trace = npzfile['b_trace']
+t_plot_Maeda=npzfile['t_plot_Maeda'] ; cAMPi_trace=npzfile['cAMPi_trace']
+t_plot_Sgro=npzfile['t_plot_Sgro']; A_trace_plot=npzfile['A_trace_plot']
+t_plot_Kamino= npzfile['t_plot_Kamino']; y_trace=npzfile['y_trace']        
+#%% Plot all model results- separate subplots
+#title_font_size = 22
+#label_font_size = 22
+#tick_font_size = 16
+#legend_font_size = 12
+#trace_width = 3
+abcd_font_size = 28
+label_font_size=24
+title_font_size = 26
+sublabel_font_size = 22
+trace_width=3
+tick_font_size=20
+mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
+          '#f781bf', '#a65628', '#984ea3',
+          '#999999', '#e41a1c', '#dede00']   
 
-ax1= fig3.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Kamino,signal_trace_Kamino, linewidth=trace_width)
-ax1.set_title('cAMP stimulation trace', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax1.set_ylabel( r'$cAMP_{ext}$ input' ,fontsize=label_font_size)
-# ax1.set_xlabel( 'Time, A.U.' ,fontsize=label_font_size)
+fig3 = plt.figure(figsize=(20,12))
+grid = plt.GridSpec(4, 3, wspace=0.4, hspace=1.2)
 
-ax2= fig3.add_subplot(grid[1:3, 0])
-ax2.plot(t_plot_Goldbeter, b_trace, color='g',linewidth=trace_width)
-ax2.set_ylabel(r'$cAMP_{cyto}$',fontsize=label_font_size)
+ax0 = fig3.add_subplot(grid[1, 0])
+ax0.plot(Sgro2015Figure3excel["Ramp Input (min Time)"],Sgro2015Figure3excel["Ramp Input (nM cAMP)"],
+                              color='k', linewidth = trace_width)
+ax0.set_title('Experiment',color='k', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+#ax0.set_ylabel(r'$cAMP_{e}$(nM)',fontsize=label_font_size)
+ax0.text(-16, 0.5, r'$cAMP_{e}$(nM)', ha='center',va='center',rotation ='vertical',
+         color = 'k', fontsize=label_font_size)
+ax0.set_xlabel('Time, A.U.',fontsize=label_font_size)
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
+ax0.set_xlim([0,80])
+ax0.text(-0.2, 1.9, 'A', ha='center',va='center',
+         transform = ax0.transAxes, color = 'b', fontsize=abcd_font_size)
+
+ax1= fig3.add_subplot(grid[2:, 0])
+ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 1 FRET Trace"],
+                               color='k', linewidth = trace_width)
+ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 2 FRET Trace"],
+                               color='dimgrey', linewidth = trace_width)
+ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 3 FRET Trace"],
+                               color='darkgrey', linewidth = trace_width)
+ax1.axvspan(10, 30, alpha=0.2, color='b'); ax1.axvspan(50, 70, alpha=0.2, color='b')
+ax1.set_ylabel('FRET Signal, A.U.',fontsize=label_font_size)
+ax1.set_xlabel('Time (min)',fontsize=label_font_size)
+ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
+ax1.set_ylim([-0.1,0.5]); ax1.set_xlim([0,80])
+
+
+ax2= fig3.add_subplot(grid[0:2, 1])
+ax2.plot(t_plot_Goldbeter, b_trace, color=mycolors[0],linewidth=trace_width)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('Goldbeter 1987', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.set_title('Martiel 1987',color = mycolors[0],  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax2.axvspan(12.5, 17.5, alpha=0.3, color='g')
+ax2.set_ylim([-0.2,1.2]); ax2.set_xlim([0,20])
+ax2.text(-0.1, 1.12, 'B', ha='center',va='center',
+         transform = ax2.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax3= fig3.add_subplot(grid[3:5, 0])
-ax3.plot(t_plot_Laub, cAMPi_trace, color='g',linewidth=trace_width)
-ax3.set_ylabel(r'$cAMP_{cyto}$',fontsize=label_font_size)
+ax3= fig3.add_subplot(grid[0:2, 2])
+ax3.plot(t_plot_Maeda, cAMPi_trace, color=mycolors[1],linewidth=trace_width)
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_title('Laub & Loomis 1998', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.set_title('Maeda 2004', color = mycolors[1],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax3.axvspan(12.5, 17.5, alpha=0.3, color='g')
+ax3.set_ylim([-0.2,1.2]);  ax3.set_xlim([0,20])
+ax3.text(-0.1, 1.12, 'C', ha='center',va='center',
+         transform = ax3.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax4= fig3.add_subplot(grid[5:7, 0])
-ax4.plot(t_plot_Sgro, A_trace_plot, color='g',linewidth=trace_width)
-ax4.set_ylabel(r'$cAMP_{cyto}$',fontsize=label_font_size)
+ax4= fig3.add_subplot(grid[2:, 1])
+ax4.plot(t_plot_Sgro, A_trace_plot, color=mycolors[5],linewidth=trace_width)
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('Sgro 2015', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.set_title('Sgro 2015', color = mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax4.axvspan(12.5, 17.5, alpha=0.3, color='g')
+ax4.set_ylim([-0.2,1.2]);  ax4.set_xlim([0,20])
+ax4.text(-0.1, 1.12, 'D', ha='center',va='center',
+         transform = ax4.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax5= fig3.add_subplot(grid[7:9, 0])
-ax5.plot(t_plot_Kamino, y_trace, color='g',linewidth=trace_width)
-ax5.set_ylabel(r'$cAMP_{cyto}$',fontsize=label_font_size)
+ax5= fig3.add_subplot(grid[2:, 2])
+ax5.plot(t_plot_Kamino, y_trace, color=mycolors[7],linewidth=trace_width)
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5.set_title('Kamino 2017', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5.set_title('Kamino 2017', color = mycolors[7],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax5.axvspan(12.5, 17.5, alpha=0.3, color='g')
+ax5.set_ylim([-0.2,1.2]);  ax5.set_xlim([0,20])
+ax5.text(-0.1, 1.12, 'E', ha='center',va='center',
+         transform = ax5.transAxes, color = 'g', fontsize=abcd_font_size)
+
+fig3.text(0.36, 0.5, r'$cAMP_{i}$', fontsize=label_font_size,va='center', rotation='vertical')
+fig3.text(0.66, 0.04, 'Time, A.U.', fontsize=label_font_size, ha='center')
+plt.show()
+
+#%% Plot all model results- all one plot
+title_font_size = 22
+label_font_size = 22
+tick_font_size = 16
+legend_font_size = 12
+trace_width = 3
+mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
+          '#f781bf', '#a65628', '#984ea3',
+          '#999999', '#e41a1c', '#dede00']   
+
+fig3 = plt.figure(figsize=(20,12))
+grid = plt.GridSpec(3, 2, wspace=0.4, hspace=0.5)
+
+ax0 = fig3.add_subplot(grid[0, 0])
+ax0.plot(Sgro2015Figure3excel["Ramp Input (min Time)"],Sgro2015Figure3excel["Ramp Input (nM cAMP)"],
+                              color='k', linewidth = trace_width)
+ax0.set_ylabel(r'$cAMP_{ext}$(nM)',fontsize=label_font_size)
+ax0.set_xlabel('Time, A.U.',fontsize=label_font_size)
+ax1= fig3.add_subplot(grid[1:, 0])
+ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 1 FRET Trace"],
+                               color='k', linewidth = trace_width)
+ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 2 FRET Trace"],
+                               color='dimgrey', linewidth = trace_width)
+ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 3 FRET Trace"],
+                               color='darkgrey', linewidth = trace_width)
+ax1.axvspan(10, 30, alpha=0.2, color='b'); ax1.axvspan(50, 70, alpha=0.2, color='b')
+ax1.set_ylabel('FRET Signal, A.U.',fontsize=label_font_size)
+ax1.set_xlabel('Time (min)',fontsize=label_font_size)
+
+ax2= fig3.add_subplot(grid[1:, 1])
+ax2.plot(t_plot_Goldbeter, b_trace, color=mycolors[0],
+          label='Goldbeter 1987', linewidth=trace_width)
+ax2.plot(t_plot_Maeda, cAMPi_trace, color=mycolors[1],
+         label = 'Maeda&Loomis 2004', linewidth=trace_width)
+ax2.plot(t_plot_Sgro, A_trace_plot, color=mycolors[5],
+         label = 'Sgro&Mehta 2015',linewidth=trace_width)
+ax2.plot(t_plot_Kamino, y_trace, color=mycolors[7],
+         label = 'Kamino 2017', linewidth=trace_width)
+ax2.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax2.axvspan(12.5, 17.5, alpha=0.3, color='g')
+
+ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
+ax2.set_title('Model Results', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.set_ylabel(r'$cAMP_{cyto}$, A.U.',fontsize=label_font_size)
+ax2.set_xlabel('Time, A.U.',fontsize=label_font_size)
+leg = ax2.legend( frameon=False,loc='right center',ncol=1,prop={'size': 17})
 
 plt.show()

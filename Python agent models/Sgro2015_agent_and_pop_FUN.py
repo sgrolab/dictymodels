@@ -61,7 +61,7 @@ class Sgro2015_pop:
         self.cAMPext_now = cAMPext0
         
     
-    def update(self,rho, j,  dt, time_separation, alphaf): # alphaf is exernal cAMP influx
+    def update(self, dt, time_separation, alphaf): # alphaf is exernal cAMP influx
         e=self.PopParam['e']   
         g=self.PopParam['g'] 
         c0=self.PopParam['c0'] 
@@ -72,6 +72,8 @@ class Sgro2015_pop:
         alpha_pde=self.PopParam['alpha_pde'] 
         Kd=self.PopParam['Kd'] 
         S=self.PopParam['S'] 
+        rho =  self.PopParam['rho']
+        j = self.PopParam['j']
         
         # r = math.sqrt(dt)*np.random.uniform(-1,1,N)
         r = math.sqrt(dt)*np.random.normal(0, 1, N)
@@ -106,4 +108,57 @@ class Sgro2015_pop:
         print('past A:'+str(self.A_now))
         print('past R:'+str(self.R_now)) 
 
+class Sgro2015_pop_mixed_cells:
+    def __init__(self,A0,R0,cAMPext0, PopParam):
+        self.PopParam=PopParam
+        self.A_now=A0
+        self.R_now=R0 # initial state input as a list variable [A0,R0]
+        self.cAMPext_now = cAMPext0
         
+    
+    def update(self, dt, time_separation, alphaf): # alphaf is exernal cAMP influx
+        e=self.PopParam['e']  # e is a numpy array, can be set diffeently for each cell 
+        g=self.PopParam['g'] 
+        c0=self.PopParam['c0'] 
+        sigma=self.PopParam['sigma']
+        N=self.PopParam['N'] 
+        a=self.PopParam['a'] 
+        alpha0=self.PopParam['alpha0'] 
+        alpha_pde=self.PopParam['alpha_pde'] 
+        Kd=self.PopParam['Kd'] 
+        S=self.PopParam['S'] 
+        rho =  self.PopParam['rho']
+        j = self.PopParam['j']
+        
+        # r = math.sqrt(dt)*np.random.uniform(-1,1,N)
+        r = math.sqrt(dt)*np.random.normal(0, 1, N)
+        fA=self.A_now-(np.power(self.A_now,3))/3-self.R_now+a*np.log(1+self.cAMPext_now/Kd)
+        fR=np.multiply(e,(self.A_now-g*self.R_now+c0))
+        if time_separation == 0:
+            fcAMPext = alphaf + rho*alpha0 + rho*S/N*np.sum(np.heaviside(self.A_now,0.5))-(j+alpha_pde*rho) * self.cAMPext_now
+            cAMPext_next = self.cAMPext_now +dt*fcAMPext
+        else:
+            cAMPext_next = (alphaf + rho*alpha0 + rho*S/N*np.sum(np.heaviside(self.A_now,0.5)))/(j+alpha_pde*rho)
+        
+        A_next=self.A_now+fA*dt+sigma*r
+        R_next=self.R_now+fR*dt
+        
+        
+        self.A_now=A_next
+        self.R_now=R_next # update the current A and R state
+        self.cAMPext_now = cAMPext_next
+        return A_next,R_next, cAMPext_next
+
+
+    
+    def flux(self,signals):
+        if self.A>self.AgentParam['flux_thrs']:
+            agent_flux=True
+        else:
+            agent_flux=False
+        return agent_flux
+
+
+    def print_state(self):
+        print('past A:'+str(self.A_now))
+        print('past R:'+str(self.R_now))         
