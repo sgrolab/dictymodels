@@ -19,11 +19,11 @@ from scipy.signal import chirp, find_peaks, peak_widths
 import pandas as pd
 import scipy.io
 
-from Gregor2010_agent_and_pop_FUN import  Gregor2010_agent
-from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
-from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
-from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_agent
-from Kamino2017_agent_and_pop_FUN import Kamino2017_agent 
+from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var
+from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_pop
+from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
+from Sgro2015_agent_and_pop_FUN import Sgro2015_pop
+from Kamino2017_agent_and_pop_FUN import Kamino2017_pop
 
 Nt_Gregor = 6 
 Nt_Sgro = 27
@@ -31,14 +31,14 @@ Nt_Goldbeter = 6.94
 Nt_Maeda = 3.57
 Nt_Kamino = 5.22
 #%%
-# Goldbeter 1986
-def Goldbeter1986_SC(Goldbeter3AgentParam,dt,t,signal_trace):
+# Goldbeter 1986 population response simulation
+def Goldbeter_pop(Goldbeter3PopParam,dt,t,campExt_influx_trace):
     # Initializations
     p0=0.8; a0=3; b0=0.9; g0=0
-    Goldbeter3_agent=Goldbeter1987_agent_3var([1,1],[p0,a0,b0,g0],Goldbeter3AgentParam)
+    Goldbeter3_pop= Goldbeter1987_pop_3var([1,1],[p0,a0,b0,g0],Goldbeter3PopParam)
     p_trace=[p0]; b_trace=[b0]; g_trace=[g0]
     for i in range(len(t)-1):
-        p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0,signal_trace[i])
+        p_next,b_next,g_next= Goldbeter3_pop.update(dt,a0,campExt_influx_trace[i])
         p_trace.append(p_next)
         b_trace.append(b_next)
         g_trace.append(g_next)
@@ -48,19 +48,19 @@ def Goldbeter1986_SC(Goldbeter3AgentParam,dt,t,signal_trace):
     t_plot_Goldbeter = np.array(t)
     return t_plot_Goldbeter, b_trace, p_trace
 
-# Maeda 2004
-def Maeda2004_SC(MaedaAgentParam,dt,t,signal_trace):
+# Maeda 2004 population response simulation
+def Maeda_pop(MaedaPopParam,dt,t,campExt_influx_trace):
     # initializations
     ACA0=0.1; PKA0=0.1; ERK20=0.1; RegA0=0.1; cAMPi0=0.01; 
     cAMPe0=0.1; CAR10=0.1
     state0= [ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10]
-    Maeda_agent=MaedaLoomis2004_agent([1,1],state0,MaedaAgentParam)
+    Maeda_agent=MaedaLoomis2004_pop([1,1],state0,MaedaPopParam)
     ACA_trace=[ACA0]; PKA_trace=[PKA0]; ERK2_trace=[ERK20]
     RegA_trace=[RegA0]; cAMPi_trace=[cAMPi0];  cAMPe_trace=[cAMPe0]
     CAR1_trace=[CAR10]
     for i in range(len(t)-1):     
         ACA_next,PKA_next,ERK2_next,RegA_next,\
-        cAMPi_next,cAMPe_next,CAR1_next=Maeda_agent.update(dt,signal_trace[i])       
+        cAMPi_next,cAMPe_next,CAR1_next=Maeda_agent.update(dt,campExt_influx_trace[i])       
         ACA_trace.append(ACA_next)
         PKA_trace.append(PKA_next)
         ERK2_trace.append(ERK2_next)
@@ -73,42 +73,56 @@ def Maeda2004_SC(MaedaAgentParam,dt,t,signal_trace):
     t_plot_Maeda = np.array(t)
     return t_plot_Maeda, cAMPi_trace, ERK2_trace
 
-# Gregor 2010
-def Gregor2010_SC(GregorAgentParam,dt,t,signal_trace):
+# Gregor 2010 population response simulation
+def Gregor_pop(GregorPopParam,dt,t, campExt_influx_trace, time_separation = 0):
+    
     # Initializations
-    Amax=GregorAgentParam['Amax']   
-    Abas=GregorAgentParam['Abas']  
-    eta = GregorAgentParam['eta']
-    campCyto0 = 0.4
+    Amax=GregorPopParam['Amax']   
+    Abas=GregorPopParam['Abas']  
+    eta = GregorPopParam['eta']
+    rho = Amax=GregorPopParam['rho'] 
+    k = Amax=GregorPopParam['k'] 
+    Vt = Amax=GregorPopParam['Vt'] 
+    Nc = Amax=GregorPopParam['Nc'] 
+    campCyto0 = 7.5*np.ones(Nc)
     sinthetai0 = (campCyto0*2-Amax-Abas)/(-Amax+Abas)
     thetai0 = np.arcsin(sinthetai0)
-    campExt0 = 0
-    gregor_thetai_trace=[thetai0]; gregor_campCyto_trace=[campCyto0]; gregor_r_trace=[0]
-    Gregor_agent=Gregor2010_agent([1,1],[campCyto0, thetai0, campExt0],GregorAgentParam)
+    campExt0 = 0 
+    
+    Gregor_pop_obj=Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam)
+    gregor_thetai_trace=np.zeros((Nc,len(t))) ;  gregor_thetai_trace[:,0] = thetai0; 
+    gregor_campCyto_trace=np.zeros((Nc,len(t))) ; gregor_campCyto_trace[:,0] = campCyto0
+    gregor_campExt_trace=np.zeros(len(t)) 
     
     for i in range(len(t)-1):
-        thetai_next, campCyto_next, r_now = Gregor_agent.update(dt,eta, signal_trace[i])
-        gregor_thetai_trace.append( thetai_next)
-        gregor_campCyto_trace.append(campCyto_next)
-        gregor_r_trace.append(r_now)    
+        thetai_next, campCyto_next, campExt_next = Gregor_pop_obj.update(dt,eta,rho,k,Vt,time_separation,campExt_influx_trace[i])
+        gregor_thetai_trace[:,i+1] = thetai_next
+        gregor_campCyto_trace[:,i+1] = campCyto_next
+        gregor_campExt_trace[i+1] = campExt_next
     #Traces
     gregor_thetai_trace= np.array(gregor_thetai_trace) 
     gregor_campCyto_trace= np.array(gregor_campCyto_trace) 
     t_plot_Gregor = np.array(t)
-    return t_plot_Gregor, gregor_thetai_trace, gregor_campCyto_trace
+    return t_plot_Gregor,  gregor_campCyto_trace, gregor_thetai_trace
 
-def Sgro2015_SC(SgroAgentParam,dt,t,signal_trace):
-    # Initializations
-    A0=-1.5; R0=-0.5
-    Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
-    A_trace_orig=[A0]; R_trace_orig=[R0]; r_trace=[]
+# Gregor 2010 population response simulation
+def Sgro_pop(SgroPopParam,dt,t,cAMPext_influx_trace, time_separation = 0):
+    N = SgroPopParam['N']
+    Na = SgroPopParam['Na']
+    A_trace_offset = SgroPopParam['offset_A']
 
+    # create an object and initializations
+    A0=-1.5; R0=-0.5; cAMPext0 = 0
+    Sgro_pop_obj=Sgro2015_pop(A0,R0,cAMPext0, SgroPopParam)
+    A_trace_orig = np.zeros(N,len(t));  A_trace_orig[:,0] = A0
+    A_trace_plot = np.zeros(N,len(t));  A_trace_plot[:,0] = (A0+A_trace_offset)/Na
+    R_trace_orig = np.zeros(N,len(t));  A_trace_orig[:,0] = A0
+    cAMPext_trace = np.zeros((len(t),1)); cAMPext_trace[0] = cAMPext0
     for i in range(len(t)-1):
-        signal_now=signal_trace[i]       
-        A_next,R_next,r_now=Sgro_agent.update(dt,signal_now)
-        A_trace_orig.append(A_next)
-        R_trace_orig.append(R_next)
-        r_trace.append(r_now)
+        A_next,R_next, cAMPext_next = Sgro_pop.update(dt, time_separation,cAMPext_influx_trace[i])
+        A_trace_orig[:,i] = A_next
+        R_trace_orig[:,i] = R_next
+        cAMPext_trace[i] = cAMPext_next
         
     # Traces
     A_trace_offset=1.5
@@ -117,6 +131,28 @@ def Sgro2015_SC(SgroAgentParam,dt,t,signal_trace):
     R_trace_orig = np.array(R_trace_orig)
     t_plot_Sgro = np.array(t)
     return t_plot_Sgro, A_trace_plot,  R_trace_orig
+
+def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, t_tot, stim_time, SC_traces = 0, SC_traces_idx = 0):
+    fig = plt.figure(figsize=(11, 3))
+    grid = plt.GridSpec(1, 1, wspace=0.5, hspace=0.3)
+    ax1= fig.add_subplot(grid[0, 0])
+    # plot defined single cell traces
+    if SC_traces_idx != 0:
+        for this_idx in SC_traces_idx:
+            this_trace = SC_traces[this_idx,:]/np.amax(SC_traces[this_idx,:])
+            ax1.plot(t_plot,this_trace, color='k',alpha=0.6, linewidth=2)     
+    # Plot population mean
+    ax1.plot(t_plot, pop_trace_plot, color='g' ,linewidth=3)
+    ax1.set_title(r'$cAMP_{e}$ input = '+str(cAMPext_influx), fontsize=20)
+    ax1.set_xlabel('Time, A.U.', fontsize=20); 
+    ax1.set_ylabel(r'$cAMP_{i}$ response',fontsize=20 )
+    ax1.tick_params(grid_linewidth = 15, labelsize = 20)
+    ax1.axvspan(t_tot*stim_time, t_tot, alpha=0.2, color='g')
+#    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
+    plt.show()
+
+
+
 
 def Kamino2017_SC(KaminoAgentParam,dt,t,signal_trace):
     # Initializations
