@@ -32,13 +32,13 @@ Nt_Maeda = 3.57
 Nt_Kamino = 5.22
 #%%
 # Goldbeter 1986 population response simulation
-def Goldbeter_pop(Goldbeter3PopParam,dt,t,campExt_influx_trace):
+def Goldbeter_pop(Goldbeter3PopParam,dt,t,cAMPext_influx_trace):
     # Initializations
     p0=0.8; a0=3; b0=0.9; g0=0
     Goldbeter3_pop= Goldbeter1987_pop_3var([1,1],[p0,a0,b0,g0],Goldbeter3PopParam)
     p_trace=[p0]; b_trace=[b0]; g_trace=[g0]
     for i in range(len(t)-1):
-        p_next,b_next,g_next= Goldbeter3_pop.update(dt,a0,campExt_influx_trace[i])
+        p_next,b_next,g_next= Goldbeter3_pop.update(dt,a0,cAMPext_influx_trace[i])
         p_trace.append(p_next)
         b_trace.append(b_next)
         g_trace.append(g_next)
@@ -105,7 +105,7 @@ def Gregor_pop(GregorPopParam,dt,t, campExt_influx_trace, time_separation = 0):
     t_plot_Gregor = np.array(t)
     return t_plot_Gregor,  gregor_campCyto_trace, gregor_thetai_trace
 
-# Gregor 2010 population response simulation
+# Sgro 2015 population response simulation
 def Sgro_pop(SgroPopParam,dt,t,cAMPext_influx_trace, time_separation = 0):
     N = SgroPopParam['N']
     Na = SgroPopParam['Na']
@@ -114,23 +114,36 @@ def Sgro_pop(SgroPopParam,dt,t,cAMPext_influx_trace, time_separation = 0):
     # create an object and initializations
     A0=-1.5; R0=-0.5; cAMPext0 = 0
     Sgro_pop_obj=Sgro2015_pop(A0,R0,cAMPext0, SgroPopParam)
-    A_trace_orig = np.zeros(N,len(t));  A_trace_orig[:,0] = A0
-    A_trace_plot = np.zeros(N,len(t));  A_trace_plot[:,0] = (A0+A_trace_offset)/Na
-    R_trace_orig = np.zeros(N,len(t));  A_trace_orig[:,0] = A0
+    A_trace_orig = np.zeros((N,len(t)));  A_trace_orig[:,0] = A0
+    A_trace_plot = np.zeros((N,len(t)));  A_trace_plot[:,0] = (A0+A_trace_offset)/Na
+    R_trace_orig = np.zeros((N,len(t)));  A_trace_orig[:,0] = A0
     cAMPext_trace = np.zeros((len(t),1)); cAMPext_trace[0] = cAMPext0
     for i in range(len(t)-1):
-        A_next,R_next, cAMPext_next = Sgro_pop.update(dt, time_separation,cAMPext_influx_trace[i])
+        A_next,R_next, cAMPext_next = Sgro_pop_obj.update(dt, time_separation,cAMPext_influx_trace[i])
         A_trace_orig[:,i] = A_next
         R_trace_orig[:,i] = R_next
         cAMPext_trace[i] = cAMPext_next
-        
-    # Traces
-    A_trace_offset=1.5
-    A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-    A_trace_plot=(A_trace_orig+A_trace_offset)/SgroAgentParam['Na']
-    R_trace_orig = np.array(R_trace_orig)
+
+    A_trace_plot=(A_trace_orig+A_trace_offset)/Na
     t_plot_Sgro = np.array(t)
     return t_plot_Sgro, A_trace_plot,  R_trace_orig
+
+# Kamino 2017 population response simulation
+def Kamino_pop(KaminoPopParam,dt,t,cAMPext_influx_trace):
+    # Initializations
+    x0=0.01; y0=0.08; z0=0.01
+    Kamino_pop_obj = Kamino2017_pop([x0,y0,z0],KaminoPopParam)
+    x_trace=[x0]; y_trace=[y0] 
+    for i in range(len(t)-1):
+        x_next,y_next,z_next= Kamino_pop_obj.update(cAMPext_influx_trace[i],dt)
+        x_trace.append(x_next)
+        y_trace.append(y_next)               
+    # Convert into np array
+    x_trace = np.array(x_trace) 
+    y_trace = np.array(y_trace)
+    t_plot_Kamino = np.array(t)
+    return t_plot_Kamino, y_trace, x_trace
+
 
 def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, t_tot, stim_time, SC_traces = 0, SC_traces_idx = 0):
     fig = plt.figure(figsize=(11, 3))
@@ -147,27 +160,11 @@ def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, t_tot, stim_time
     ax1.set_xlabel('Time, A.U.', fontsize=20); 
     ax1.set_ylabel(r'$cAMP_{i}$ response',fontsize=20 )
     ax1.tick_params(grid_linewidth = 15, labelsize = 20)
-    ax1.axvspan(t_tot*stim_time, t_tot, alpha=0.2, color='g')
+    ax1.axvspan(t_tot*stim_time, t_tot, alpha=0.6, color='g')
 #    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
     plt.show()
 
 
-
-
-def Kamino2017_SC(KaminoAgentParam,dt,t,signal_trace):
-    # Initializations
-    x0=0.01; y0=0.05; z0=0.005
-    Kamino_agent=Kamino2017_agent([x0,y0,z0],KaminoAgentParam)
-    x_trace=[x0]; y_trace=[y0] 
-    for i in range(len(t)-1):
-        x_next,y_next,z_next= Kamino_agent.update( dt, signal_trace[i])
-        x_trace.append(x_next)
-        y_trace.append(y_next)               
-    # Convert into np array
-    x_trace = np.array(x_trace) 
-    y_trace = np.array(y_trace)
-    t_plot_Kamino = np.array(t)
-    return t_plot_Kamino, y_trace, x_trace
 
 
 def SC_FCD (z0First_space, FC_space, cAMP, Nt, dt, t,
