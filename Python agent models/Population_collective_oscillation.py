@@ -205,14 +205,14 @@ kt=0.9
 kc=5.4 # 3.58 # compared to 5.4
 h=5 # ratio of intracellular to extracellular volume, rho 
 
-Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
+Goldbeter3PopParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'theta':theta, 'e':e, 'q':q,'sig':sig, 'v':v, 'k':k, \
             'ki':ki,'kt':kt, 'kc':kc,'h':h}
 
 p0=0.8; a0=3; b0=0.9; g0=0
 
 # Fig 2, 4 variable model, autonomous oscillation
-Goldbeter3_pop = Goldbeter1987_pop_3var([1,1],[p0,a0,b0,g0],Goldbeter3AgentParam)
+Goldbeter3_pop = Goldbeter1987_pop_3var([1,1],[p0,a0,b0,g0],Goldbeter3PopParam)
 # initializations
 p_trace=[p0]; b_trace=[b0]; g_trace=[g0]
 

@@ -236,7 +236,7 @@ rho = 1/12 #1/ml
 Vt = 1 #chamber size ml
 k = 5 #ml/min
 GregorPopParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
-            'c_sec':c_sec,'c_excite':c_excite,'Nc':Nc}
+            'c_sec':c_sec,'c_excite':c_excite,'Nc':Nc, 'rho':rho, 'Vt':Vt,'k':k}
 
 dt=0.005; t_tot=120*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
 eta=0.002 # noise stength
