@@ -44,9 +44,10 @@ cAMP(1,1) =0;
 % r = sqrt(dt)*randn(N,n-1);
 r = rand(N,n-1);
 
+
 for i = 1:n-1
     
-    A(:,i+1)     = A(:,i)+fA(A(:,i),R(:,i),cAMP(:,i)).*dt+sigma*r(:,i);
+    A(:,i+1)     = A(:,i)+fA(A(:,i),R(:,i),cAMP(:,i)).*dt+sigma*r(:,i);% r; 
     R(:,i+1)     = R(:,i)+ fR(A(:,i),R(:,i)).*dt;
     if time_separation==0
         cAMP(:,i+1)  = cAMP(:,i) + fcAMP(A(:,i),cAMP(:,i)).*dt ;

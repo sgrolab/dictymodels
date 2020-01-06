@@ -16,12 +16,12 @@ para.Kd= 1e-5; % cAMP response threshold
 para.S=1e6; % firing cell cAMP release rate  
 % simulation time vector
 dt=0.005;
-t = 0:dt:1000;  
+t = 0:dt:500;  
 
 % Fig 5- population firing rate relates to cAMP out flow rate j and cell density rho
 
 j= 0:0.1:1;%j= 0:0.05:1;%0.205128;%0.05;%% ;% 0.615384615384615;
-logrho=-5.5:0.3:-3; %logrho=-5.5:0.1:-3;%-3.07317073170732;% % %% -4.17073170731707;% -5.02439024390244; % %log of 10
+logrho=-5.5:0.5:-3; %logrho=-5.5:0.1:-3;%-3.07317073170732;% % %% -4.17073170731707;% -5.02439024390244; % %log of 10
 alphafval=2.5; % cAMP feed-in rate
 % [x,y,z]=meshgrid(j,rho,alphaf);
 
@@ -54,19 +54,20 @@ for p=1:length(j) % 3 %5 %
 %         single_rate_mean(p,q)= NumberOfPeaksMeanSingle./(t(end)-cutoff_time*dt).*Nt;    
         A_pop_avg=mean(A); % A_pop_avg=mean(A(:,10001:end));  
         [pks,locs]=findpeaks(A_pop_avg(cutoff_time:end),t(cutoff_time:end),'MinPeakProminence',0.5);    
-        figure()
-        findpeaks(A_pop_avg(cutoff_time:end),t(cutoff_time:end),'MinPeakProminence',0.5);         
+%         figure()
+%         findpeaks(A_pop_avg(cutoff_time:end),t(cutoff_time:end),'MinPeakProminence',0.5);         
         PopNumOfPeaks=sum(pks>threshold_pop);
         pop_rate(q,p)=PopNumOfPeaks./(t(end)-cutoff_time*dt).*Nt;
     end
     disp(strcat('Simulation ended for j=',num2str(j(p))));
     toc
 end
-%%  fig 5A
-figure()
+%  fig 5A
+figure(2)
 j_surf=repmat(j,length(logrho),1);
 logrho_surf=repmat(logrho',1,length(j));
-surf(j_surf,logrho_surf,pop_rate(1:9,1:11));
+surf(j_surf,logrho_surf,pop_rate)
+% surf(j_surf,logrho_surf,pop_rate(1:9,1:11));
 title(['noise=',num2str(para.sigma),',time separation ',num2str(time_separation)])
 view(2); colormap(jet); colorbar;caxis([0 0.6]);
 

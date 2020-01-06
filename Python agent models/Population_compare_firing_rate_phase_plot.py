@@ -19,7 +19,7 @@ pop_rate_path = r'E:\bu\trainings and conferences\qbio2019\Sgro_pop_rate.xlsx'
 pop_rate = pd.read_excel(pop_rate_path)
 pop_rate_mat_Sgro=pop_rate.as_matrix()
 
-logrho_Sgro = np.linspace(-5.5,-3,num=26)
+logrho_Sgro = np.logspace(-5.5,-3,num=26)
 j_Sgro = np.linspace(0,1,num=21)
 
 #%% Gregor 2010
@@ -27,7 +27,7 @@ pop_rate_path = r'E:\bu\trainings and conferences\qbio2019\Gregor_pop_rate.xlsx'
 pop_rate_Gregor = pd.read_excel(pop_rate_path)
 pop_rate_mat_Gregor=pop_rate_Gregor.as_matrix()
 
-logrho_Gregor = np.linspace(-3.5,1,num=26)
+logrho_Gregor = np.logspace(-3.5,1,num=26)
 k_Gregor = np.linspace(1,100,num=21)
 #%% Kamino 2017
 import numpy as np
