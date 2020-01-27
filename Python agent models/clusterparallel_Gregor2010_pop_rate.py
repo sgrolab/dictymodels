@@ -49,15 +49,18 @@ ext_input = 0
 time_separation = 0
 eta=0.002 # noise stength
 
-#create parameter arrays
-rho_arr = np.logspace(-3.5,1,num=3) # np.array([1e-2,1e-1,1,5,10]) #
-k_arr = np.linspace(1,50,num=3) # np.array([25]) #
+##create parameter arrays
+#rho_arr = np.logspace(-3.5,1,num=3) # np.array([1e-2,1e-1,1,5,10]) #
+#k_arr = np.linspace(1,50,num=3) # np.array([25]) #
+
+k_arr=np.array([25]) 
+rho_arr=np.array([1])
 
 # Pack parameters together
 GregorPopParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
             'c_sec':c_sec,'c_excite':c_excite,'Nc':Nc}
 
-dt=0.005; t_tot=15*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
+dt=0.005; t_tot=30*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
 nSteps = len(t)
 
 def calc_updates_Gregor(k_arr, rho_arr, GregorPopParam, nSteps, index):
@@ -91,18 +94,39 @@ def calc_updates_Gregor(k_arr, rho_arr, GregorPopParam, nSteps, index):
     gregor_campCyto_trace_mean_later=gregor_campCyto_trace_mean[math.floor(nSteps * later_portion):] # the later part of trace
     
     PkPos, PkProperties = find_peaks(gregor_campCyto_trace_mean_later, prominence=(0.5,30))
-#    # Check find_peaks
-#    fig,ax = plt.subplots()
-#    ax.plot(gregor_campCyto_trace_mean_later)
-#    ax.plot(PkPos, gregor_campCyto_trace_mean_later[PkPos], "x")
-#    ax.set_title('Gregor k='+str(k)+',rho='+str(rho))
-#    plt.show()
+
   
     if len(PkPos) == 0:
         firing_rate = 0; height = 0
     else: 
         firing_rate = len(PkPos)/(t_tot/Nt_Gregor*(1-later_portion))
         height = np.mean(PkProperties["prominences"])
+    
+    SC_traces = gregor_campCyto_trace;
+    t_plot = np.array(t)/Nt_Gregor; cAMPi_mean = gregor_campCyto_trace_mean
+    SC_traces_idx = [1,14,5,16,17,18] 
+    # plot the traces
+    fig = plt.figure(figsize=(6, 4))
+    grid = plt.GridSpec(1, 1, wspace=0.5, hspace=0.3)
+    ax1= fig.add_subplot(grid[0, 0])
+    # plot defined single cell traces
+    if SC_traces_idx != 0:
+        for this_idx in SC_traces_idx:
+            this_trace = SC_traces[this_idx,:]# /np.amax(SC_traces[this_idx,:])
+            ax1.plot(t_plot,this_trace, color='b',alpha=0.6, linewidth=1.5)     
+    # Plot population mean
+    ax1.plot(t_plot, cAMPi_mean, color='g' ,linewidth=2, label = 'cAMPi population mean')
+    ax1.set_title('Dilution rate= '+ '{:#.3n}'.format(np.float64(k)) +
+        ', density= '+'{:#.3n}'.format(np.float64(rho)) +
+            ',\n FR = '+'{:#.3n}'.format(np.float64(firing_rate)), fontdict={'fontsize':18})
+    ax1.set_xlabel('Time, A.U.', fontsize=20); 
+    ax1.set_ylabel('Raw traces',fontsize=20 )
+    ax1.tick_params(grid_linewidth = 15, labelsize = 20)
+    ax1.set_xlim([0, 30])
+    leg = ax1.legend()
+#    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
+    plt.show()
+    
     return index,firing_rate, height
 
 # To run the simulation get all indices for gamma and rho

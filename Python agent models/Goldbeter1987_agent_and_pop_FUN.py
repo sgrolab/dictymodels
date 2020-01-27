@@ -41,6 +41,7 @@ class Goldbeter1987_agent_4var:
         
         f1 = (k1+k2*self.g_now)/(1+self.g_now)
         f2 = (k1*L1+k2*L2*c*self.g_now)/(1+c*self.g_now)
+        # original model
         Y= self.p_now*self.g_now/(1+ self.g_now)
         Ysq = (Y)**2
         PI = self.a_now*(lamda*theta + e*Ysq)/(1 + theta*self.a_now + (1 + self.a_now)*e*Ysq)

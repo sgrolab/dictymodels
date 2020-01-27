@@ -14,11 +14,11 @@ import math
 
 from Population_parallel_tools import all_indices, get_n_workers
 import matplotlib
-if 'DISPLAY' not in os.environ:
-	matplotlib.use('Agg')
+#if 'DISPLAY' not in os.environ:
+#	matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# needs to be determined
+# Time scale normalization parameter
 Nt_Gregor = 6
 Nt_Sgro = 27
 Nt_Goldbeter = 7
@@ -39,20 +39,27 @@ v=12; k= 4 # k prime in the paper
 ki=1.7 # 0.958 
 kt=0.9
 
+
 #kc=5.4 # 3.58 #j
 #h=5 #rho
 
-kc_arr = np.linspace(0.1, 25, num=40)
-one_over_h_arr = np.linspace(0.1, 25, num=40)
-h_arr = 1/one_over_h_arr 
+# Set up parameter sweep matrix for dilution rate and density
+#kc_arr = np.linspace(10**(-0.5), 10**(2), num=40)
+#one_over_h_arr = np.linspace(0.01, 10, num=40) # cell density array
+#h_arr = 1/one_over_h_arr 
 
+#kc_arr = np.array([25])
+#one_over_h_arr = np.linspace(1.8, 2.4,4) # cell density array
+kc_arr = np.linspace(40.5,44.5,num = 4)
+one_over_h_arr = np.array([1])# cell density array
+h_arr = 1/one_over_h_arr 
 
 Goldbeter3PopParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'theta':theta, 'e':e, 'q':q,'sig':sig, 'v':v, 'k':k, \
             'ki':ki,'kt':kt, 'kc':0,'h':0}
 
 #update function
-dt=0.0001; t_tot=50*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
+dt=0.0001; t_tot=20*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
 nSteps = len(t)
 t_plot_Goldbeter = np.array(t); t_plot_Goldbeter = t_plot_Goldbeter/Nt_Goldbeter
 signal_input = 0
@@ -76,16 +83,17 @@ def calc_updates_Goldbeter(kc_arr, h_arr, Goldbeter3PopParam, nSteps, index):
    
     # Convert into np array
     b_trace = np.array(b_trace)
+    p_trace = np.array(p_trace)
+    g_trace = np.array(g_trace)
     later_portion = 0.2 # start count peaks after this X total simulation time
     b_trace_later=b_trace[math.floor(nSteps * later_portion):] # the later part of trace
-    # check simulation traces
-#    fig = plt.figure()
-#    plt.plot(t_plot_Goldbeter,b_trace)
-#    plt.xlabel('Time')
-#    plt.ylabel('b')
-#    plt.title('kc= '+str(kc_arr[index[0]])+' h= '+str(h_arr[index[1]]))
-#    plt.show()
-
+    b_trace_later_norm = b_trace_later/np.amax(b_trace_later)
+    p_trace_later=p_trace[math.floor(nSteps * later_portion):]
+    p_trace_later_norm = p_trace_later/np.amax(p_trace_later)
+    g_trace_later=g_trace[math.floor(nSteps * later_portion):]
+    g_trace_later_norm = g_trace_later/np.amax(g_trace_later)
+    t_plot_Goldbeter_later = t_plot_Goldbeter[math.floor(nSteps * later_portion):]
+    
     PkPos, PkProperties = find_peaks(b_trace_later, prominence=(5,1000))
 #    # Check find_peaks
 #    fig = plt.figure()
@@ -97,7 +105,34 @@ def calc_updates_Goldbeter(kc_arr, h_arr, Goldbeter3PopParam, nSteps, index):
     else: 
         firing_rate = len(PkPos)/(t_tot/Nt_Goldbeter*(1-later_portion))
         height = np.mean(PkProperties["prominences"])
+    
+    # check simulation traces
+    fig = plt.figure(figsize=(10,2.5)); grid = plt.GridSpec(1, 2,hspace= 0.3)
+    ax1= fig.add_subplot(grid[0, 0])
+    ax1.plot(t_plot_Goldbeter_later,b_trace_later, color = 'g', linewidth = 3, label = 'cAMPi')
+    ax1.plot(t_plot_Goldbeter_later,p_trace_later, color ='b',label = 'Proportion of active receptor')
+    ax1.plot(t_plot_Goldbeter_later,g_trace_later, color ='k', label = 'cAMPe')
+    # ax1.set_xlim([10,20])
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('b')
+    ax1.set_title('dilutio rate= '+ '{:#.3n}'.format(np.float64(kc_arr[index[0]])) +
+    ', density= '+'{:#.3n}'.format(np.float64(one_over_h_arr[index[1]])) + 
+        ', FR = '+'{:#.3n}'.format(np.float64(firing_rate)))
+    leg = ax1.legend()
+                
+    ax2= fig.add_subplot(grid[0, 1])
+    ax2.plot(t_plot_Goldbeter_later,b_trace_later_norm, color = 'g', linewidth = 3)
+    ax2.plot(t_plot_Goldbeter_later,p_trace_later, color ='b')
+    ax2.plot(t_plot_Goldbeter_later,g_trace_later_norm, color ='k')
+    ax2.set_xlim([10,20])
+    ax2.set_xlabel('Time')
+    ax2.set_ylabel('Normalized trace, A.U.')
+    ax2.set_title('Normalized traces, zoomed in')
+
+    plt.show()
+    
     return index,firing_rate,height
+    
 
 # To run the simulation get all indices for gamma and rho
 indices = all_indices(kc_arr, h_arr)
@@ -112,20 +147,19 @@ n_workers = get_n_workers()
 tic = perf_counter()
 
 # use 1 worker
-#results = list(map(par_calc_updates_Goldbeter,indices))
+results = list(map(par_calc_updates_Goldbeter,indices))
 
-# Run serially or in parallel if possible
-if n_workers == 1:
-    results = list(map(par_calc_updates_Goldbeter,indices))
-else:
-    with mp.Pool(get_n_workers()) as pool:
-        results = pool.map(par_calc_updates_Goldbeter,indices)
+## Run serially or in parallel if possible
+#if n_workers == 1:
+#    results = list(map(par_calc_updates_Goldbeter,indices))
+#else:
+#    with mp.Pool(get_n_workers()) as pool:
+#        results = pool.map(par_calc_updates_Goldbeter,indices)
 
 toc = perf_counter() 
 print('time passed with %s workers: %s' % (get_n_workers(),toc-tic))
 
-
-#plot heat map
+#%% plot heat map
 
 
 # assign results to pop_rate matrix
@@ -136,7 +170,7 @@ for i in results:
     idx = i[0]; firing_rate = i[1]; height = i[2]
     pop_rate_Goldbeter[idx] = firing_rate
     pop_height_Goldbeter[idx] = height
-np.savez('pop_fire_rate_Goldbeter_OUT_191122.npz', kc_arr = kc_arr, h_arr = h_arr,pop_rate_Goldbeter = pop_rate_Goldbeter, pop_height_Goldbeter=pop_height_Goldbeter)
+np.savez('pop_fire_rate_Goldbeter_OUT_191004.npz', kc_arr = kc_arr, h_arr = h_arr,pop_rate_Goldbeter = pop_rate_Goldbeter, pop_height_Goldbeter=pop_height_Goldbeter)
     
 # Plot heat map
 title_font_size = 20 
@@ -167,7 +201,7 @@ ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax2.set_title('Goldbeter1987 pop firing height', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 # save image and results to the current folder
-plot_name = 'pop_fire_rate_Goldbeter1987_191122.png'
+plot_name = 'pop_fire_rate_Goldbeter1987_191004.png'
 plt.savefig(plot_name)
 plt.show()
 
