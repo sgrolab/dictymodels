@@ -24,9 +24,9 @@ from scipy.signal import find_peaks
 import math
 
 from Population_parallel_tools import all_indices, get_n_workers
-import matplotlib
-if 'DISPLAY' not in os.environ:
-	matplotlib.use('Agg')
+#import matplotlib
+#if 'DISPLAY' not in os.environ:
+#	matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 # needs to be determined
@@ -49,15 +49,18 @@ MaedaAgentParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
             'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
             'k13':k13,'k14':k14}
 
-gamma_arr=np.logspace(0, 2.0, num=40) # 21
-rho_arr=np.logspace(-0.1, 2.7, num=40) # 26
+#gamma_arr=np.logspace(0, 2.0, num=40) # 21
+#rho_arr=np.logspace(-0.1, 2.7, num=40) # 26
+gamma_arr=np.array([15]) # 21
+rho_arr=np.array([5]) # np.linspace(3,5，, 4, num=2) # 26
+
 
 # Initialize oscillation matrix
 pop_rate_Maeda = np.zeros([gamma_arr.size, rho_arr.size]) # population firing rate
 pop_height_Maeda = np.zeros([gamma_arr.size, rho_arr.size]) # population firing rate
 
-dt=0.00005 
-t_tot=50*Nt_Maeda
+dt=0.0001 
+t_tot=30*Nt_Maeda
 # Number of time steps
 t=np.arange(0,t_tot,dt)
 nSteps = len(t)
@@ -90,19 +93,20 @@ def calc_updates_Maeda(gamma_arr, rho_arr, nSteps, index):
         cAMPe_trace.append(cAMPe_next)
         CAR1_trace.append(CAR1_next)
                     
-    cAMPi_trace=np.array(cAMPi_trace) # convert list to array
+    cAMPi_trace = np.array(cAMPi_trace) # convert list to array
+    ERK2_trace = np.array(ERK2_trace)
+    cAMPe_trace = np.array(cAMPe_trace)
+    
     later_portion = 0.2 # start count peaks after this X total simulation time
-    cAMPi_trace_later=cAMPi_trace[math.floor(nSteps * later_portion):] # the later part of trace
-        
-#    # check simulation traces
-#    fig = plt.figure()
-#    plt.plot(t_plot_Kamino,y_trace,t_plot_Kamino,z_trace)
-#    plt.xlabel('Time')
-#    plt.ylabel('x,y,z')
-#    plt.title('Fig5D with gamma= '+str(gamma_arr[index[0]])+' rho= '+str(rho_arr[index[1]]))
-#    plt.gca().legend(('y','z'))
-#    plt.show()
-
+    cAMPi_trace_later=cAMPi_trace[math.floor(nSteps * later_portion):] # the later part of trace   
+    cAMPi_trace_later_norm = cAMPi_trace_later/np.amax(cAMPi_trace_later)
+    ERK2_trace_later = ERK2_trace[math.floor(nSteps * later_portion):]
+    ERK2_trace_later_norm = ERK2_trace_later/np.amax(ERK2_trace_later)
+    cAMPe_trace_later=cAMPe_trace[math.floor(nSteps * later_portion):] # the later part of trace   
+    cAMPe_trace_later_norm = cAMPe_trace_later/np.amax(cAMPe_trace_later)
+    t_plot_Maeda_later = t_plot_Maeda[math.floor(nSteps * later_portion):]
+    
+    
     PkPos, PkProperties = find_peaks(cAMPi_trace_later, prominence=(0.01,2000))
     
 #    # Check find_peaks
@@ -116,6 +120,31 @@ def calc_updates_Maeda(gamma_arr, rho_arr, nSteps, index):
     else: 
         firing_rate = len(PkPos)/(t_tot/Nt_Maeda*(1-later_portion))
         height = np.mean(PkProperties["prominences"])
+        
+    # check simulation traces
+    fig = plt.figure(figsize=(5,2.5)); grid = plt.GridSpec(1, 1,hspace= 0.3)
+    ax1= fig.add_subplot(grid[0, 0])
+    ax1.plot(t_plot_Maeda_later,cAMPi_trace_later, color = 'g', linewidth = 3, label = 'cAMPi')
+    ax1.plot(t_plot_Maeda_later,ERK2_trace_later, color ='b',label = 'ERK2')
+    ax1.plot(t_plot_Maeda_later,cAMPe_trace_later, color ='k', label = 'cAMPe')
+    # ax1.set_xlim([10,20])
+    ax1.set_xlabel('Time')
+    ax1.set_title('dilution rate= '+ '{:#.3n}'.format(np.float64(gamma_arr[index[0]])) +
+    ', density= '+'{:#.3n}'.format(np.float64(rho_arr[index[1]])) + 
+        ', FR = '+'{:#.3n}'.format(np.float64(firing_rate)))
+    leg = ax1.legend()
+                
+#    ax2= fig.add_subplot(grid[0, 1])
+#    ax2.plot(t_plot_Maeda_later,cAMPi_trace_later_norm, color = 'g', linewidth = 3)
+#    ax2.plot(t_plot_Maeda_later,ERK2_trace_later_norm, color ='b')
+#    ax2.plot(t_plot_Maeda_later,cAMPe_trace_later_norm, color ='k')
+#    ax2.set_xlim([10,20])
+#    ax2.set_xlabel('Time')
+#    ax2.set_ylabel('Normalized trace, A.U.')
+#    ax2.set_title('Normalized traces, zoomed in')
+
+    plt.show()
+    
     return index,firing_rate,height
 
 # To run the simulation get all indices for gamma and rho
@@ -130,15 +159,15 @@ n_workers = get_n_workers()
 # [((gamma_index, rho_index), len(PkPos)),...]
 tic = perf_counter()
 
-## use 1 worker
-#results = list(map(par_calc_updates_Maeda,indices))
+# use 1 worker
+results = list(map(par_calc_updates_Maeda,indices))
 
-# Run serially or in parallel if possible
-if n_workers == 1:
-    results = list(map(par_calc_updates_Maeda,indices))
-else:
-    with mp.Pool(get_n_workers()) as pool:
-        results = pool.map(par_calc_updates_Maeda,indices)
+## Run serially or in parallel if possible
+#if n_workers == 1:
+#    results = list(map(par_calc_updates_Maeda,indices))
+#else:
+#    with mp.Pool(get_n_workers()) as pool:
+#        results = pool.map(par_calc_updates_Maeda,indices)
 
 toc = perf_counter() 
 print('time passed with %s workers: %s' % (get_n_workers(),toc-tic))

@@ -18,11 +18,11 @@ import multiprocessing as mp
 from scipy.signal import find_peaks
 import math
 
-from parallel_tools import all_indices, get_n_workers
+from Population_parallel_tools import all_indices, get_n_workers
 from Kamino2017_agent_and_pop_FUN import Kamino2017_pop
-import matplotlib
-if 'DISPLAY' not in os.environ:
-	matplotlib.use('Agg')
+#import matplotlib
+#if 'DISPLAY' not in os.environ:
+#	matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # needs to be determined
@@ -41,13 +41,16 @@ kt=2
 delta=0.01
 z0_influx = 0
 
-gamma_arr=np.logspace(0, 2.0, num=30) # 21
-rho_arr=np.logspace(0, 2.0, num=30) # 26
+#gamma_arr=np.logspace(0, 2.0, num=30) # 21
+#rho_arr=np.logspace(0, 2.0, num=30) # 26
+gamma_arr = np.array([1])
+rho_arr = np.array([10])
 
 # Pack parameters together
 Param={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta}
 
-dt=0.001 ; t_tot=50*Nt_Kamino; t=list(np.arange(0,t_tot,dt))
+dt=0.0001 ; t_tot=70*Nt_Kamino; t=list(np.arange(0,t_tot,dt))
+t_plot_Kamino = np.array(t)/Nt_Kamino
 nSteps = len(t)
 
 
@@ -73,14 +76,49 @@ def calc_updates(gamma_arr, rho_arr, Param, nSteps, index):
         z_trace.append(z_next)
             
     y_trace=np.array(y_trace) # convert list to array
+    x_trace = np.array(x_trace)
+    z_trace = np.array(z_trace)
+    
     later_portion = 0.2 # start count peaks after this X total simulation time
     y_trace_later=y_trace[math.floor(nSteps * later_portion):] # the later part of trace
+    y_trace_later_norm = y_trace_later/np.amax(y_trace_later)
+    x_trace_later=x_trace[math.floor(nSteps * later_portion):] 
+    x_trace_later_norm = x_trace_later/np.amax(x_trace_later)
+    z_trace_later=z_trace[math.floor(nSteps * later_portion):] 
+    z_trace_later_norm = z_trace_later/np.amax(z_trace_later)
+    t_plot_Kamino_later = t_plot_Kamino[math.floor(nSteps * later_portion):]
+    
     PkPos, PkProperties = find_peaks(y_trace_later, prominence=(0.02,100))
     if len(PkPos) == 0:
         firing_rate = 0; height = 0
     else: 
         firing_rate = len(PkPos)/(t_tot/Nt_Kamino*(1-later_portion))
         height = np.mean(PkProperties["prominences"])
+        
+    # check simulation traces
+    fig = plt.figure(figsize=(5,2.5)); grid = plt.GridSpec(1, 1,hspace= 0.3)
+    ax1= fig.add_subplot(grid[0, 0])
+    ax1.plot(t_plot_Kamino_later,y_trace_later, color = 'g', linewidth = 1, label = 'cAMPi')
+    ax1.plot(t_plot_Kamino_later,x_trace_later, color ='b',label = 'inhibitor')
+    ax1.plot(t_plot_Kamino_later,z_trace_later, color ='k', label = 'cAMPe')
+    #ax1.set_xlim([10,30])
+    ax1.set_xlabel('Time')
+    ax1.set_title('dilution rate= '+ '{:#.3n}'.format(np.float64(gamma_arr[index[0]])) +
+    ', density= '+'{:#.3n}'.format(np.float64(rho_arr[index[1]])) + 
+        ', FR = '+'{:#.3n}'.format(np.float64(firing_rate)))
+    leg = ax1.legend()
+                
+#    ax2= fig.add_subplot(grid[0, 1])
+#    ax2.plot(t_plot_Kamino_later,x_trace_later_norm, color = 'g', linewidth = 3)
+#    ax2.plot(t_plot_Kamino_later,y_trace_later, color ='b')
+#    ax2.plot(t_plot_Kamino_later,z_trace_later_norm, color ='k')
+#    ax2.set_xlim([10,20])
+#    ax2.set_xlabel('Time')
+#    ax2.set_ylabel('Normalized trace, A.U.')
+#    ax2.set_title('Normalized traces, zoomed in')
+
+    plt.show()
+    
     return index,firing_rate, height
 
 # To run the simulation get all indices for gamma and rho
@@ -94,14 +132,16 @@ n_workers = get_n_workers()
 # Start up the worker pool and return the results as a list of
 # [((gamma_index, rho_index), len(PkPos)),...]
 tic = perf_counter()
+
+# use 1 worker 
 results = list(map(par_calc_updates,indices))
 
-## Run serially or in parallel if possible
-if n_workers == 1:
-    results = list(map(par_calc_updates,indices))
-else:
-    with mp.Pool(get_n_workers()) as pool:
-        results = pool.map(par_calc_updates,indices)
+### Run serially or in parallel if possible
+#if n_workers == 1:
+#    results = list(map(par_calc_updates,indices))
+#else:
+#    with mp.Pool(get_n_workers()) as pool:
+#        results = pool.map(par_calc_updates,indices)
 toc = perf_counter() 
 print('time passed with %s workers: %s' % (get_n_workers(),toc-tic))
 
