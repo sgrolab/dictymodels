@@ -16,11 +16,8 @@ from scipy.signal import chirp, find_peaks, peak_widths
 import pandas as pd
 import scipy.io
 
-Nt_Gregor = 6 
-Nt_Sgro = 27
-Nt_Goldbeter = 6.94
-Nt_Maeda = 3.57
-Nt_Kamino = 5.22
+# Normalization parameters
+from NormParam import *
 #%%
 mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
           '#f781bf', '#a65628', '#984ea3',
@@ -43,12 +40,10 @@ e=0.1; tauA=0.09; tauR=tauA/e; g=0.5; c0 = 1.2
 a= 0.058; Kd = 1e-5
 SgroAgentParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
-# Nt=27; # normalization factor of t
-Na=3.5;  # normalization factor of A
+            'flux_thrs':0}
+
 A0=-1.5; R0=-0.5
-Nt_Sgro = 27
-dt=0.005 ; t_tot=5*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
+dt=0.005 ; t_tot=6*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
 #constant_signal=1 
@@ -79,7 +74,7 @@ for i in range(len(t)-1):
 A_trace_offset=1.5
 A_trace_orig_1 = np.array(A_trace_orig_1) # vectorize A_trace_orig
 R_trace_orig_1 = np.array(R_trace_orig_1)
-A_trace_plot_1=(A_trace_orig_1+A_trace_offset)/Na;
+A_trace_plot_1=(A_trace_orig_1+A_trace_offset)/Nh_Sgro;
 
 # sustained oscillations
 Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
@@ -96,9 +91,9 @@ for i in range(len(t)-1):
 A_trace_offset=1.5
 A_trace_orig_10k = np.array(A_trace_orig_10k) # vectorize A_trace_orig
 R_trace_orig_10k = np.array(R_trace_orig_10k)
-A_trace_plot_10k=(A_trace_orig_10k+A_trace_offset)/Na;
+A_trace_plot_10k=(A_trace_orig_10k+A_trace_offset)/Nh_Sgro;
 
-t_plot_Sgro = np.array(t)*6/(Nt_Sgro)
+t_plot_Sgro = np.array(t)/(Nt_Sgro)
 # nullclines
 A_null = np.linspace(-2.5,2.5,num=200)
 dAdt_null_no_stim=A_null-1/3*(A_null**3)
@@ -110,22 +105,16 @@ dRdt_null=1/g*(A_null+c0)
 
 #trace_width =2
 
-abcd_font_size = 28
-label_font_size=24
-title_font_size = 26
-sublabel_font_size = 22
-trace_width=3
-tick_font_size=20
-
 fig5 = plt.figure(figsize=(12,9))
 grid = plt.GridSpec(3, 2, wspace=0.3, hspace=0.8)
 
 ax0 = fig5.add_subplot(grid[0, 0])
 ax0.plot(t_plot_Sgro, A_trace_plot_1, 'green',linewidth=trace_width)
-ax0.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax0.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax0.set_title(r'$cAMP_{e}$ input: '+str(signal_1),fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_xlim([0,30])
+ax0.set_xlim([0,6])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])
 ax1.plot(A_null,dRdt_null, 'darkgrey',linewidth=trace_width)
@@ -147,10 +136,11 @@ ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax00 = fig5.add_subplot(grid[0, 1])
 ax00.plot(t_plot_Sgro, A_trace_plot_10k, 'green',linewidth=trace_width)
-ax00.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax00.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax00.set_title(r'$cAMP_{e}$ input: '+str(signal_10k),fontsize=label_font_size)
 ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax00.set_xlim([0,30])
+ax00.set_xlim([0,6])
+ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax2= fig5.add_subplot(grid[1:, 1])
 ax2.plot(A_null,dRdt_null, 'darkgrey',linewidth=trace_width)
@@ -173,10 +163,10 @@ ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 #ax2.quiver(A_mesh, R_mesh,dA,dR, linewidths=0.1, edgecolors='k')
 fig5.text(0.04, 0.95,'B',ha='center', va='center', fontsize=abcd_font_size)
 
-fig5.text(0.04, 0.8, 'Activator', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
+fig5.text(0.04, 0.8, r'$cAMP_{i}$'+'\n(Activator)', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 fig5.text(0.5, 0.65,'Time, A.U.',ha='center', va='center',fontsize=label_font_size)
 
-fig5.text(0.5, 0.04,'Activator',ha='center', va='center',fontsize=label_font_size)
+fig5.text(0.5, 0.04,r'$cAMP_{i}$'+'(Activator)',ha='center', va='center',fontsize=label_font_size)
 fig5.text(0.04, 0.35, 'Inhibitor', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 
 fig5.text(0.5, 0.95,'Sgro 2015',ha='center', va='center',color=mycolors[5],fontsize=title_font_size)
@@ -191,17 +181,15 @@ a= 0.058; Kd = 1e-5
 # Create agent with small or big e
 SgroAgentParam={'e':e_small,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
+            'flux_thrs':0}
 Sgro_agent_smalle=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
 SgroAgentParam={'e':e_big,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
+            'flux_thrs':0}
 Sgro_agent_bige=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
 
-Na=3.5;  # normalization factor of A
 A0=-1.5; R0=-0.5
-Nt_Sgro = 27
-dt=0.005 ; t_tot=5*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
+dt=0.005 ; t_tot=6*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
 signal =10000
@@ -229,13 +217,13 @@ for i in range(len(t)-1):
 A_trace_offset=1.5
 A_trace_orig_smalle = np.array(A_trace_orig_smalle) # vectorize A_trace_orig
 R_trace_orig_smalle = np.array(R_trace_orig_smalle)
-A_trace_plot_smalle=(A_trace_orig_smalle+A_trace_offset)/Na
+A_trace_plot_smalle=(A_trace_orig_smalle+A_trace_offset)/Nh_Sgro
 
 A_trace_orig_bige = np.array(A_trace_orig_bige) # vectorize A_trace_orig
 R_trace_orig_bige = np.array(R_trace_orig_bige)
-A_trace_plot_bige=(A_trace_orig_bige+A_trace_offset)/Na;
+A_trace_plot_bige=(A_trace_orig_bige+A_trace_offset)/Nh_Sgro;
 
-t_plot_Sgro = np.array(t)*6/(Nt_Sgro)
+t_plot_Sgro = np.array(t)/(Nt_Sgro)
 # nullclines
 A_null = np.linspace(-2.5,2.5,num=200)
 dAdt_null=A_null-1/3*A_null**3+a*np.log(1+signal/Kd)
@@ -245,22 +233,24 @@ dRdt_null=1/g*(A_null+c0)
 #%% Different excitability- trace, nullcline & streamplot
 #label_font_size = 15
 #trace_width = 2
+tick_font_size = 20
 
 fig5 = plt.figure(figsize=(12,9))
 grid = plt.GridSpec(3, 2, wspace=0.3, hspace=0.8)
 
 ax0 = fig5.add_subplot(grid[0, 0])
 ax0.plot(t_plot_Sgro, A_trace_plot_smalle, 'green',linewidth=trace_width)
-ax0.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax0.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax0.set_title('Excitability: '+str(e_small),fontsize=label_font_size)
-ax0.set_xlim([0,30])
+ax0.set_xlim([0,6])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])
 ax1.plot( A_null,dRdt_null,'darkgrey',linewidth=trace_width)
 ax1.plot( A_null,dAdt_null,'deepskyblue',linewidth=trace_width)
 ax1.plot( A_trace_orig_smalle, R_trace_orig_smalle,'darkgreen',linewidth=trace_width)
 ax1.set_ylim([-0.7,3])
-# ax1.set_aspect('equal')
+ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 A_arr = np.arange(-2.5,3,0.5)
 R_arr = np.arange(-0.7,3,0.2)
@@ -272,17 +262,20 @@ dR = e_small*(A_mesh-g* R_mesh+c0); dR=makelong*dR
 ax1.streamplot(A_mesh,R_mesh,dA, dR,density=1,color='forestgreen')
 ax1.plot(A_trace_orig_smalle[0],R_trace_orig_smalle[0],'*',markersize = 12,color='springgreen')
 
+
 ax00 = fig5.add_subplot(grid[0, 1])
 ax00.plot(t_plot_Sgro, A_trace_plot_bige, 'green',linewidth=trace_width)
-ax00.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax00.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax00.set_title('Excitability: '+str(e_big),fontsize=label_font_size)
-ax00.set_xlim([0,30])
+ax00.set_xlim([0,6])
+ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax2= fig5.add_subplot(grid[1:, 1])
 ax2.plot(A_null,dRdt_null, 'darkgrey',linewidth=trace_width)
 ax2.plot(A_null, dAdt_null,'deepskyblue',linewidth=trace_width)
 ax2.plot( A_trace_orig_bige, R_trace_orig_bige,'green',linewidth=trace_width)
 ax2.set_ylim([-0.7,3])
+ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 # ax1.set_aspect('equal')
 A_arr = np.arange(-2.5,3,0.5)
@@ -296,92 +289,93 @@ ax2.streamplot(A_mesh, R_mesh,dA,dR, density=1,color='forestgreen')
 ax2.plot(A_trace_orig_bige[0],R_trace_orig_bige[0],'*',markersize = 12,color='springgreen')
 
 fig5.text(0.04, 0.95,'A',ha='center', va='center', fontsize=abcd_font_size)
-fig5.text(0.04, 0.8, 'Activator', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
+fig5.text(0.04, 0.8, r'$cAMP_{i}$'+'\n(Activator)', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 fig5.text(0.5, 0.65,'Time, A.U.',ha='center', va='center',fontsize=label_font_size)
-fig5.text(0.5, 0.04,'Activator',ha='center', va='center',fontsize=label_font_size)
+fig5.text(0.5, 0.04,r'$cAMP_{i}$'+'(Activator)',ha='center', va='center',fontsize=label_font_size)
 fig5.text(0.04, 0.35, 'Inhibitor', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 
 fig5.text(0.5, 0.95,'Sgro 2015',ha='center', va='center',color=mycolors[5],fontsize=title_font_size)
 plt.show()
 
-#%% vector field
-
-dt=0.001 ; t_tot=5*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
-signal_small=0.05
-stim_time_step=int(round(1/6*t_tot/dt)) # at this time step input is applied
-signal_trace_small=np.zeros(len(t))
-signal_trace_small[stim_time_step:] = signal_small
-
-# initializations
-p0=0.897;b0=0.342
-p_trace_small=[p0]; b_trace_small=[b0]; g_trace_small=[g0]
-
-# adaptive spike
-Goldbeter3_agent=Goldbeter1987_agent_3var([1,1],[p0,a0,b0,g0],Goldbeter3AgentParam)
-for i in range(len(t)-1):
-    p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0,signal_trace_small[i])
-    p_trace_small.append(p_next)
-    b_trace_small.append(b_next)
-    g_trace_small.append(g_next)
-p_trace_small = np.array(p_trace_small); # p_trace_1 = p_trace_1/np.amax(p_trace_1)    
-b_trace_small = np.array(b_trace_small); # b_trace_1 = b_trace_1/np.amax(b_trace_1)    
-
-p_null = np.linspace(0.5, 1.25,num=50)
-signal = signal_small
-f1 = (k1+k2*signal)/(1+signal)
-f2 = (k1*L1+k2*L2*c*signal)/(1+c*signal)
-Ysq = (p_null*signal/(1+ signal))**2
-PI = a0*(lamda*theta + e*Ysq)/(1 + theta*a0 + (1 + a0)*e*Ysq)
-
-dpdt_null_small = f2/(f1+f2)
-dbdt_null_small = q*sig*PI/(ki+kt)
-trace_width = 3
-
-fig5 = plt.figure(figsize=(6,9))
-grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.8)
-
-ax0 = fig5.add_subplot(grid[0, 0])
-ax0.plot(t_plot_Goldbeter, b_trace_small, 'green',linewidth=trace_width)
-ax0.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
-ax0.set_title(r'$cAMP_{e}$ input: '+str(signal_small),fontsize=label_font_size)
-ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_xlim([0,30])
-
-ax1= fig5.add_subplot(grid[1:, 0])
-
-#ax1.axvline(x=dpdt_null_no_stim, ls='-', linewidth=trace_width, color='darkgrey')
-ax1.axvline(x=dpdt_null_small, ls='-', linewidth=trace_width, color='dimgrey')
-
-#ax1.plot(p_null,dbdt_null_no_stim, 'lightblue',linewidth=trace_width)
-ax1.plot(p_null, dbdt_null_small,'deepskyblue',linewidth=trace_width)
-ax1.plot( p_trace_small, b_trace_small,'green',linewidth= 4)
-ax1.plot(p_trace_small[0],b_trace_small[0],'*',markersize = 12,color='springgreen')
-ax1.set_xlim([0.5,1.25]); ax1.set_ylim([-1,10])
-ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-
-# vector field for cAMPe = 0
-p_arr = np.arange(0,2,0.02)
-b_arr = np.arange(-5,15,0.2); makelong = 1
-p_mesh, b_mesh = np.meshgrid(p_arr , b_arr )
-signal = signal_small
-f1 = (k1+k2*signal)/(1+signal)
-f2 = (k1*L1+k2*L2*c*signal)/(1+c*signal)
-Ysq = (p_mesh*signal/(1+ signal))**2 
-PI = a0*(lamda*theta + e*Ysq)/(1 + theta*a0 + (1 + a0)*e*Ysq)
-dp = -f1*p_mesh+f2*(1-p_mesh);
-db = q*sig*PI-(kt+ki)*b_mesh
-ax1.streamplot(p_mesh,b_mesh,dp, db,color='forestgreen')
-
-fig5.text(0.04, 0.95,'B',ha='center', va='center', fontsize=abcd_font_size)
-
-fig5.text(0.03, 0.8,  r'$cAMP_{i}$', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
-fig5.text(0.5, 0.65,'Time, A.U.',ha='center', va='center',fontsize=label_font_size)
-
-fig5.text(0.5, 0.04,'Inhibitor',ha='center', va='center',fontsize=label_font_size)
-fig5.text(0.03, 0.35, r'$cAMP_{i}$', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
-
-fig5.text(0.5, 0.95,'Martiel 1987',ha='center', va='center',color=mycolors[0],fontsize=title_font_size)
-plt.show()
+##%% vector field
+#from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
+#
+#dt=0.001 ; t_tot=6*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
+#signal_small=0.05
+#stim_time_step=int(round(1/6*t_tot/dt)) # at this time step input is applied
+#signal_trace_small=np.zeros(len(t))
+#signal_trace_small[stim_time_step:] = signal_small
+#
+## initializations
+#p0=0.897;b0=0.342
+#p_trace_small=[p0]; b_trace_small=[b0]; g_trace_small=[g0]
+#
+## adaptive spike
+#Goldbeter3_agent=Goldbeter1987_agent_3var([1,1],[p0,a0,b0,g0],Goldbeter3AgentParam)
+#for i in range(len(t)-1):
+#    p_next,b_next,g_next= Goldbeter3_agent.update(dt,a0,signal_trace_small[i])
+#    p_trace_small.append(p_next)
+#    b_trace_small.append(b_next)
+#    g_trace_small.append(g_next)
+#p_trace_small = np.array(p_trace_small); # p_trace_1 = p_trace_1/np.amax(p_trace_1)    
+#b_trace_small = np.array(b_trace_small); # b_trace_1 = b_trace_1/np.amax(b_trace_1)    
+#
+#p_null = np.linspace(0.5, 1.25,num=50)
+#signal = signal_small
+#f1 = (k1+k2*signal)/(1+signal)
+#f2 = (k1*L1+k2*L2*c*signal)/(1+c*signal)
+#Ysq = (p_null*signal/(1+ signal))**2
+#PI = a0*(lamda*theta + e*Ysq)/(1 + theta*a0 + (1 + a0)*e*Ysq)
+#
+#dpdt_null_small = f2/(f1+f2)
+#dbdt_null_small = q*sig*PI/(ki+kt)
+#trace_width = 3
+#
+#fig5 = plt.figure(figsize=(6,9))
+#grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.8)
+#
+#ax0 = fig5.add_subplot(grid[0, 0])
+#ax0.plot(t_plot_Goldbeter, b_trace_small, 'green',linewidth=trace_width)
+#ax0.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+#ax0.set_title(r'$cAMP_{e}$ input: '+str(signal_small),fontsize=label_font_size)
+#ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
+#ax0.set_xlim([0,30])
+#
+#ax1= fig5.add_subplot(grid[1:, 0])
+#
+##ax1.axvline(x=dpdt_null_no_stim, ls='-', linewidth=trace_width, color='darkgrey')
+#ax1.axvline(x=dpdt_null_small, ls='-', linewidth=trace_width, color='dimgrey')
+#
+##ax1.plot(p_null,dbdt_null_no_stim, 'lightblue',linewidth=trace_width)
+#ax1.plot(p_null, dbdt_null_small,'deepskyblue',linewidth=trace_width)
+#ax1.plot( p_trace_small, b_trace_small,'green',linewidth= 4)
+#ax1.plot(p_trace_small[0],b_trace_small[0],'*',markersize = 12,color='springgreen')
+#ax1.set_xlim([0.5,1.25]); ax1.set_ylim([-1,10])
+#ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
+#
+## vector field for cAMPe = 0
+#p_arr = np.arange(0,2,0.02)
+#b_arr = np.arange(-5,15,0.2); makelong = 1
+#p_mesh, b_mesh = np.meshgrid(p_arr , b_arr )
+#signal = signal_small
+#f1 = (k1+k2*signal)/(1+signal)
+#f2 = (k1*L1+k2*L2*c*signal)/(1+c*signal)
+#Ysq = (p_mesh*signal/(1+ signal))**2 
+#PI = a0*(lamda*theta + e*Ysq)/(1 + theta*a0 + (1 + a0)*e*Ysq)
+#dp = -f1*p_mesh+f2*(1-p_mesh);
+#db = q*sig*PI-(kt+ki)*b_mesh
+#ax1.streamplot(p_mesh,b_mesh,dp, db,color='forestgreen')
+#
+#fig5.text(0.04, 0.95,'B',ha='center', va='center', fontsize=abcd_font_size)
+#
+#fig5.text(0.03, 0.8,  r'$cAMP_{i}$', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
+#fig5.text(0.5, 0.65,'Time, A.U.',ha='center', va='center',fontsize=label_font_size)
+#
+#fig5.text(0.5, 0.04,'Inhibitor',ha='center', va='center',fontsize=label_font_size)
+#fig5.text(0.03, 0.35, r'$cAMP_{i}$', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
+#
+#fig5.text(0.5, 0.95,'Martiel 1987',ha='center', va='center',color=mycolors[0],fontsize=title_font_size)
+#plt.show()
 #%% Goldbeter 1987 nullclines
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
 
@@ -405,7 +399,7 @@ Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'ki':ki,'kt':kt, 'kc':kc,'h':h}
 p0=0.9; a0=3; b0=0.2; g0=0
 
-dt=0.001; t_tot=5*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
+dt=0.001; t_tot=6*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
 # define extracellular stim trace
 #constant_signal=1 
 signal_1=1
@@ -428,8 +422,9 @@ for i in range(len(t)-1):
     p_trace_1.append(p_next)
     b_trace_1.append(b_next)
     g_trace_1.append(g_next)
-p_trace_1 = np.array(p_trace_1); # p_trace_1 = p_trace_1/np.amax(p_trace_1)    
-b_trace_1 = np.array(b_trace_1); # b_trace_1 = b_trace_1/np.amax(b_trace_1)    
+p_trace_1 = np.array(p_trace_1);    
+b_trace_1 = np.array(b_trace_1); 
+b_trace_1_hnorm = b_trace_1/Nh_Goldbeter
 
 # sustained oscillations
 Goldbeter3_agent=Goldbeter1987_agent_3var([1,1],[p0,a0,b0,g0],Goldbeter3AgentParam)
@@ -438,17 +433,18 @@ for i in range(len(t)-1):
     p_trace_10k.append(p_next)
     b_trace_10k.append(b_next)
     g_trace_10k.append(g_next)
-p_trace_10k = np.array(p_trace_10k); # p_trace_10k = p_trace_10k/np.amax(p_trace_10k)   
-b_trace_10k = np.array(b_trace_10k); # b_trace_10k = b_trace_10k/np.amax(b_trace_10k)   
+p_trace_10k = np.array(p_trace_10k);    
+b_trace_10k = np.array(b_trace_10k); 
+b_trace_10k_hnorm = b_trace_10k/Nh_Goldbeter
 
-t_plot_Goldbeter = np.array(t)*6/(Nt_Goldbeter)
+t_plot_Goldbeter = np.array(t)/(Nt_Goldbeter)
 
 # nullclines
 p_null = np.linspace(-2, 6,num=200)
 signal = 0
 f1 = (k1+k2*signal)/(1+signal)
 f2 = (k1*L1+k2*L2*c*signal)/(1+c*signal)
-Ysq = (p_null*signal/(1+ signal))**2 #################
+Ysq = (p_null*signal/(1+ signal))**2 
 PI = a0*(lamda*theta + e*Ysq)/(1 + theta*a0 + (1 + a0)*e*Ysq)
 
 dpdt_null_no_stim = f2/(f1+f2)
@@ -476,16 +472,17 @@ dbdt_null_10k = q*sig*PI/(ki+kt)
 
 #label_font_size = 15
 #trace_width = 3
-
+#%%
 fig5 = plt.figure(figsize=(12,9))
 grid = plt.GridSpec(3, 2, wspace=0.3, hspace=0.8)
 
 ax0 = fig5.add_subplot(grid[0, 0])
-ax0.plot(t_plot_Goldbeter, b_trace_1, 'green',linewidth=trace_width)
-ax0.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax0.plot(t_plot_Goldbeter, b_trace_1_hnorm, 'green',linewidth=trace_width)
+ax0.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax0.set_title(r'$cAMP_{e}$ input: '+str(signal_1),fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_xlim([0,30])
+ax0.set_xlim([0,6]); ax0.set_ylim([-0.1,2])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])
 
@@ -501,11 +498,12 @@ ax1.set_xlim([-0.5,1.5]); ax1.set_ylim([-20,700])
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax00 = fig5.add_subplot(grid[0, 1])
-ax00.plot(t_plot_Goldbeter, b_trace_10k, 'green',linewidth=trace_width)
-ax00.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax00.plot(t_plot_Goldbeter, b_trace_10k_hnorm, 'green',linewidth=trace_width)
+ax00.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax00.set_title(r'$cAMP_{e}$ input: '+str(signal_10k),fontsize=label_font_size)
 ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax00.set_xlim([0,30])
+ax00.set_xlim([0,6]); ax00.set_ylim([-0.1,2])
+ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax2= fig5.add_subplot(grid[1:, 1])
 
@@ -531,7 +529,7 @@ fig5.text(0.5, 0.95,'Martiel 1987',ha='center', va='center',color=mycolors[0],fo
 plt.show()
 
 #%% Kamino nullclines, adaptive spike and oscillations
-###############################
+
 from Kamino2017_agent_and_pop_FUN import Kamino2017_agent
 
 tau=1.5; n=2; K=4; kt=2; delta=0.01
@@ -539,7 +537,7 @@ gamma=3; rho= 0.01 # population density, doesn't matter for single cells
 AgentParam={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,\
                'gamma':gamma,'rho':rho}
 
-dt=0.001 ; t_tot=5*Nt_Kamino; t=list(np.arange(0,t_tot,dt))
+dt=0.001 ; t_tot=6*Nt_Kamino; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
 #constant_signal=1 
@@ -567,6 +565,7 @@ for i in range(len(t)-1):
 
 x_trace_1 = np.array(x_trace_1) 
 y_trace_1 = np.array(y_trace_1)
+y_trace_1_hnorm = y_trace_1/Nh_Kamino
 
 # sustained oscillations
 Kamino_agent=Kamino2017_agent([x0,y0,z0],AgentParam)
@@ -577,10 +576,11 @@ for i in range(len(t)-1):
     x_trace_10k.append(x_next)
     y_trace_10k.append(y_next)
 
-x_trace_10k = np.array(x_trace_10k) 
-y_trace_10k = np.array(y_trace_10k)
+x_trace_10k = np.array(x_trace_10k)
+y_trace_10k = np.array(y_trace_10k) 
+y_trace_10k_hnorm = y_trace_10k/Nh_Kamino
 
-t_plot_Kamino = np.array(t)*6/(Nt_Kamino)
+t_plot_Kamino = np.array(t)/(Nt_Kamino)
 
 # nullclines
 x_null_short = np.linspace(-0.5,2,num=100)
@@ -606,11 +606,12 @@ fig5 = plt.figure(figsize=(12,9))
 grid = plt.GridSpec(3, 2, wspace=0.3, hspace=0.8)
 
 ax0 = fig5.add_subplot(grid[0, 0])
-ax0.plot(t_plot_Kamino, y_trace_1, 'green',linewidth=trace_width)
-ax0.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax0.plot(t_plot_Kamino, y_trace_1_hnorm, 'green',linewidth=trace_width)
+ax0.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax0.set_title(r'$cAMP_{e}$ input: '+str(signal_1),fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_xlim([0,30])
+ax0.set_xlim([0,6])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])
 ax1.axvline(x=dxdt_null_no_stim, ls='-', linewidth=trace_width, color='darkgrey')
@@ -626,11 +627,12 @@ ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 
 ax00 = fig5.add_subplot(grid[0, 1])
-ax00.plot(t_plot_Kamino, y_trace_10k, 'green',linewidth=trace_width)
-ax00.axvline(x=5, ls='--', linewidth=trace_width, color=mycolors[6])
+ax00.plot(t_plot_Kamino, y_trace_10k_hnorm, 'green',linewidth=trace_width)
+ax00.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
 ax00.set_title(r'$cAMP_{e}$ input: '+str(signal_10k),fontsize=label_font_size)
 ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax00.set_xlim([0,30])
+ax00.set_xlim([0,6])
+ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax2= fig5.add_subplot(grid[1:, 1])
 ax2.axvline(x=dxdt_null_no_stim, ls='-', linewidth=trace_width, color='darkgrey')
@@ -705,17 +707,18 @@ for i in range(len(Goldbeter_time)-1):
     p_trace.append(p_next)
     b_trace.append(b_next)
     g_trace.append(g_next)
-p_trace = np.array(p_trace); # p_trace_1 = p_trace_1/np.amax(p_trace_1)    
-b_trace = np.array(b_trace); # b_trace_1 = b_trace_1/np.amax(b_trace_1)    
+p_trace = np.array(p_trace);  
+b_trace = np.array(b_trace);  
+b_trace_hnorm = b_trace/Nh_Goldbeter
 t_plot_Goldbeter = np.array(Goldbeter_time)/(Nt_Goldbeter)
 
-#%% nullclines
+# nullclines
 p_null = np.linspace(-2, 6,num=200)
 
 signal = 0
 f1 = (k1+k2*signal)/(1+signal)
 f2 = (k1*L1+k2*L2*c*signal)/(1+c*signal)
-Ysq = (p_null*signal/(1+ signal))**2 #################
+Ysq = (p_null*signal/(1+ signal))**2 
 PI = a0*(lamda*theta + e*Ysq)/(1 + theta*a0 + (1 + a0)*e*Ysq)
 
 dpdt_null_no_stim = f2/(f1+f2)
@@ -736,11 +739,12 @@ fig5 = plt.figure(figsize=(8,9))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.8)
 
 ax0 = fig5.add_subplot(grid[0, 0])
-ax0.plot(t_plot_Goldbeter, b_trace, 'green',linewidth=trace_width)
+ax0.plot(t_plot_Goldbeter, b_trace_hnorm, 'green',linewidth=trace_width)
 ax0.axvspan(2.5, 7.5, alpha=0.2, color='b');
 ax0.set_title(r'$cAMP_{e}$ ramp input',fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_xlim([0,7.5]); ax0.set_ylim([-1,30])
+ax0.set_xlim([0,7.5]); # ax0.set_ylim([-1,30])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])
 
@@ -757,12 +761,12 @@ ax1.plot(p_null, dbdt_null,'deepskyblue',linewidth=trace_width)
 
 ax1.plot( p_trace, b_trace,'green',linewidth= 4)
 ax1.plot(p_trace[0],b_trace[0],'*',markersize = 12,color='springgreen')
-ax1.set_xlim([-0.5,1.5]); ax1.set_ylim([-20,300])
+ax1.set_xlim([-0.5,1.5]); # ax1.set_ylim([-0.5,2])
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 # vector field for cAMPe = 1
 p_arr = np.arange(-1,2,0.02)
-b_arr = np.arange(-50,400,10); makelong = 1
+b_arr = np.arange(-50,700,10); makelong = 1
 p_mesh, b_mesh = np.meshgrid(p_arr , b_arr )
 signal = 1
 f1 = (k1+k2*signal)/(1+signal)
@@ -840,7 +844,7 @@ dAdt_null=A_null-1/3*A_null**3+a*np.log(1+signal/Kd)
 dAdt_null_no_stim=A_null-1/3*(A_null**3)
 dRdt_null=1/g*(A_null+c0)
 #%%
-np.savetxt('Ramp_Sgro_nullcline_OUT_1204.txt', (t_plot_Sgro, A_trace_plot,A_trace_orig,R_trace_orig))
+# np.savetxt('Ramp_Sgro_nullcline_OUT_1204.txt', (t_plot_Sgro, A_trace_plot,A_trace_orig,R_trace_orig))
 # read out the saved traces
 [t_plot_Sgro, A_trace_plot,A_trace_orig,R_trace_orig] = np.loadtxt('Ramp_Sgro_nullcline_OUT_1204.txt', dtype=float)
 #%% plot out outputs
@@ -855,6 +859,7 @@ ax0.axvspan(2.5, 7.5, alpha=0.2, color='b');
 ax0.set_title(r'$cAMP_{e}$ ramp input',fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax0.set_xlim([0,7.5]); ax0.set_ylim([-0.2,1.2])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])
 
@@ -923,6 +928,7 @@ for i in range(len(Kamino_time)-1):
 
 x_trace = np.array(x_trace) 
 y_trace = np.array(y_trace)
+y_trace_hnorm = y_trace/Nh_Kamino
     
 t_plot_Kamino = np.array(Kamino_time)/(Nt_Kamino)
 
@@ -940,12 +946,13 @@ fig5 = plt.figure(figsize=(8,9))
 grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.8)
 
 ax0 = fig5.add_subplot(grid[0, 0])
-ax0.plot(t_plot_Kamino, y_trace, 'green',linewidth=trace_width)
+ax0.plot(t_plot_Kamino, y_trace_hnorm, 'green',linewidth=trace_width)
 # ax0.axvline(x=5, ls='--', linewidth=trace_width, color='dimgrey')
 ax0.axvspan(2.5, 7.5, alpha=0.2, color='b');
 ax0.set_title(r'$cAMP_{e}$ ramp input',fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_xlim([0,7.5]); ax0.set_ylim([0.05,0.15])
+ax0.set_xlim([0,7.5]); ax0.set_ylim([0.1,0.5])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])
 ax1.axvline(x=dxdt_null_no_stim, ls='-', linewidth=trace_width, color='darkgrey')

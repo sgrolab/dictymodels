@@ -17,13 +17,8 @@ from scipy.signal import find_peaks
 from time import perf_counter 
 import scipy.io
 
-# Time scale normalization factors
-Nt_Gregor = 6
-Nt_Sgro = 27
-Nt_Goldbeter = 7
-Nt_Maeda = 3.57
-Nt_Kamino = 6
-
+# Normalization parameters
+from NormParam import *
 #%% Experimental data
 my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
 
@@ -96,8 +91,7 @@ N = 100 # number of cells in the population
 rho = 10**(-3.5); j = 0.5
 SgroPopParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':sigma,'N':N,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0, 'rho': rho,'j': j}
-Na=3.5;  # normalization factor of A
+            'flux_thrs':0, 'rho': rho,'j': j}
 
 dt=0.005 ; t_tot=30*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
 
@@ -138,7 +132,7 @@ for alphafval in alphafval_arr:
     # Traces
     A_trace_offset=1.5
     A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-    A_trace_plot=(A_trace_orig+A_trace_offset)/Na;
+    A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
     A_trace_mean_plot = np.mean(A_trace_plot,axis = 0)
     t_plot_Sgro = np.array(t)/Nt_Sgro
     
@@ -159,7 +153,7 @@ for alphafval in alphafval_arr:
 #    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 #    plt.show()
     
-#%%Plot  3 traces: low, medium and high [cAMP]ext 
+#%% Plot  3 traces: low, medium and high [cAMP]ext 
 
 fig = plt.figure(figsize=(11, 10))
 grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
@@ -238,7 +232,7 @@ k = 5 #ml/min
 GregorPopParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
             'c_sec':c_sec,'c_excite':c_excite,'Nc':Nc, 'rho':rho, 'Vt':Vt,'k':k}
 
-dt=0.005; t_tot=120*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
+dt=0.005; t_tot=30*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
 eta=0.002 # noise stength
 
 ext_input_arr = np.array([0.0001,10,1000]) #np.logspace(0,3,num=5)
@@ -272,9 +266,9 @@ for ext_input in ext_input_arr:
     #Traces
     # gregor_thetai_trace= np.array(gregor_thetai_trace) 
     # gregor_campExt_trace = np.array(gregor_campExt_trace)
-    gregor_campCyto_trace= np.array(gregor_campCyto_trace) 
+    gregor_campCyto_trace= np.array(gregor_campCyto_trace)/Nh_Gregor
     gregor_campCyto_trace_mean= np.mean(gregor_campCyto_trace,axis = 0)
-    gregor_campCyto_trace_mean = gregor_campCyto_trace_mean/np.amax(gregor_campCyto_trace_mean)
+    gregor_campCyto_trace_mean = gregor_campCyto_trace_mean
     t_plot_Gregor = np.array(t)/Nt_Gregor
     campCyto_traces[count,:] = gregor_campCyto_trace_mean
     campCyto_traces_single_cell[count,:,:] = gregor_campCyto_trace
@@ -291,7 +285,7 @@ for ext_input in ext_input_arr:
 #    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 #    plt.show()
     
-#%% Plot  3 traces: low, medium and high [cAMP]ext 
+# Plot  3 traces: low, medium and high [cAMP]ext 
 fig = plt.figure(figsize=(11, 10))
 grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
 
@@ -308,7 +302,7 @@ ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticala
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax1.axvspan(15, 30, alpha=0.2, color='g')
-ax1.set_xlim([0,120]); ax1.set_ylim([0,1.5])
+ax1.set_xlim([0,30]); ax1.set_ylim([0,1.5])
 
 ax2= fig.add_subplot(grid[1, 0])
 ax2.plot(t_plot_Gregor,campCyto_traces[1,:], alpha=0.8, color=mycolors[2],linewidth=trace_width+5)
@@ -321,7 +315,7 @@ ax2.text(0.7,0.9,r'Intermediate $cAMP_{e}$'+' input', horizontalalignment='cente
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.axvspan(15, 30, alpha=0.2, color='g')
-ax2.set_xlim([0,120]); ax2.set_ylim([0, 1.5])
+ax2.set_xlim([0,30]); ax2.set_ylim([0, 1.5])
 
 ax3= fig.add_subplot(grid[2, 0])
 ax3.plot(t_plot_Gregor,campCyto_traces[2,:], color=mycolors[2],alpha = 0.8, linewidth=trace_width+5)
@@ -334,7 +328,7 @@ ax3.text(0.7,0.9,r'High $cAMP_{e}$ input', horizontalalignment='center',vertical
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax3.axvspan(15, 30, alpha=0.2, color='g')
-ax3.set_xlim([0,120]); ax3.set_ylim([0,1.5])
+ax3.set_xlim([0,30]); ax3.set_ylim([0,1.5])
 
 fig.text(0.02, 0.9, 'D', color='g', fontsize=abcd_font_size, ha='center')
 fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
@@ -395,8 +389,8 @@ for camp_input in camp_input_Goldbeter_arr:
         b_trace.append(b_next)
         g_trace.append(g_next)
     # Convert into np array
-    b_trace = np.array(b_trace);  b_trace = b_trace/np.amax(b_trace)
-    p_trace = np.array(p_trace);  p_trace = p_trace/np.amax(p_trace)
+    b_trace = np.array(b_trace);  b_trace = b_trace/Nh_Goldbeter
+    p_trace = np.array(p_trace); 
     t_plot_Goldbeter = np.array(t)/Nt_Goldbeter
     b_traces[count,:] = b_trace
     count = count+1
@@ -414,7 +408,7 @@ for camp_input in camp_input_Goldbeter_arr:
 #    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 #    plt.show()
 
-#  Plot  3 traces: low, medium and high [cAMP]ext 
+#%%  Plot  3 traces: low, medium and high [cAMP]ext 
 fig = plt.figure(figsize=(11, 10))
 grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
 
@@ -425,7 +419,7 @@ ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticala
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax1.axvspan(15, 30, alpha=0.2, color='g')
-ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
+ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.5])
 
 ax2= fig.add_subplot(grid[1, 0])
 ax2.plot(t_plot_Goldbeter,b_traces[1,:], color=mycolors[0],linewidth=trace_width)
@@ -434,7 +428,7 @@ ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='cen
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.axvspan(15, 30, alpha=0.2, color='g')
-ax2.set_xlim([0,30]); ax2.set_ylim([-0.25,1.25])
+ax2.set_xlim([0,30]); ax2.set_ylim([-0.25,1.5])
 
 ax3= fig.add_subplot(grid[2, 0])
 ax3.plot(t_plot_Goldbeter,b_traces[2,:], color=mycolors[0],linewidth=trace_width)
@@ -443,7 +437,7 @@ ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',vertical
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax3.axvspan(15, 30, alpha=0.2, color='g')
-ax3.set_xlim([0,30]); ax3.set_ylim([-0.25,1.25])
+ax3.set_xlim([0,30]); ax3.set_ylim([-0.25,1.5])
 
 fig.text(0.02, 0.9, 'B', color='g', fontsize=abcd_font_size, ha='center')
 fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
@@ -494,9 +488,8 @@ for camp_input in camp_input_Maeda_arr:
         cAMPi_next,cAMPe_next,CAR1_next=MaedaLoomis_pop.update(dt,camp_input_trace[i])
         cAMPi_trace.append(cAMPi_next)
     cAMPi_trace_later = np.array(cAMPi_trace[int(len(t)/2):]); 
-    cAMPi_trace_later = cAMPi_trace_later/np.amax(cAMPi_trace_later[:int(len(t)/4)])
     t_plot_Maeda = np.arange(0,t_tot/2,dt)/Nt_Maeda
-    cAMPi_traces[count,:] = cAMPi_trace_later
+    cAMPi_traces[count,:] = cAMPi_trace_later/Nh_Maeda
     count = count + 1
 #    #  check simulation traces
 #    label_font_size=25; trace_width=3; tick_font_size=18
@@ -511,7 +504,7 @@ for camp_input in camp_input_Maeda_arr:
 #    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 #    plt.show()
     
-# Plot  3 traces: low, medium and high [cAMP]ext 
+#%% Plot  3 traces: low, medium and high [cAMP]ext 
 fig = plt.figure(figsize=(11, 10))
 grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
 
@@ -522,7 +515,7 @@ ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticala
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax1.axvspan(15, 30, alpha=0.2, color='g')
-ax1.set_xlim([0,30]); ax1.set_ylim([0.4,2])
+ax1.set_xlim([0,30]); ax1.set_ylim([0.1,0.9])
 
 ax2= fig.add_subplot(grid[1, 0])
 ax2.plot(t_plot_Maeda, cAMPi_traces[1,:], color=mycolors[1],linewidth=trace_width)
@@ -531,7 +524,7 @@ ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='cen
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.axvspan(15, 30, alpha=0.2, color='g')
-ax2.set_xlim([0,30]); ax2.set_ylim([0.4,2])
+ax2.set_xlim([0,30]); ax2.set_ylim([0.1,0.9])
 
 ax3= fig.add_subplot(grid[2, 0])
 ax3.plot(t_plot_Maeda, cAMPi_traces[2,:], color=mycolors[1],linewidth=trace_width)
@@ -540,7 +533,7 @@ ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',vertical
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax3.axvspan(15, 30, alpha=0.2, color='g')
-ax3.set_xlim([0,30]); ax3.set_ylim([0.4,2])
+ax3.set_xlim([0,30]); ax3.set_ylim([0.1,0.9])
 
 fig.text(0.02, 0.9, 'C', color='g', fontsize=abcd_font_size, ha='center')
 fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
@@ -582,7 +575,7 @@ for camp_input in camp_input_Kamino_arr:
         x_next,y_next,z_next=Kamino_pop.update(camp_input_trace[i],dt)
         y_trace.append(y_next)
         
-    y_trace = np.array(y_trace);  y_trace = y_trace/np.amax(y_trace)
+    y_trace = np.array(y_trace);  y_trace = y_trace/Nh_Kamino
     t_plot_Kamino = np.array(t)/Nt_Kamino
     y_traces[count,:] = y_trace
     count = count+1

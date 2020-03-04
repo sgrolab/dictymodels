@@ -12,17 +12,18 @@ import matplotlib.pyplot as plt
 import scipy.io
 import pandas as pd
 
-Nt_Gregor = 6 
-Nt_Sgro = 27
-Nt_Goldbeter = 6.94
-Nt_Maeda = 3.57
-Nt_Kamino = 5.22
+
+from NormParam import *
 
 ##%% Get ramp input from experimental data
 #Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
 #Exp_time = Exp_time[~np.isnan(Exp_time)]
 #RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
 #RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
+
+# experimental data
+my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheetname='Figure3')
 
 #%% Single cell step cs. ramp inputs
 # Sgro 2015
@@ -39,7 +40,7 @@ Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
 
 ## stimulation settings
 #cAMP=1
-T_tot = 20; T_tot=T_tot*Nt_Sgro
+T_tot = 16; T_tot=T_tot*Nt_Sgro
 dt=0.001 ;  t=list(np.arange(0,T_tot,dt))
 #signal_trace_Sgro=np.zeros(len(t))
 #
@@ -58,12 +59,13 @@ dt=0.001 ;  t=list(np.arange(0,T_tot,dt))
 #a=math.log(cAMP+1)
 #temp_t=np.linspace(0,1,len(tRamp))
 #signal_trace_Sgro[tRampOn:tRampOff+1] = np.exp(a*temp_t)-1
+cAMP = 1
 Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
-Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Sgro
+Exp_time = Exp_time[~np.isnan(Exp_time)]/5*Nt_Sgro
 RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
 RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-Sgro_time = np.arange(0,20*Nt_Sgro,dt)
+Sgro_time = np.arange(0,16*Nt_Sgro,dt)
 RampInput_Sgro= np.interp(Sgro_time, Exp_time,RampInput_Exp)
 
 # test update function with one step caculations
@@ -85,7 +87,7 @@ for i in range(len(Sgro_time)-1):
 # Traces
 A_trace_offset=1.5
 A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-A_trace_plot=(A_trace_orig+A_trace_offset)/Na;
+A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
 t_plot_Sgro = np.array(t)/Nt
 # plot stimulus and traces
 label_font_size = 10
@@ -111,26 +113,28 @@ ax2.yaxis.label.set_color('g')
 ax2.set_xlabel('Time',fontsize=label_font_size)
 plt.show()
 #%%
-np.savetxt('Single_cell_ramp_Sgro_OUT_1203.txt', (t_plot_Sgro, A_trace_plot))
+#np.savetxt('Single_cell_ramp_Sgro_OUT_200218.txt', (t_plot_Sgro, A_trace_plot))
 # read out the saved traces
-[t_plot_Sgro, A_trace_plot] = np.loadtxt('Single_cell_ramp_Sgro_OUT_1023.txt', dtype=float)
+[t_plot_Sgro, A_trace_plot] = np.loadtxt('Single_cell_ramp_Sgro_OUT_200218.txt', dtype=float)
 
 #%% Goldbeter 1987
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
 
+# Table 2 parameters 
 k1 = 0.036     # per min
 k2 = 0.666    # per min
 L1 = 10; L2 = 0.005 
 c = 10;           # 0.15 ~ 50
 lamda=0.01; theta=0.01
-e=  0.108 # compared to 1
+e=  1 
 q=4000
-sig= 0.57 # compared to 0.6
+sig= 0.6
 v=12; k= 4 # k prime in the paper
-ki=0.958 # compared to 1.7 
+ki=1.7
 kt=0.9
-kc=3.58 # compared to 5.4
+kc=5.4
 h=5
+
 
 Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'theta':theta, 'e':e, 'q':q,'sig':sig, 'v':v, 'k':k, \
@@ -145,15 +149,15 @@ p_trace=[p0]; b_trace=[b0]; g_trace=[g0]
 
 # stimulation settings
 cAMP=1
-T_tot = 20; T_tot = T_tot*Nt_Goldbeter
+T_tot = 16; T_tot = T_tot*Nt_Goldbeter
 dt=0.001; t=list(np.arange(0,T_tot,dt))
 
 Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
-Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Goldbeter
+Exp_time = Exp_time[~np.isnan(Exp_time)]/5*Nt_Goldbeter
 RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
 RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-Goldbeter_time = np.arange(0,20*Nt_Goldbeter,dt)
+Goldbeter_time = np.arange(0,16*Nt_Goldbeter,dt)
 RampInput_Goldbeter= np.interp(Goldbeter_time, Exp_time,RampInput_Exp)
 
 for i in range(len(t)-1):
@@ -166,8 +170,8 @@ for i in range(len(t)-1):
         
    
 # Convert into np array
-b_trace = np.array(b_trace); # b_trace = b_trace/np.amax(b_trace)
-p_trace = np.array(p_trace); # p_trace = p_trace/np.amax(p_trace)
+b_trace = np.array(b_trace)/Nh_Goldbeter; 
+p_trace = np.array(p_trace); 
 t_plot_Goldbeter = np.array(t)/Nt_Goldbeter
 
 # plot stimulus and traces
@@ -216,15 +220,15 @@ CAR1_trace=[CAR10]
 
 # stimulation settings
 cAMP=1
-T_tot = 20 * Nt_Maeda
+T_tot = 16 * Nt_Maeda
 dt=0.001; t=list(np.arange(0,T_tot,dt))
 
 Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
-Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Maeda
+Exp_time = Exp_time[~np.isnan(Exp_time)]/5*Nt_Maeda
 RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
 RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-Maeda_time = np.arange(0,20*Nt_Maeda,dt)
+Maeda_time = np.arange(0,16*Nt_Maeda,dt)
 RampInput_Maeda= np.interp(Maeda_time, Exp_time,RampInput_Exp)
 
 for i in range(len(t)-1):
@@ -250,7 +254,7 @@ for i in range(len(t)-1):
     
 
 ERK2_trace = np.array(ERK2_trace) # vectorize p_trace
-cAMPi_trace = np.array(cAMPi_trace)
+cAMPi_trace = np.array(cAMPi_trace)/Nh_Maeda
 t_plot_Maeda = np.array(t)/Nt_Maeda
 
 # plot stimulus and traces
@@ -294,15 +298,15 @@ x_trace=[x0]; y_trace=[y0]
 
 # stimulation settings
 cAMP=1
-T_tot = 20 * Nt_Kamino
+T_tot = 16 * Nt_Kamino
 dt=0.001; t=list(np.arange(0,T_tot,dt))
 
 Exp_time = Sgro2015Figure3excel["Ramp Input (min Time)"]# np.linspace(0,20,num=1000) # t step 0.02
-Exp_time = Exp_time[~np.isnan(Exp_time)]/4*Nt_Kamino
+Exp_time = Exp_time[~np.isnan(Exp_time)]/5*Nt_Kamino
 RampInput_Exp = Sgro2015Figure3excel["Ramp Input (nM cAMP)"]
 RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
-Kamino_time = np.arange(0,20*Nt_Kamino,dt)
+Kamino_time = np.arange(0,16*Nt_Kamino,dt)
 RampInput_Kamino= np.interp(Kamino_time, Exp_time,RampInput_Exp)
 
 
@@ -317,7 +321,7 @@ for i in range(len(t)-1):
    
 # Convert into np array
 x_trace = np.array(x_trace) # vectorize p_trace
-y_trace = np.array(y_trace)
+y_trace = np.array(y_trace)/Nh_Kamino
 t_plot_Kamino = np.array(t)/Nt_Kamino
 
 # plot stimulus and traces
@@ -347,20 +351,9 @@ ax3.yaxis.label.set_color('b')
 ax3.set_xlabel('Time',fontsize=label_font_size)
 plt.show()
 
-#%% PLot all the stuff
-# Signal normalization
-cAMPi_trace = cAMPi_trace/(np.amax(cAMPi_trace)) # Laub Loomis 1998
-b_trace = b_trace/(np.amax(b_trace)) # Goldbeter 1987
-# gregor_campCyto_trace=(gregor_campCyto_trace-np.amin(gregor_campCyto_trace))/np.amax(gregor_campCyto_trace-np.amin(gregor_campCyto_trace)) # Gregor2010
-y_trace= (y_trace-np.amin(y_trace))/np.max((y_trace-np.amin(y_trace)))  # Kamino2017
-A_trace_plot = A_trace_plot/(np.amax(A_trace_plot))
-
-#%% experimental data
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
-Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheetname='Figure3')
 
 #%% Save all outputs in npz file
-np.savez('single_cell_StepRamp_191203.npz', 
+np.savez('single_cell_StepRamp_200218.npz', 
          t_plot_Goldbeter = t_plot_Goldbeter , b_trace=b_trace,
          t_plot_Maeda = t_plot_Maeda , cAMPi_trace = cAMPi_trace,
          t_plot_Sgro=t_plot_Sgro, A_trace_plot=A_trace_plot,
@@ -371,53 +364,56 @@ t_plot_Goldbeter =  npzfile['t_plot_Goldbeter'] ; b_trace = npzfile['b_trace']
 t_plot_Maeda=npzfile['t_plot_Maeda'] ; cAMPi_trace=npzfile['cAMPi_trace']
 t_plot_Sgro=npzfile['t_plot_Sgro']; A_trace_plot=npzfile['A_trace_plot']
 t_plot_Kamino= npzfile['t_plot_Kamino']; y_trace=npzfile['y_trace']        
+
+
 #%% Plot all model results- separate subplots
 #title_font_size = 22
 #label_font_size = 22
 #tick_font_size = 16
 #legend_font_size = 12
 #trace_width = 3
-abcd_font_size = 28
-label_font_size=24
-title_font_size = 26
-sublabel_font_size = 22
-trace_width=3
-tick_font_size=20
+abcd_font_size = 18
+label_font_size=14
+title_font_size = 14
+sublabel_font_size = 12
+trace_width=2
+tick_font_size=12
 mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
           '#f781bf', '#a65628', '#984ea3',
           '#999999', '#e41a1c', '#dede00']   
 
-fig3 = plt.figure(figsize=(20,12))
-grid = plt.GridSpec(4, 3, wspace=0.4, hspace=1.2)
+fig3 = plt.figure(figsize=(6,36))
+grid = plt.GridSpec(11, 1, wspace=0.8, hspace=0.05)
 
-ax0 = fig3.add_subplot(grid[1, 0])
+ax0 = fig3.add_subplot(grid[0, 0])
 ax0.plot(Sgro2015Figure3excel["Ramp Input (min Time)"],Sgro2015Figure3excel["Ramp Input (nM cAMP)"],
                               color='k', linewidth = trace_width)
 ax0.set_title('Experiment',color='k', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-#ax0.set_ylabel(r'$cAMP_{e}$(nM)',fontsize=label_font_size)
-ax0.text(-16, 0.5, r'$cAMP_{e}$(nM)', ha='center',va='center',rotation ='vertical',
-         color = 'k', fontsize=label_font_size)
-ax0.set_xlabel('Time, A.U.',fontsize=label_font_size)
+ax0.set_ylabel(r'$cAMP_{e}$'+'\n(nM)',fontsize=sublabel_font_size)
+#ax0.text(-16, 0.5, r'$cAMP_{e}$(nM)', ha='center',va='center',rotation ='vertical',
+#         color = 'k', fontsize=label_font_size)
+# ax0.set_xlabel('Time, A.U.',fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax0.set_xlim([0,80])
-ax0.text(-0.2, 1.9, 'A', ha='center',va='center',
+ax0.set_ylim([-0.1,1.1])
+ax0.xaxis.set_major_formatter(plt.NullFormatter()) # hide x axis
+ax0.text(-0.1, 1.4, 'A', ha='center',va='center',
          transform = ax0.transAxes, color = 'b', fontsize=abcd_font_size)
 
-ax1= fig3.add_subplot(grid[2:, 0])
+ax1= fig3.add_subplot(grid[1:2, 0])
 ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 1 FRET Trace"],
                                color='k', linewidth = trace_width)
 ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 2 FRET Trace"],
-                               color='dimgrey', linewidth = trace_width)
+                               color='grey', linewidth = trace_width)
 ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 3 FRET Trace"],
-                               color='darkgrey', linewidth = trace_width)
+                               color='lightgrey', linewidth = trace_width)
 ax1.axvspan(10, 30, alpha=0.2, color='b'); ax1.axvspan(50, 70, alpha=0.2, color='b')
-ax1.set_ylabel('FRET Signal, A.U.',fontsize=label_font_size)
-ax1.set_xlabel('Time (min)',fontsize=label_font_size)
+ax1.set_ylabel('FRET,\n A.U.',fontsize=sublabel_font_size)
+ax1.set_xlabel('Time (min)',fontsize=sublabel_font_size)
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1.set_ylim([-0.1,0.5]); ax1.set_xlim([0,80])
+ax1.set_ylim([-0.1,0.6]); ax1.set_xlim([0,80])
 
-
-ax2= fig3.add_subplot(grid[0:2, 1])
+ax2= fig3.add_subplot(grid[3:4, 0])
 ax2.plot(t_plot_Goldbeter, b_trace, color=mycolors[0],linewidth=trace_width)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax2.set_title('Martiel 1987',color = mycolors[0],  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
@@ -426,7 +422,7 @@ ax2.set_ylim([-0.2,1.2]); ax2.set_xlim([0,20])
 ax2.text(-0.1, 1.12, 'B', ha='center',va='center',
          transform = ax2.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax3= fig3.add_subplot(grid[0:2, 2])
+ax3= fig3.add_subplot(grid[5:6, 0])
 ax3.plot(t_plot_Maeda, cAMPi_trace, color=mycolors[1],linewidth=trace_width)
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax3.set_title('Maeda 2004', color = mycolors[1],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
@@ -435,7 +431,7 @@ ax3.set_ylim([-0.2,1.2]);  ax3.set_xlim([0,20])
 ax3.text(-0.1, 1.12, 'C', ha='center',va='center',
          transform = ax3.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax4= fig3.add_subplot(grid[2:, 1])
+ax4= fig3.add_subplot(grid[7:8, 0])
 ax4.plot(t_plot_Sgro, A_trace_plot, color=mycolors[5],linewidth=trace_width)
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax4.set_title('Sgro 2015', color = mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
@@ -444,7 +440,7 @@ ax4.set_ylim([-0.2,1.2]);  ax4.set_xlim([0,20])
 ax4.text(-0.1, 1.12, 'D', ha='center',va='center',
          transform = ax4.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax5= fig3.add_subplot(grid[2:, 2])
+ax5= fig3.add_subplot(grid[9:10, 0])
 ax5.plot(t_plot_Kamino, y_trace, color=mycolors[7],linewidth=trace_width)
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax5.set_title('Kamino 2017', color = mycolors[7],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
@@ -453,9 +449,10 @@ ax5.set_ylim([-0.2,1.2]);  ax5.set_xlim([0,20])
 ax5.text(-0.1, 1.12, 'E', ha='center',va='center',
          transform = ax5.transAxes, color = 'g', fontsize=abcd_font_size)
 
-fig3.text(0.36, 0.5, r'$cAMP_{i}$', fontsize=label_font_size,va='center', rotation='vertical')
-fig3.text(0.66, 0.04, 'Time, A.U.', fontsize=label_font_size, ha='center')
+fig3.text(0, 0.5, r'$cAMP_{i}$', fontsize=label_font_size,va='center', rotation='vertical')
+fig3.text(0.5, 0.12, 'Time, A.U.', fontsize=label_font_size, ha='center')
 plt.show()
+
 
 #%% Plot all model results- all one plot
 title_font_size = 22
