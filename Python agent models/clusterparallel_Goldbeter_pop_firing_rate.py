@@ -18,12 +18,15 @@ import matplotlib
 #	matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# Time scale normalization parameter
-Nt_Gregor = 6
-Nt_Sgro = 27
-Nt_Goldbeter = 7
-Nt_Maeda = 3.57
-Nt_Kamino = 6
+## Time scale normalization parameter
+#Nt_Gregor = 6
+#Nt_Sgro = 27
+#Nt_Goldbeter = 7
+#Nt_Maeda = 3.57
+#Nt_Kamino = 6
+
+# Normalization parameters
+from NormParam import *
 #%% Golbeter 1987
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var
 # set parameters
@@ -59,7 +62,7 @@ Goldbeter3PopParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'ki':ki,'kt':kt, 'kc':0,'h':0}
 
 #update function
-dt=0.0001; t_tot=20*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
+dt=0.001; t_tot=20*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
 nSteps = len(t)
 t_plot_Goldbeter = np.array(t); t_plot_Goldbeter = t_plot_Goldbeter/Nt_Goldbeter
 signal_input = 0
@@ -87,14 +90,16 @@ def calc_updates_Goldbeter(kc_arr, h_arr, Goldbeter3PopParam, nSteps, index):
     g_trace = np.array(g_trace)
     later_portion = 0.2 # start count peaks after this X total simulation time
     b_trace_later=b_trace[math.floor(nSteps * later_portion):] # the later part of trace
-    b_trace_later_norm = b_trace_later/np.amax(b_trace_later)
+    b_trace_later_norm = b_trace_later/Nh_Goldbeter
+    
     p_trace_later=p_trace[math.floor(nSteps * later_portion):]
     p_trace_later_norm = p_trace_later/np.amax(p_trace_later)
     g_trace_later=g_trace[math.floor(nSteps * later_portion):]
     g_trace_later_norm = g_trace_later/np.amax(g_trace_later)
     t_plot_Goldbeter_later = t_plot_Goldbeter[math.floor(nSteps * later_portion):]
     
-    PkPos, PkProperties = find_peaks(b_trace_later, prominence=(5,1000))
+#    PkPos, PkProperties = find_peaks(b_trace_later, prominence=(5,1000))
+    PkPos, PkProperties = find_peaks(b_trace_later_norm, prominence=(5/Nh_Goldbeter,1000/Nh_Goldbeter))
 #    # Check find_peaks
 #    fig = plt.figure()
 #    plt.plot(b_trace_later)
@@ -105,31 +110,31 @@ def calc_updates_Goldbeter(kc_arr, h_arr, Goldbeter3PopParam, nSteps, index):
     else: 
         firing_rate = len(PkPos)/(t_tot/Nt_Goldbeter*(1-later_portion))
         height = np.mean(PkProperties["prominences"])
-    
-    # check simulation traces
-    fig = plt.figure(figsize=(10,2.5)); grid = plt.GridSpec(1, 2,hspace= 0.3)
-    ax1= fig.add_subplot(grid[0, 0])
-    ax1.plot(t_plot_Goldbeter_later,b_trace_later, color = 'g', linewidth = 3, label = 'cAMPi')
-    ax1.plot(t_plot_Goldbeter_later,p_trace_later, color ='b',label = 'Proportion of active receptor')
-    ax1.plot(t_plot_Goldbeter_later,g_trace_later, color ='k', label = 'cAMPe')
-    # ax1.set_xlim([10,20])
-    ax1.set_xlabel('Time')
-    ax1.set_ylabel('b')
-    ax1.set_title('dilutio rate= '+ '{:#.3n}'.format(np.float64(kc_arr[index[0]])) +
-    ', density= '+'{:#.3n}'.format(np.float64(one_over_h_arr[index[1]])) + 
-        ', FR = '+'{:#.3n}'.format(np.float64(firing_rate)))
-    leg = ax1.legend()
-                
-    ax2= fig.add_subplot(grid[0, 1])
-    ax2.plot(t_plot_Goldbeter_later,b_trace_later_norm, color = 'g', linewidth = 3)
-    ax2.plot(t_plot_Goldbeter_later,p_trace_later, color ='b')
-    ax2.plot(t_plot_Goldbeter_later,g_trace_later_norm, color ='k')
-    ax2.set_xlim([10,20])
-    ax2.set_xlabel('Time')
-    ax2.set_ylabel('Normalized trace, A.U.')
-    ax2.set_title('Normalized traces, zoomed in')
-
-    plt.show()
+   
+#    # check simulation traces
+#    fig = plt.figure(figsize=(10,2.5)); grid = plt.GridSpec(1, 2,hspace= 0.3)
+#    ax1= fig.add_subplot(grid[0, 0])
+#    ax1.plot(t_plot_Goldbeter_later,b_trace_later, color = 'g', linewidth = 3, label = 'cAMPi')
+#    ax1.plot(t_plot_Goldbeter_later,p_trace_later, color ='b',label = 'Proportion of active receptor')
+#    ax1.plot(t_plot_Goldbeter_later,g_trace_later, color ='k', label = 'cAMPe')
+#    # ax1.set_xlim([10,20])
+#    ax1.set_xlabel('Time')
+#    ax1.set_ylabel('b')
+#    ax1.set_title('dilutio rate= '+ '{:#.3n}'.format(np.float64(kc_arr[index[0]])) +
+#    ', density= '+'{:#.3n}'.format(np.float64(one_over_h_arr[index[1]])) + 
+#        ', FR = '+'{:#.3n}'.format(np.float64(firing_rate)))
+#    leg = ax1.legend()
+#                
+#    ax2= fig.add_subplot(grid[0, 1])
+#    ax2.plot(t_plot_Goldbeter_later,b_trace_later_norm, color = 'g', linewidth = 3)
+#    ax2.plot(t_plot_Goldbeter_later,p_trace_later, color ='b')
+#    ax2.plot(t_plot_Goldbeter_later,g_trace_later_norm, color ='k')
+#    ax2.set_xlim([10,20])
+#    ax2.set_xlabel('Time')
+#    ax2.set_ylabel('Normalized trace, A.U.')
+#    ax2.set_title('Normalized traces, zoomed in')
+#
+#    plt.show()
     
     return index,firing_rate,height
     

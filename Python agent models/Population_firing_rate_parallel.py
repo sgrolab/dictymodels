@@ -657,8 +657,8 @@ mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
           '#f781bf', '#a65628', '#984ea3',
           '#999999', '#e41a1c', '#dede00']
 
-fig3 = plt.figure(figsize=(14, 7))
-grid = plt.GridSpec(2,3, wspace=0.5, hspace=0.4)
+fig3 = plt.figure(figsize=(24, 8))
+grid = plt.GridSpec(2,4, wspace=0.8, hspace=0.5)
 
 ax0= fig3.add_subplot(grid[0,0])
 ax0.set_xticks([0,1,2,3,4,5,6,7,8,9]); 
@@ -703,7 +703,7 @@ ax2.text(-0.2 , 1.1, 'C',
          horizontalalignment='center',verticalalignment='center',
          transform = ax2.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax3= fig3.add_subplot(grid[1,0], xticks=[0,25,50,75,100])
+ax3= fig3.add_subplot(grid[0,3], xticks=[0,25,50,75,100])
 heatmap = ax3.pcolor(k_arr_Gregor, rho_arr_Gregor, pop_rate_Gregor, cmap='jet') # cmap='jet'
 ax3.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax3);cbar.ax.tick_params(labelsize = tick_font_size) 
@@ -712,48 +712,50 @@ ax3.set_title('Gregor 2010',color=mycolors[2], fontdict={'fontsize': title_font_
 ax3.text(-0.2 , 1.1, 'D',
          horizontalalignment='center',verticalalignment='center',
          transform = ax3.transAxes, color = 'g', fontsize=abcd_font_size)
-## Sgro regular noise (sig = 0.15)
-#ax4= fig3.add_subplot(grid[1,1],xticks=[0,0.25,0.5,0.75,1])
-#heatmap = ax4.pcolor(j_arr_Sgro, rho_arr_Sgro, pop_rate_Sgro, cmap='jet') # cmap='jet'
-#ax4.set_yscale('log'); ax4.set_ylim([10**(-5),10**(-3)]); 
-#cbar=fig3.colorbar(heatmap, ax=ax4);cbar.ax.tick_params(labelsize = tick_font_size) 
-#ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-#ax4.set_title('Sgro 2015', color=mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-#ax4.text(-0.2 , 1.1, 'E',
-#         horizontalalignment='center',verticalalignment='center',
-#         transform = ax4.transAxes, color = 'g', fontsize=abcd_font_size)
 
-# Sgro low noise  (sig = 0.0)
+# Sgro regular noise (sig = 0.15)
 ax4= fig3.add_subplot(grid[1,1],xticks=[0,0.25,0.5,0.75,1])
-heatmap = ax4.pcolor(j_arr_Sgro_low_noise, rho_arr_Sgro_low_noise, pop_rate_Sgro_low_noise.transpose(), cmap='jet') # cmap='jet'
+heatmap = ax4.pcolor(j_arr_Sgro, rho_arr_Sgro, pop_rate_Sgro, cmap='jet') # cmap='jet'
 ax4.set_yscale('log'); ax4.set_ylim([10**(-5),10**(-3)]); 
 cbar=fig3.colorbar(heatmap, ax=ax4);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('Sgro 2015,\n low noise', color=mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.set_title('Sgro 2015', color=mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax4.text(-0.2 , 1.1, 'E',
          horizontalalignment='center',verticalalignment='center',
          transform = ax4.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax5= fig3.add_subplot(grid[1,2], xticks=[0,25,50,75,100])
-heatmap = ax5.pcolor(gamma_arr_Kamino, rho_arr_Kamino, pop_rate_Kamino.transpose(), cmap='jet') # cmap='jet'
-ax5.set_yscale('log')
+# Sgro low noise  (sig = 0.0)
+ax5= fig3.add_subplot(grid[1,2],xticks=[0,0.25,0.5,0.75,1])
+heatmap = ax5.pcolor(j_arr_Sgro_low_noise, rho_arr_Sgro_low_noise, pop_rate_Sgro_low_noise.transpose(), cmap='jet') # cmap='jet'
+ax5.set_yscale('log'); ax5.set_ylim([10**(-5),10**(-3)]); 
 cbar=fig3.colorbar(heatmap, ax=ax5);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5.set_title('Kamino 2017', color=mycolors[7], fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5.set_title('Sgro 2015 \n w/o noise', color=mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax5.text(-0.2 , 1.1, 'F',
          horizontalalignment='center',verticalalignment='center',
          transform = ax5.transAxes, color = 'g', fontsize=abcd_font_size)
 
-# insets
-ax6= fig3.add_axes([0.77,0.13,0.08,0.16])
-heatmap = ax6.pcolor(gamma_arr_Kamino, rho_arr_Kamino,pop_rate_Kamino.transpose(), cmap='jet') # cmap='jet'
-ax6.set_yscale('log');ax6.set_xscale('log');
-ax6.set_xticks([]) ; ax6.set_yticks([]) 
-ax6.spines['bottom'].set_color('white');ax6.spines['top'].set_color('white')
-ax6.spines['left'].set_color('white');ax6.spines['right'].set_color('white')
+ax6= fig3.add_subplot(grid[1,3], xticks=[0,25,50,75,100])
+heatmap = ax6.pcolor(gamma_arr_Kamino, rho_arr_Kamino, pop_rate_Kamino.transpose(), cmap='jet') # cmap='jet'
+ax6.set_yscale('log')
+cbar=fig3.colorbar(heatmap, ax=ax6);cbar.ax.tick_params(labelsize = tick_font_size) 
+ax6.tick_params(axis='both', which='major', labelsize=tick_font_size)
+ax6.set_title('Kamino 2017', color=mycolors[7], fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax6.text(-0.2 , 1.1, 'G',
+         horizontalalignment='center',verticalalignment='center',
+         transform = ax6.transAxes, color = 'g', fontsize=abcd_font_size)
 
-fig3.text(0.5, 0.02, 'Dilution Rate, A.U.',fontsize=label_font_size, ha='center')
-fig3.text(0.05, 0.3, 'Population Density, A.U.',fontsize=label_font_size, va='center', rotation='vertical')
+# insets
+#ax7= fig3.add_axes([0.77,0.13,0.08,0.16])
+ax7= fig3.add_axes([0.805,0.13,0.062,0.152])
+heatmap = ax7.pcolor(gamma_arr_Kamino, rho_arr_Kamino,pop_rate_Kamino.transpose(), cmap='jet') # cmap='jet'
+ax7.set_yscale('log');ax7.set_xscale('log');
+ax7.set_xticks([]) ; ax7.set_yticks([]) 
+ax7.spines['bottom'].set_color('white');ax7.spines['top'].set_color('white')
+ax7.spines['left'].set_color('white');ax7.spines['right'].set_color('white')
+
+fig3.text(0.62, 0.02, 'Dilution Rate, A.U.',fontsize=label_font_size, ha='center')
+fig3.text(0.29, 0.5, 'Population Density, A.U.',fontsize=label_font_size, va='center', rotation='vertical')
 
 plt.show()
 

@@ -25,11 +25,8 @@ from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
 from Sgro2015_agent_and_pop_FUN import Sgro2015_pop
 from Kamino2017_agent_and_pop_FUN import Kamino2017_pop
 
-Nt_Gregor = 6 
-Nt_Sgro = 27
-Nt_Goldbeter = 6.94
-Nt_Maeda = 3.57
-Nt_Kamino = 5.22
+# Normalization parameters
+from NormParam import *
 #%%
 # Goldbeter 1986 population response simulation
 def Goldbeter_pop(Goldbeter3PopParam,dt,t,cAMPext_influx_trace):
@@ -110,7 +107,7 @@ def Gregor_pop(GregorPopParam,dt,t, campExt_influx_trace, time_separation = 0):
 # Sgro 2015 population response simulation
 def Sgro_pop(SgroPopParam,dt,t,cAMPext_influx_trace, time_separation = 0):
     N = SgroPopParam['N']
-    Na = SgroPopParam['Na']
+    Na = Nh_Sgro
     A_trace_offset = SgroPopParam['offset_A']
 
     # create an object and initializations

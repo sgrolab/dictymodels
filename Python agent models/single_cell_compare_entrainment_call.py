@@ -13,12 +13,8 @@ import scipy.io
 
 from scipy.signal import find_peaks, correlate 
 
-# Time scale normalization factors
-Nt_Gregor = 6
-Nt_Sgro = 27
-Nt_Goldbeter = 7
-Nt_Maeda = 3.57
-Nt_Kamino = 6
+# Normalization parameters
+from NormParam import *
 #%% Sgro 2015 with noise
 from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
 # from TracesXcorr import TracesXcorr
@@ -45,8 +41,6 @@ e=0.1; tauA=0.09; tauR=tauA/e; g=0.5
 SgroAgentParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
             'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
-Nt=27; # normalization factor of t
-Na=3.5;  # normalization factor of A
 A0=-1.5; R0=-0.5
 
 dt=0.005
@@ -81,7 +75,7 @@ for j in range(len(period_space_Sgro)): # j_test: #
        
             A_trace_offset=1.5
             A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-            A_trace_plot=(A_trace_orig+A_trace_offset)/Na;
+            A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
             
             r=np.zeros(NumofCycle-1) # list that stores correlation coefficient to the first peak
             r_new = np.zeros(NumofCycle-1) # correlation coeff take in height difference
@@ -128,7 +122,7 @@ grid = plt.GridSpec(1, 1, wspace=0.1, hspace=0.1)
 
 ax1= fig3.add_subplot(grid[0, 0])
 # heatmap = ax1.pcolor(period_space_Sgro*10/np.amax(period_space_Sgro), PkWdth_space_Sgro* 1.4/1.7*10/np.amax(PkWdth_space_Sgro),MeanR_Sgro, cmap='jet') # cmap='jet'
-heatmap = ax1.pcolor(period_space_Sgro, PkWdth_space_Sgro,MeanRnew_Sgro, cmap='jet')
+heatmap = ax1.pcolor(period_space_Sgro, PkWdth_space_Sgro,MeanR_Sgro, cmap='jet')
 heatmap.set_clim(0,1)
 fig3.colorbar(heatmap, ax=ax1)
 
@@ -190,7 +184,7 @@ for j in range(len(period_space_Kamino)): # j_test: #
                 
        
             y_trace = np.array(y_trace)# vectorize y_trace
-            y_trace = y_trace/np.amax(y_trace)
+            y_trace = y_trace/Nh_Kamino
 
             r=np.zeros(NumofCycle-1) # list that stores correlation coefficient to the first peak
             r_new = np.zeros(NumofCycle-1) # correlation coeff take in height difference
@@ -230,8 +224,8 @@ fig3 = plt.figure(figsize=(7, 6))
 grid = plt.GridSpec(1, 1, wspace=0.1, hspace=0.1)
 
 ax1= fig3.add_subplot(grid[0, 0])
-heatmap = ax1.pcolor(period_space_Kamino, PkWdth_space_Kamino,MeanRnew_Kamino, cmap='jet')
-# heatmap.set_clim(0,1)
+heatmap = ax1.pcolor(period_space_Kamino, PkWdth_space_Kamino,MeanR_Kamino, cmap='jet')
+heatmap.set_clim(0,1)
 fig3.colorbar(heatmap, ax=ax1)
 ax1.set_ylabel('Peak Width, A.U.',fontsize=label_font_size)
 ax1.set_xlabel('Entrainment period, A.U.',fontsize=label_font_size)
@@ -261,13 +255,13 @@ k2 = 0.666    # per min
 L1 = 10; L2 = 0.005 
 c = 10;           # 0.15 ~ 50
 lamda=0.01; theta=0.01
-e= 0.108 # compared to 1
+e= 1
 q=4000
 sig=0.6 # compared to 0.57
 v=12; k= 4 # k prime in the paper
-ki=1.7 # compared to 0.958 
+ki=1.7 
 kt=0.9
-kc=5.4 # compared to 3.58
+kc=5.4 
 h=5
 
 Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
@@ -278,7 +272,7 @@ p0=0.8; a0=3; b0=0.9; g0=0
 
 dt=0.001 ; # t_tot=20*Nt; t=list(np.arange(0,t_tot,dt))
 cAMP = 1 # extracellular cAMP
-NumofCycle = 9 # cycle stimulation
+NumofCycle = 8 # cycle stimulation
 
 #j_test=[0]; k_test=[0,3,5]
 #period_space = [1];PkWdth_space = [0.3,0.6,0.9]
@@ -307,7 +301,7 @@ for  j in range(len(period_space_Gold)):# period in period_space: #j_test:#
                 b_trace.append(b_next)
                 g_trace.append(g_next)
                       
-            b_trace = np.array(b_trace); b_trace = b_trace/np.amax(b_trace)
+            b_trace = np.array(b_trace); b_trace = b_trace/Nh_Goldbeter
 
             r=np.zeros(NumofCycle-1) # list that stores correlation coefficient to the first peak
             r_new = np.zeros(NumofCycle-1) # correlation coeff take in height difference
@@ -357,8 +351,8 @@ fig3 = plt.figure(figsize=(7, 6))
 grid = plt.GridSpec(1, 1, wspace=0.1, hspace=0.5)
 
 ax1= fig3.add_subplot(grid[0, 0])
-heatmap = ax1.pcolor(period_space_Gold, PkWdth_space_Gold,MeanRnew_Gold, cmap='jet')
-# heatmap.set_clim(0.8,1)
+heatmap = ax1.pcolor(period_space_Gold, PkWdth_space_Gold,MeanR_Gold, cmap='jet')
+heatmap.set_clim(0,1)
 fig3.colorbar(heatmap, ax=ax1)
 ax1.set_ylabel('Peak Width, A.U.',fontsize=label_font_size)
 ax1.set_xlabel('Modified Entrainment period, A.U.',fontsize=label_font_size)
@@ -371,7 +365,6 @@ plt.show()
 #%% Maeda and Loomis 2004
 from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_agent
 
-Nt_Maeda = 3.57
 
 period_space_Maeda = np.linspace(0.8,1.8,num=8) # period of cAMP stim 
 PkWdth_space_Maeda =  np.linspace(0.3, 1.4, num=10) 
@@ -435,7 +428,7 @@ for j in range(len(period_space_Maeda)):# j_test:#
                 CAR1_trace.append(CAR1_next)
             
             cAMPi_trace = np.array(cAMPi_trace) # make into np array
-            cAMPi_trace = cAMPi_trace/np.amax(cAMPi_trace)
+            cAMPi_trace = cAMPi_trace/Nh_Maeda
 
             r=np.zeros(NumofCycle-1) # list that stores correlation coefficient to the first peak
             r_new = np.zeros(NumofCycle-1) # correlation coeff take in height difference
@@ -484,7 +477,7 @@ ax1.set_title('Maeda & Loomis 2004 single cellentrainment quality')
 plt.show()
 
 #%% Save all outputs in npz file
-np.savez('single_cell_entrainment_191104.npz', 
+np.savez('single_cell_entrainment_200218.npz', 
          period_space_Gold=period_space_Gold, PkWdth_space_Gold=PkWdth_space_Gold,
          MeanRnew_Gold=MeanRnew_Gold, MeanR_Gold=MeanR_Gold,
          period_space_Maeda=period_space_Maeda, PkWdth_space_Maeda=PkWdth_space_Maeda,
@@ -519,7 +512,7 @@ ax2.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 3 FRET Tr
 ax2.set_xlim([0,23])
 
 #%% load saved npz output file
-npzfile = np.load('single_cell_entrainment_191104.npz')
+npzfile = np.load('single_cell_entrainment_200218.npz')
 period_space_Gold=npzfile['period_space_Gold']; PkWdth_space_Gold=npzfile['PkWdth_space_Gold']
 MeanRnew_Gold= npzfile['MeanRnew_Gold'];  MeanR_Gold=npzfile['MeanR_Gold']
 period_space_Maeda=npzfile['period_space_Maeda']; PkWdth_space_Maeda= npzfile['PkWdth_space_Maeda']
@@ -646,7 +639,7 @@ ax4.set_title('Kamino 2017', color=mycolors[7],fontdict={'fontsize': title_font_
 ax4.text(-0.3 , 1.1, 'F', ha='center',va='center',
      transform = ax4.transAxes, color = 'g', fontsize=abcd_font_size)
 
-fig3.text(0.5, 0.04,'Entrainment period, A.U.', ha='center', va='center',fontsize=label_font_size)
+fig3.text(0.5, 0.04,'Period, A.U.', ha='center', va='center',fontsize=label_font_size)
 fig3.text(0.02, 0.4, 'Peak Width, A.U.', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 plt.show()
 

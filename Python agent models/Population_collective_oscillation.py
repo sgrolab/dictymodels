@@ -16,11 +16,9 @@ from scipy import signal
 from scipy.signal import find_peaks
 from time import perf_counter 
 
-Nt_Gregor = 6 
-Nt_Sgro = 27
-Nt_Goldbeter = 6.94
-Nt_Maeda = 3.57
-Nt_Kamino = 5.22
+# Normalization parameters
+from NormParam import *
+
 #%% Sgro 2015
 from Sgro2015_agent_and_pop_FUN import Sgro2015_pop
 
@@ -29,8 +27,8 @@ N = 100 # number of cells in the population
 rho = 10**(-3.5); j = 0.5
 SgroPopParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':sigma,'N':N,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0, 'rho': rho,'j': j}
-Na=3.5;  # normalization factor of A
+            'flux_thrs':0, 'rho': rho,'j': j}
+
 A0=-1.5*np.ones(N) # + np.random.uniform(-sigma,sigma,N); ###########
 R0=-0.5*np.ones(N) # + np.random.uniform(-sigma,sigma,N); 
 cAMPext0 = 0
@@ -64,7 +62,7 @@ for i in range(len(t)-1):
 # Traces
 A_trace_offset=1.5
 A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-A_trace_plot=(A_trace_orig+A_trace_offset)/Na;
+A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
 A_trace_mean_plot = np.mean(A_trace_plot,axis = 0)
 t_plot_Sgro = np.array(t)/Nt_Sgro
 
@@ -154,7 +152,7 @@ for i in range(len(t)-1):
     
 #Traces
 gregor_thetai_trace= np.array(gregor_thetai_trace) 
-gregor_campCyto_trace= np.array(gregor_campCyto_trace) 
+gregor_campCyto_trace= np.array(gregor_campCyto_trace)/Nh_Gregor
 gregor_campCyto_trace_mean= np.mean(gregor_campCyto_trace,axis = 0)
 gregor_campExt_trace = np.array(gregor_campExt_trace)
 t_plot_Gregor = np.array(t)/Nt_Gregor
@@ -226,7 +224,7 @@ for i in range(len(t)-1):
         
    
 # Convert into np array
-b_trace = np.array(b_trace);  b_trace = b_trace/np.amax(b_trace)
+b_trace = np.array(b_trace);  b_trace = b_trace/Nh_Goldbeter
 p_trace = np.array(p_trace);  p_trace = p_trace/np.amax(p_trace)
 t_plot_Goldbeter = np.array(t)/Nt_Goldbeter
 
@@ -390,14 +388,16 @@ for i in range(len(t)-1):
     
 
 ERK2_trace = np.array(ERK2_trace) ; ERK2_trace = ERK2_trace/np.amax(ERK2_trace)
-cAMPi_trace = np.array(cAMPi_trace); cAMPi_trace = cAMPi_trace/np.amax(cAMPi_trace)
+cAMPi_trace = np.array(cAMPi_trace)/Nh_Maeda
 t_plot_Maeda = np.array(t)/Nt_Maeda
+t_plot_Maeda_short = t_plot_Maeda[0:int(len(t)*0.25)]
+cAMPi_trace_later = cAMPi_trace[0:int(len(t)*0.25)] #cAMPi_trace[int(len(t_plot_Maeda)*0.75):]
 
 #  check simulation traces
 label_font_size=25; trace_width=3; tick_font_size=18
 
 fig,ax = plt.subplots()
-ax.plot(t_plot_Maeda[0:int(len(t)*0.25)],cAMPi_trace[int(len(t_plot_Maeda)*0.75):],linewidth=trace_width, label= r'$cAMP_{cyto}$')
+ax.plot(t_plot_Maeda_short,cAMPi_trace_later,linewidth=trace_width, label= r'$cAMP_{cyto}$')
 # ax.plot(t_plot_Maeda,ERK2_trace, linewidth=trace_width,label = r'ERK2')
 # ax.set_ylim([-0.2,1.3])
 ax.set_xlabel('Time')
@@ -457,6 +457,7 @@ for i in range(len(t)-1):
     z_trace.append(z_next)
 toc = perf_counter()  # show how long have passed
 print('time passed:'+str(toc-tic))    
+y_trace = np.array(y_trace)/Nh_Kamino
 #  check simulation traces
 fig,ax = plt.subplots()
 t_plot_Kamino = np.array(t)/Nt_Kamino
@@ -470,7 +471,7 @@ leg = ax.legend()
 ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 plt.show()
 
-# Get the oscillation period 
+#%% Get the oscillation period 
 y_trace=np.array(y_trace) # convert list to array
 later_portion = 0.2 # start count peaks after this X total simulation time
 y_trace_later=y_trace[math.floor(len(t)*later_portion):] # the later part of trace
@@ -483,21 +484,7 @@ PkPos, PkProperties = find_peaks(y_trace_later, prominence=(0.02,100))
 Kamino_pop_osc_period = (1-later_portion)*t_tot / len(PkPos)
 print('group oscillation period for Kamino is '+str(Kamino_pop_osc_period))
 
-#%% PLot all the model results
-# Signal normalization
-
-b_trace = b_trace/(np.amax(b_trace)) # Goldbeter 1987
-gregor_campCyto_trace_mean=(gregor_campCyto_trace_mean-np.amin(gregor_campCyto_trace_mean))/np.amax(gregor_campCyto_trace_mean-np.amin(gregor_campCyto_trace_mean)) # Gregor2010
-y_trace= (y_trace-np.amin(y_trace))/np.max((y_trace-np.amin(y_trace)))  # Kamino2017
-
-A_trace_mean_plot = A_trace_mean_plot/(np.amax(A_trace_mean_plot))
-
-# Maeda& Loomis: plot the last quarter of trace which is more stable in oscillation height
-t_plot_Maeda_short = t_plot_Maeda[0:int(len(t_plot_Maeda)*0.25)]
-cAMPi_trace_later = cAMPi_trace[int(len(t_plot_Maeda)*0.75):]
-# cAMPi_trace_later = cAMPi_trace_later/(np.amax(cAMPi_trace_later)) 
-cAMPi_trace_later= (cAMPi_trace_later-np.amin(cAMPi_trace_later))/np.max((cAMPi_trace_later-np.amin(cAMPi_trace_later))) 
-#%% Plot all models in one plot 
+#%%
 label_font_size=30
 trace_width=5
 tick_font_size=20
@@ -523,7 +510,7 @@ leg = ax2.legend(frameon=False,loc='upper center',ncol=2,prop={'size': 17});
 plt.show()
 
 #%% Save all outputs in npz file
-np.savez('pop_oscillation_191106.npz', 
+np.savez('pop_oscillation_200225.npz', 
          t_plot_Goldbeter = t_plot_Goldbeter , b_trace=b_trace,
          t_plot_Maeda_short=t_plot_Maeda_short, cAMPi_trace_later=cAMPi_trace_later,
          t_plot_Gregor=t_plot_Gregor, gregor_campCyto_trace_mean=gregor_campCyto_trace_mean,
@@ -535,7 +522,7 @@ my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures
 Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheetname='Figure6')
 
 #%% load saved npz output file
-npzfile = np.load('pop_oscillation_191106.npz')
+npzfile = np.load('pop_oscillation_200225.npz')
 t_plot_Goldbeter =  npzfile['t_plot_Goldbeter'] ; b_trace = npzfile['b_trace']
 t_plot_Maeda_short=npzfile['t_plot_Maeda_short'] ; cAMPi_trace_later=npzfile['cAMPi_trace_later']
 t_plot_Gregor=npzfile['t_plot_Gregor']; gregor_campCyto_trace_mean=npzfile['gregor_campCyto_trace_mean']
@@ -577,7 +564,7 @@ ax1= fig3.add_subplot(grid[0, 1])
 ax1.plot(t_plot_Goldbeter,b_trace,color=mycolors[0],linewidth=trace_width)
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax1.set_title('Martiel 1987', color=mycolors[0], fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax1.set_ylim([-0.2,1.2]); ax1.set_xlim([0,15])
+ax1.set_ylim([-0.2,1.6]); ax1.set_xlim([0,15])
 ax1.text(-0.08 , 1.2, 'B', ha='center',va='center',
      transform = ax1.transAxes, color = 'g', fontsize=abcd_font_size)
 
@@ -586,7 +573,7 @@ ax2= fig3.add_subplot(grid[1,0])
 ax2.plot(t_plot_Maeda_short,cAMPi_trace_later,color=mycolors[1],linewidth=trace_width)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax2.set_title('Maeda & Loomis 2004',color=mycolors[1], fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax2.set_ylim([-0.2,1.2]); ax2.set_xlim([0,15])
+ax2.set_ylim([0.1,0.6]); ax2.set_xlim([0,15])
 ax2.text(-0.08 , 1.2, 'C', ha='center',va='center',
      transform = ax2.transAxes, color = 'g', fontsize=abcd_font_size)
 
