@@ -133,3 +133,83 @@ class Goldbeter1987_pop_3var(Goldbeter1987_agent_3var):
         self.g_now = g_next
         
         return p_next, b_next, g_next
+    
+class Goldbeter1987_pop_3var_noise(Goldbeter1987_agent_3var):
+    def update(self,dt, a, campExt_influx,noise):
+        k1=self.param['k1']   
+        k2=self.param['k2']  
+        L1=self.param['L1']  
+        L2=self.param['L2']  
+        c=self.param['c']  
+        lamda=self.param['lamda']  
+        theta=self.param['theta']  
+        e=self.param['e']  
+        q=self.param['q'] 
+        sig=self.param['sig']  
+        v=self.param['v']  
+        k=self.param['k']  
+        ki=self.param['ki']  
+        kt=self.param['kt']  
+        kc=self.param['kc']  
+        h=self.param['h']  
+        
+        f1 = (k1+k2*self.g_now)/(1+self.g_now)
+        f2 = (k1*L1+k2*L2*c*self.g_now)/(1+c*self.g_now)
+        Ysq = (self.p_now*self.g_now/(1+ self.g_now))**2
+        PI = a*(lamda*theta + e*Ysq)/(1 + theta*a + (1 + a)*e*Ysq)
+        r = math.sqrt(dt)*noise
+        # p_next=0.8
+        p_next = self.p_now+dt*(-f1*self.p_now+f2*(1-self.p_now))
+        b_next = self.b_now+dt*(q*sig*PI-(ki+kt)*self.b_now)+r
+        g_next = self.g_now+dt*(kt/h*self.b_now-kc*(self.g_now-campExt_influx)) # campExt_influx: contant cAMP input to the system
+        
+        self.p_now = p_next
+        self.b_now = b_next
+        self.g_now = g_next
+        
+        return p_next, b_next, g_next
+
+class Goldbeter1987_pop_3var_SCnoise:
+	def __init__(self,pos,p0,b0,g0,param):
+		self.pos=pos
+		self.param=param
+		self.p_now=p0
+		self.b_now=b0 
+		self.g_now=g0 
+	def update(self,dt, a, campExt_influx):
+		k1=self.param['k1']   
+		k2=self.param['k2']  
+		L1=self.param['L1']  
+		L2=self.param['L2']  
+		c=self.param['c']  
+		lamda=self.param['lamda']  
+		theta=self.param['theta']  
+		e=self.param['e']  
+		q=self.param['q'] 
+		sig=self.param['sig']  
+		v=self.param['v']  
+		k=self.param['k']  
+		ki=self.param['ki']  
+		kt=self.param['kt']  
+		kc=self.param['kc']  
+		h=self.param['h']  
+		
+		sigma = self.param['sigma']# single cell noise strength
+		N = self.param['N']# number of cells in the population
+		
+		f1 = (k1+k2*self.g_now)/(1+self.g_now)
+		f2 = (k1*L1+k2*L2*c*self.g_now)/(1+c*self.g_now)
+		Ysq = (self.p_now*self.g_now/(1+ self.g_now))**2
+		PI = a*(lamda*theta + e*Ysq)/(1 + theta*a + (1 + a)*e*Ysq)
+		
+		r = math.sqrt(dt)*np.random.normal(0,1,N)
+		
+		p_next = self.p_now+dt*(-f1*self.p_now+f2*(1-self.p_now))
+		b_next = self.b_now+dt*(q*sig*PI-(ki+kt)*self.b_now)+r +r*sigma # noise added to intracellular cAMP term
+		g_next = self.g_now+dt*(kt/h*np.sum(self.b_now)/N-kc*(self.g_now-campExt_influx)) # campExt_influx: contant cAMP input to the system
+		
+		self.p_now = p_next
+		self.b_now = b_next
+		self.g_now = g_next
+		
+		return p_next, b_next, g_next

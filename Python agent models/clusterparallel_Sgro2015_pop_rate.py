@@ -29,8 +29,6 @@ from Sgro2015_agent_and_pop_FUN import Sgro2015_pop_dir_cpl
 # Normalization parameters
 from NormParam import *
 #%% Sgro 2015
-
-
 title_font_size = 26
 sublabel_font_size = 22
 trace_width=3
@@ -53,9 +51,9 @@ SgroPopParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':c0,'sigma':sigma,'N':N,\
 alphafval = 2 # cAMP input flow
 time_separation = 0 # Whether there is time separation assumption
 
-dt=0.005 ; t_tot=5*Nt_Sgro ; t=list(np.arange(0,t_tot,dt))
+dt=0.005 ; t_tot=25*Nt_Sgro ; t=list(np.arange(0,t_tot,dt))
 nSteps = len(t)
-dir_cpl = 2 #coupling between cells and media
+dir_cpl = 1 #coupling between cells and media
 
 def calc_updates_Sgro(j_arr, rho_arr, SgroPopParam, nSteps, index):
     ''' index: (j_index,rho_index) '''

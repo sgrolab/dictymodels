@@ -40,7 +40,7 @@ MeanRnew_Sgro[:] = np.nan
 e=0.1; tauA=0.09; tauR=tauA/e; g=0.5
 SgroAgentParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
+            'Nt':27,'flux_thrs':0} # 'Na':3.5,'offset_A':1.5,
 A0=-1.5; R0=-0.5
 
 dt=0.005
@@ -75,7 +75,7 @@ for j in range(len(period_space_Sgro)): # j_test: #
        
             A_trace_offset=1.5
             A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-            A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
+            A_trace_plot=(A_trace_orig+Nh_Sgro_offset)/Nh_Sgro;
             
             r=np.zeros(NumofCycle-1) # list that stores correlation coefficient to the first peak
             r_new = np.zeros(NumofCycle-1) # correlation coeff take in height difference
@@ -152,7 +152,7 @@ tau=1.5; n=2; K=4; kt=2; delta=0.01
 gamma=3; rho= 0.01 # population density, doesn't matter for single cells
 KaminoAgentParam={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,\
                'gamma':gamma,'rho':rho}
-x0=0.01; y0=0.05; z0=0.005
+x0=0.01; y0=0.06; z0=0.005
 
 dt=0.001 ; # t_tot=20*Nt; t=list(np.arange(0,t_tot,dt))
 cAMP = 1 # extracellular cAMP
@@ -184,7 +184,7 @@ for j in range(len(period_space_Kamino)): # j_test: #
                 
        
             y_trace = np.array(y_trace)# vectorize y_trace
-            y_trace = y_trace/Nh_Kamino
+            y_trace = (y_trace-Nh_Kamino_offset)/Nh_Kamino
 
             r=np.zeros(NumofCycle-1) # list that stores correlation coefficient to the first peak
             r_new = np.zeros(NumofCycle-1) # correlation coeff take in height difference
@@ -477,7 +477,7 @@ ax1.set_title('Maeda & Loomis 2004 single cellentrainment quality')
 plt.show()
 
 #%% Save all outputs in npz file
-np.savez('single_cell_entrainment_200218.npz', 
+np.savez('single_cell_entrainment_200320.npz', 
          period_space_Gold=period_space_Gold, PkWdth_space_Gold=PkWdth_space_Gold,
          MeanRnew_Gold=MeanRnew_Gold, MeanR_Gold=MeanR_Gold,
          period_space_Maeda=period_space_Maeda, PkWdth_space_Maeda=PkWdth_space_Maeda,
@@ -512,7 +512,7 @@ ax2.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 3 FRET Tr
 ax2.set_xlim([0,23])
 
 #%% load saved npz output file
-npzfile = np.load('single_cell_entrainment_200218.npz')
+npzfile = np.load('single_cell_entrainment_200320.npz')
 period_space_Gold=npzfile['period_space_Gold']; PkWdth_space_Gold=npzfile['PkWdth_space_Gold']
 MeanRnew_Gold= npzfile['MeanRnew_Gold'];  MeanR_Gold=npzfile['MeanR_Gold']
 period_space_Maeda=npzfile['period_space_Maeda']; PkWdth_space_Maeda= npzfile['PkWdth_space_Maeda']
@@ -594,9 +594,9 @@ ax00.text(-0.3 , 1.25, 'B', ha='center',va='center',
 ax1= fig3.add_subplot(grid[2:4, 0], xticks = [0.8,1.2,1.6], yticks = [0.3,0.6,0.9,1.2])
 heatmap = ax1.pcolor(period_space_Gold, PkWdth_space_Gold,MeanR_Gold, cmap='jet') 
 # heatmap = ax1.pcolor(period_space_Gold, PkWdth_space_Gold,MeanRnew_Gold, cmap='jet') 
-# heatmap.set_clim(0,1)
-#cbar=fig3.colorbar(heatmap, ax=ax1, ticks=[0,0.2, 0.4,0.6,0.8,1]);
-cbar=fig3.colorbar(heatmap, ax=ax1, ticks=[0.94,0.96,0.98,1]);
+heatmap.set_clim(0,1)
+cbar=fig3.colorbar(heatmap, ax=ax1, ticks=[0,0.2, 0.4,0.6,0.8,1]);
+#cbar=fig3.colorbar(heatmap, ax=ax1, ticks=[0.94,0.96,0.98,1]);
 cbar.ax.tick_params(labelsize = tick_font_size) 
 
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)

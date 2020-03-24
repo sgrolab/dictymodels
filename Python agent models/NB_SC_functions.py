@@ -25,6 +25,7 @@ from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
 from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_agent
 from Kamino2017_agent_and_pop_FUN import Kamino2017_agent 
 
+from NormParam import *
 #%%
 # Goldbeter 1986
 def Goldbeter1986_SC(Goldbeter3AgentParam,dt,t,signal_trace):
@@ -106,16 +107,14 @@ def Sgro2015_SC(SgroAgentParam,dt,t,signal_trace):
         r_trace.append(r_now)
         
     # Traces
-    A_trace_offset=1.5
     A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-    A_trace_plot=A_trace_orig+A_trace_offset # not height normalized
     R_trace_orig = np.array(R_trace_orig)
     t_plot_Sgro = np.array(t)
-    return t_plot_Sgro, A_trace_plot,  R_trace_orig
+    return t_plot_Sgro, A_trace_orig,  R_trace_orig
 
 def Kamino2017_SC(KaminoAgentParam,dt,t,signal_trace):
     # Initializations
-    x0=0.01; y0=0.05; z0=0.005
+    x0=0.01; y0=0.06; z0=0.005
     Kamino_agent=Kamino2017_agent([x0,y0,z0],KaminoAgentParam)
     x_trace=[x0]; y_trace=[y0] 
     for i in range(len(t)-1):
@@ -131,7 +130,7 @@ def Kamino2017_SC(KaminoAgentParam,dt,t,signal_trace):
 
 def SC_FCD (z0First_space, FC_space, cAMP, Nt, dt, t,
             prm_lims, stim_time_step1,stim_time_step2, single_trace_to_plot,
-            SC_model, AgentParam, Nh):
+            SC_model, AgentParam, Nh,Nh_offset = 0):
     # Initialize peak prominence array
     PkPrm = np.zeros((len(z0First_space), len(FC_space))) 
     PkPrm_norm = np.zeros((len(z0First_space), len(FC_space))) 
@@ -144,8 +143,8 @@ def SC_FCD (z0First_space, FC_space, cAMP, Nt, dt, t,
             signal_trace[stim_time_step1:stim_time_step2] = z0First
             signal_trace[stim_time_step2:]= FC * z0First
             t_plot, cAMPi_trace,__ = SC_model( AgentParam,dt, t, signal_trace)
-            
-            cAMPi_trace = cAMPi_trace/Nh
+            t_plot = t_plot/Nt
+            cAMPi_trace = (cAMPi_trace-Nh_offset)/Nh
             cAMPi_trace_first=cAMPi_trace[stim_time_step1:stim_time_step2]
             cAMPi_trace_second=cAMPi_trace[stim_time_step2:]
             PkPos1, PkProperties1 = find_peaks(cAMPi_trace_first, prominence=(prm_lims[0],prm_lims[1]))
@@ -214,7 +213,7 @@ def SC_FCD_plot(z0First_space, FC_space, PkPrm):
 
 def SC_FCD_Noise (z0First_space,  FC_space,num_of_runs, cAMP, Nt, dt, t,
             prm_lims, stim_time_step1,stim_time_step2, single_trace_to_plot,
-            SC_model, AgentParam, Nh):
+            SC_model, AgentParam, Nh, Nh_offset = 0):
     # make an array of all the runs
     run_time_space =np.arange(0,num_of_runs,1)
     # Initialize 2nd peak prominence array
@@ -234,16 +233,16 @@ def SC_FCD_Noise (z0First_space,  FC_space,num_of_runs, cAMP, Nt, dt, t,
             for test in run_time_space:
                     
                 t_plot, cAMPi_noise,__ = SC_model( AgentParam,dt, t, signal_trace)
-                cAMPi_noise_all_traces[test,:] = cAMPi_noise/Nh
-                
-                cAMPi_trace_first=cAMPi_noise[stim_time_step1:stim_time_step2]
-                cAMPi_trace_second=cAMPi_noise[stim_time_step2:]
+                cAMPi_noise_all_traces[test,:] = (cAMPi_noise-Nh_offset)/Nh
+                t_plot = t_plot/Nt
+                cAMPi_trace_first=cAMPi_noise[stim_time_step1:int(stim_time_step1+2.5*Nt/dt)]
+                cAMPi_trace_second=cAMPi_noise[stim_time_step2:int(stim_time_step2+2.5*Nt/dt)]
                 PkPos1, PkProperties1 = find_peaks(cAMPi_trace_first, prominence=(prm_lims[0],prm_lims[1]))
                 PkPos2, PkProperties2 = find_peaks(cAMPi_trace_second, prominence=(prm_lims[0],prm_lims[1]))
                 # Check find_peaks
                 # plt.plot(cAMPi_trace_second)
                 # plt.plot(peaks, cAMPi_trace_second[peaks], "x")
-                if PkPos2.size: # if there is a second spike
+                if PkPos2.size and PkPos1.size: # if there is a second spike
                     PkPrm_noise[j,k,test]=PkProperties2["prominences"][0]
                     PkPrm_noise_norm[j,k,test]=PkProperties2["prominences"][0]/PkProperties1["prominences"][0]
                 else:
@@ -297,7 +296,7 @@ def SC_FCD_Noise_plot(z0First_space, FC_space, PkPrm_mean_noise,PkPrm_se_noise):
 
 def SC_entrainment(period_space, PkWdth_space, NumofCycle, cAMP, Nt, Nh, dt,  
                    single_trace_to_plot,
-                   SC_model, AgentParam):
+                   SC_model, AgentParam, Nh_offset = 0):
     # Initialize 
     MeanR = np.empty((len(PkWdth_space), len(period_space))) 
     MeanR[:] = np.nan # Mean cross-correlation of spike trace in cycle of stimulus, as nan matrix
@@ -317,7 +316,7 @@ def SC_entrainment(period_space, PkWdth_space, NumofCycle, cAMP, Nt, Nh, dt,
                 
                 t_plot, cAMPi_trace,__ = SC_model( AgentParam,dt, t, signal_trace)
                 t_plot=np.array(t)/Nt
-                cAMPi_trace = cAMPi_trace/Nh
+                cAMPi_trace = (cAMPi_trace-Nh_offset)/Nh
                 r=np.zeros(NumofCycle-1) # list that stores correlation coefficient to the first peak
                 InitPk=cAMPi_trace[int(1*Nt/dt): int((1+period)*Nt/dt)]
                 for m in range(NumofCycle-1):

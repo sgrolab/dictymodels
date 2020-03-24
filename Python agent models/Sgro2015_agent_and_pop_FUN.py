@@ -150,6 +150,11 @@ class Sgro2015_pop_dir_cpl:
         
         if dir_cpl == 0:
             A_release = np.heaviside(self.A_now,0.5)
+            
+        elif dir_cpl == 1:
+            temp = (self.A_now)*1; # direct coupling of raw value of A
+            A_release = temp   
+            
         elif dir_cpl == 2:
             temp = (self.A_now)*1; temp[temp<0] = 0 # prevent temp act as pointer of self.A_now
             A_release = temp # dir_cpl2, set all negative A to 0
