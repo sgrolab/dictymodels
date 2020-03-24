@@ -18,4 +18,7 @@ Nh_Gregor = 19.6
 Nh_Sgro = 3.5
 Nh_Goldbeter = 210.53
 Nh_Maeda = 3.15 
-Nh_Kamino = 0.32
+Nh_Kamino = 0.26
+
+Nh_Kamino_offset = 0.0585
+Nh_Sgro_offset = -1.5

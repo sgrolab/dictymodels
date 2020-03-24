@@ -62,7 +62,7 @@ for i in range(len(t)-1):
 # Traces
 A_trace_offset=1.5
 A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
+A_trace_plot=(A_trace_orig - Nh_Sgro_offset)/Nh_Sgro;
 A_trace_mean_plot = np.mean(A_trace_plot,axis = 0)
 t_plot_Sgro = np.array(t)/Nt_Sgro
 

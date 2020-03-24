@@ -565,7 +565,7 @@ for i in range(len(t)-1):
 
 x_trace_1 = np.array(x_trace_1) 
 y_trace_1 = np.array(y_trace_1)
-y_trace_1_hnorm = y_trace_1/Nh_Kamino
+y_trace_1_hnorm = (y_trace_1-Nh_Kamino_offset)/Nh_Kamino
 
 # sustained oscillations
 Kamino_agent=Kamino2017_agent([x0,y0,z0],AgentParam)
@@ -578,7 +578,7 @@ for i in range(len(t)-1):
 
 x_trace_10k = np.array(x_trace_10k)
 y_trace_10k = np.array(y_trace_10k) 
-y_trace_10k_hnorm = y_trace_10k/Nh_Kamino
+y_trace_10k_hnorm = (y_trace_10k-Nh_Kamino_offset)/Nh_Kamino
 
 t_plot_Kamino = np.array(t)/(Nt_Kamino)
 
@@ -928,7 +928,7 @@ for i in range(len(Kamino_time)-1):
 
 x_trace = np.array(x_trace) 
 y_trace = np.array(y_trace)
-y_trace_hnorm = y_trace/Nh_Kamino
+y_trace_hnorm = (y_trace-Nh_Kamino_offset)/Nh_Kamino
     
 t_plot_Kamino = np.array(Kamino_time)/(Nt_Kamino)
 
@@ -951,7 +951,7 @@ ax0.plot(t_plot_Kamino, y_trace_hnorm, 'green',linewidth=trace_width)
 ax0.axvspan(2.5, 7.5, alpha=0.2, color='b');
 ax0.set_title(r'$cAMP_{e}$ ramp input',fontsize=label_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_xlim([0,7.5]); ax0.set_ylim([0.1,0.5])
+ax0.set_xlim([0,7.5]); ax0.set_ylim([-0.05,0.4])
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 ax1= fig5.add_subplot(grid[1:, 0])

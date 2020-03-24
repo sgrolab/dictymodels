@@ -22,6 +22,7 @@ import functools
 import multiprocessing as mp
 from scipy.signal import find_peaks
 import math
+from datetime import date
 
 from Population_parallel_tools import all_indices, get_n_workers
 #import matplotlib
@@ -29,13 +30,24 @@ from Population_parallel_tools import all_indices, get_n_workers
 #	matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-# needs to be determined
-Nt_Gregor = 6
-Nt_Sgro = 27
-Nt_Goldbeter = 7
-Nt_Maeda = 3.57
-Nt_Kamino = 6
+# Normalization parameters
+from NormParam import *
+
+
+title_font_size = 26
+sublabel_font_size = 22
+trace_width=3
+tick_font_size=15
+label_font_size=14
 #%%  Maeda & Loomis 2004
+
+plot_folder = 'C:\\Users\\ellin\\Dropbox\\AACP Science\\Dicty model review drafts\\figures\\figures_eps\\'
+today = date.today()
+date_str = today.strftime("%m%d")
+mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
+          '#f781bf', '#a65628', '#984ea3',
+          '#999999', '#e41a1c', '#dede00']
+          
 from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_pop
 # Set some parameters
 
@@ -51,7 +63,7 @@ MaedaAgentParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
 
 #gamma_arr=np.logspace(0, 2.0, num=40) # 21
 #rho_arr=np.logspace(-0.1, 2.7, num=40) # 26
-gamma_arr=np.array([15]) # 21
+gamma_arr=np.array([15,25,35]) # 21
 rho_arr=np.array([5]) # np.linspace(3,5，, 4, num=2) # 26
 
 
@@ -59,12 +71,13 @@ rho_arr=np.array([5]) # np.linspace(3,5，, 4, num=2) # 26
 pop_rate_Maeda = np.zeros([gamma_arr.size, rho_arr.size]) # population firing rate
 pop_height_Maeda = np.zeros([gamma_arr.size, rho_arr.size]) # population firing rate
 
-dt=0.0001 
-t_tot=30*Nt_Maeda
+dt=0.00005 
+
+t_tot=60*Nt_Maeda
 # Number of time steps
 t=np.arange(0,t_tot,dt)
 nSteps = len(t)
-t_plot_Maeda = np.array(t)
+t_plot_Maeda = np.array(t)/Nt_Maeda
 z0_influx = 0
 
 def calc_updates_Maeda(gamma_arr, rho_arr, nSteps, index):
@@ -93,47 +106,65 @@ def calc_updates_Maeda(gamma_arr, rho_arr, nSteps, index):
         cAMPe_trace.append(cAMPe_next)
         CAR1_trace.append(CAR1_next)
                     
-    cAMPi_trace = np.array(cAMPi_trace) # convert list to array
+    cAMPi_trace = np.array(cAMPi_trace)/Nh_Maeda # convert list to array, normalize height
     ERK2_trace = np.array(ERK2_trace)
     cAMPe_trace = np.array(cAMPe_trace)
     
-    later_portion = 0.2 # start count peaks after this X total simulation time
+    later_portion = 0.5 # start count peaks after this X total simulation time
     cAMPi_trace_later=cAMPi_trace[math.floor(nSteps * later_portion):] # the later part of trace   
-    cAMPi_trace_later_norm = cAMPi_trace_later/np.amax(cAMPi_trace_later)
     ERK2_trace_later = ERK2_trace[math.floor(nSteps * later_portion):]
-    ERK2_trace_later_norm = ERK2_trace_later/np.amax(ERK2_trace_later)
+#    ERK2_trace_later_norm = ERK2_trace_later/np.amax(ERK2_trace_later)
     cAMPe_trace_later=cAMPe_trace[math.floor(nSteps * later_portion):] # the later part of trace   
-    cAMPe_trace_later_norm = cAMPe_trace_later/np.amax(cAMPe_trace_later)
+#    cAMPe_trace_later_norm = cAMPe_trace_later/np.amax(cAMPe_trace_later)
     t_plot_Maeda_later = t_plot_Maeda[math.floor(nSteps * later_portion):]
     
     
     PkPos, PkProperties = find_peaks(cAMPi_trace_later, prominence=(0.01,2000))
-    
-#    # Check find_peaks
-#    fig = plt.figure()
-#    plt.plot(cAMPi_trace_later)
-#    plt.plot(PkPos, cAMPi_trace_later[PkPos], "x")
-#    plt.title('gamma= '+str(gamma_arr[index[0]])+' rho= '+str(rho_arr[index[1]]))
-    
     if len(PkPos) == 0:
         firing_rate = 0; height = 0
     else: 
         firing_rate = len(PkPos)/(t_tot/Nt_Maeda*(1-later_portion))
         height = np.mean(PkProperties["prominences"])
         
+#    # Check find_peaks
+#    fig = plt.figure()
+#    plt.plot(cAMPi_trace_later)
+#    plt.plot(PkPos, cAMPi_trace_later[PkPos], "x")
+#    plt.title('gamma= '+str(gamma_arr[index[0]])+' rho= '+str(rho_arr[index[1]]))
+    
     # check simulation traces
-    fig = plt.figure(figsize=(5,2.5)); grid = plt.GridSpec(1, 1,hspace= 0.3)
+    fig = plt.figure(figsize=(7,5)); grid = plt.GridSpec(1, 1,hspace= 0.3)
     ax1= fig.add_subplot(grid[0, 0])
-    ax1.plot(t_plot_Maeda_later,cAMPi_trace_later, color = 'g', linewidth = 3, label = 'cAMPi')
-    ax1.plot(t_plot_Maeda_later,ERK2_trace_later, color ='b',label = 'ERK2')
-    ax1.plot(t_plot_Maeda_later,cAMPe_trace_later, color ='k', label = 'cAMPe')
-    # ax1.set_xlim([10,20])
-    ax1.set_xlabel('Time')
-    ax1.set_title('dilution rate= '+ '{:#.3n}'.format(np.float64(gamma_arr[index[0]])) +
+    
+    ax1.plot(t_plot_Maeda_later,cAMPi_trace_later, color=mycolors[1], linewidth = 2)
+#    ax1.plot(t_plot_Maeda,ERK2_trace, color = 'orange', linewidth = 2)
+#    ax2 = ax1.twinx()
+#    ax2.plot(t_plot_Maeda,cAMPe_trace, color ='k',linewidth=3, label = 'cAMPe')
+#    ax2.set_ylabel(r'$cAMP_{e}$, A.U.',color = 'k',fontsize=label_font_size) #  fontsize=label_font_size-3
+#    ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
+    ax1.set_xlim([later_portion*t_tot/Nt_Maeda,t_tot/Nt_Maeda])
+    ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
+    ax1.set_xlabel('Time, A.U.',fontsize=label_font_size)
+    ax1.set_ylabel(r'$cAMP_{i}$, A.U.',fontsize=label_font_size)
+    ax1.set_title('dilutio rate= '+ '{:#.3n}'.format(np.float64(gamma_arr[index[0]])) +
     ', density= '+'{:#.3n}'.format(np.float64(rho_arr[index[1]])) + 
         ', FR = '+'{:#.3n}'.format(np.float64(firing_rate)))
-    leg = ax1.legend()
-                
+#    leg = ax1.legend()   
+    plot_name = 'pop_FR_Maeda_j'+ '{:#.2n}'.format(np.float64(gamma_arr[index[0]]))+ '_rho '+'{:#.2n}'.format(np.float64(rho_arr[index[1]]))+'_'+date_str
+    fig.savefig(plot_folder + plot_name+'.eps',format = 'eps')
+        
+#    # check simulation traces
+#    fig = plt.figure(figsize=(5,2.5)); grid = plt.GridSpec(1, 1,hspace= 0.3)
+#    ax1= fig.add_subplot(grid[0, 0])
+#    ax1.plot(t_plot_Maeda_later,cAMPi_trace_later, color = 'g', linewidth = 3, label = 'cAMPi')
+#    ax1.plot(t_plot_Maeda_later,ERK2_trace_later, color ='b',label = 'ERK2')
+#    ax1.plot(t_plot_Maeda_later,cAMPe_trace_later, color ='k', label = 'cAMPe')
+#    # ax1.set_xlim([10,20])
+#    ax1.set_xlabel('Time')
+#    ax1.set_title('dilution rate= '+ '{:#.3n}'.format(np.float64(gamma_arr[index[0]])) +
+#    ', density= '+'{:#.3n}'.format(np.float64(rho_arr[index[1]])) + 
+#        ', FR = '+'{:#.3n}'.format(np.float64(firing_rate)))
+#    leg = ax1.legend()           
 #    ax2= fig.add_subplot(grid[0, 1])
 #    ax2.plot(t_plot_Maeda_later,cAMPi_trace_later_norm, color = 'g', linewidth = 3)
 #    ax2.plot(t_plot_Maeda_later,ERK2_trace_later_norm, color ='b')
@@ -142,8 +173,6 @@ def calc_updates_Maeda(gamma_arr, rho_arr, nSteps, index):
 #    ax2.set_xlabel('Time')
 #    ax2.set_ylabel('Normalized trace, A.U.')
 #    ax2.set_title('Normalized traces, zoomed in')
-
-    plt.show()
     
     return index,firing_rate,height
 

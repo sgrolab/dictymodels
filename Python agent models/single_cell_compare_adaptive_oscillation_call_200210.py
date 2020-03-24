@@ -43,7 +43,7 @@ dt=0.001; t_tot=6*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
 #constant_signal=1e-6
-constant_signal=1e-2#1e-6 # 
+constant_signal=1e-6#1e-6 # 
 stim_time_step=int(round(1/6*t_tot/dt)) # at this time step input is applied
 signal_trace=np.zeros(len(t))
 signal_trace[stim_time_step:] = constant_signal
@@ -127,7 +127,7 @@ Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
 dt=0.005 ; t_tot=6*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
-constant_signal_arr = np.array([10000]) #np.logspace(-3, 2, num=5)
+constant_signal_arr = np.array([1]) #np.logspace(-3, 2, num=5)
 # constant_signal_arr = np.array([10000])
 A_plot_all = np.zeros((len(constant_signal_arr),len(t)))
 
@@ -151,9 +151,8 @@ for j in range(len(constant_signal_arr)):
         r_trace.append(r_now)
         
     # Traces
-    A_trace_offset=1.5
     A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-    A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
+    A_trace_plot=(A_trace_orig + Nh_Sgro_offset)/Nh_Sgro;
     A_plot_all[j,:] = A_trace_plot
     
 ## Check find_peaks
@@ -232,7 +231,7 @@ stim_time_step=int(round(1/6*t_tot/dt)) # at this time step step input is applie
 #constant_signal=1
 # constant_signal=10000
 
-constant_signal_arr = np.array([10000]) #np.logspace(-3, 1, num=5)
+constant_signal_arr = np.array([1]) #np.logspace(-3, 1, num=5)
 # constant_signal_arr = np.array([10000])
 b_plot_all = np.zeros((len(constant_signal_arr),len(t)))
 
@@ -367,7 +366,7 @@ stim_time_step=int(round(1/6*t_tot/dt)) # at this time step input is applied
 #signal_trace=np.zeros(len(t))
 #signal_trace[stim_time_step:] = constant_signal
 
-constant_signal_arr = np.array([10000]) #np.logspace(-3, 1, num=5)
+constant_signal_arr = np.array([1]) #np.logspace(-3, 1, num=5)
 cAMPi_plot_all = np.zeros((len(constant_signal_arr),len(t)))
 
 for j in range(len(constant_signal_arr)):
@@ -481,7 +480,7 @@ tau=1.5; n=2; K=4; kt=2; delta=0.01
 gamma=3; rho= 0.01 # population density, doesn't matter for single cells
 AgentParam={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,\
                'gamma':gamma,'rho':rho}
-x0=0.01; y0=0.05; z0=0.005
+x0=0.01; y0=0.06; z0=0.005
 Kamino_agent=Kamino2017_agent([x0,y0,z0],AgentParam)
 
 x_trace=[x0]; y_trace=[y0]
@@ -497,7 +496,7 @@ dt=0.0001; t_tot=6*Nt_Kamino; t=list(np.arange(0,t_tot,dt))
 #signal_trace[stim_time_step2:] = constant_signal2
 
 stim_time_step=int(round(1/6*t_tot/dt)) # at this time step step input is applied
-constant_signal_arr = np.array([10000]) #np.logspace(-5, 0, num=6)#############
+constant_signal_arr = np.array([1]) #np.logspace(-5, 0, num=6)#############
 y_plot_all = np.zeros((len(constant_signal_arr),len(t)))
 for j in range(len(constant_signal_arr)):
     constant_signal= constant_signal_arr[j]
@@ -515,10 +514,10 @@ for j in range(len(constant_signal_arr)):
                
     # Convert into np array
     x_trace = np.array(x_trace) 
-    y_trace = np.array(y_trace)/Nh_Kamino
+    y_trace = (np.array(y_trace)- Nh_Kamino_offset) / Nh_Kamino
     y_plot_all[j,:] = y_trace
 
-## Check find_peaks
+## Check find_peaks and find out the Nt and Nh
 #PkPos, Props = find_peaks(y_trace,  prominence=0.2)
 #plt.plot(y_trace)
 #plt.plot(PkPos, y_trace[PkPos], "x")
@@ -596,7 +595,7 @@ plt.show()
 #y_trace= (y_trace-np.amin(y_trace))/np.max((y_trace-np.amin(y_trace)))  # Kamino2017
 #A_trace_plot = A_trace_plot/(np.amax(A_trace_plot))
 #%% Save all outputs in npz file
-np.savez('single_cell_oscillation_200212.npz', 
+np.savez('single_cell_adaptive_200319.npz', 
          t_plot_Goldbeter = t_plot_Goldbeter , b_trace=b_trace,
          t_plot_Maeda=t_plot_Maeda, cAMPi_trace=cAMPi_trace,
          t_plot_Gregor=t_plot_Gregor, gregor_campCyto_trace=gregor_campCyto_trace,
@@ -607,8 +606,8 @@ np.savez('single_cell_oscillation_200212.npz',
 my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
 Sgro2015Figure1excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheetname='Figure1')
 #%% load saved npz output file
-# npzfile = np.load('single_cell_oscillation_191104.npz')
-npzfile = np.load('single_cell_adaptive_191104.npz')
+# npzfile = np.load('single_cell_oscillation_200319.npz')
+npzfile = np.load('single_cell_adaptive_200319.npz')
 t_plot_Goldbeter =  npzfile['t_plot_Goldbeter'] ; b_trace = npzfile['b_trace']
 t_plot_Maeda=npzfile['t_plot_Maeda'] ; cAMPi_trace=npzfile['cAMPi_trace']
 t_plot_Gregor=npzfile['t_plot_Gregor']; gregor_campCyto_trace=npzfile['gregor_campCyto_trace']
@@ -628,11 +627,11 @@ fig5 = plt.figure(figsize=(9.5, 8))
 grid = plt.GridSpec(3, 1, wspace=1.2, hspace=1.2)
 
 ax1= fig5.add_subplot(grid[0, 0])
-ax1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 1 FRET Trace (10uM)"],
+ax1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 1 FRET Trace (1nM)"],
                               linewidth=trace_width,color='k')
-ax1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 2 FRET Trace (10uM)"],
+ax1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 2 FRET Trace (1nM)"],
                                linewidth=trace_width,color='dimgrey')
-ax1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET Trace (10uM)"],
+ax1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET Trace (1nM)"],
                                linewidth=trace_width,color='darkgrey')
 #ax1.set_ylabel(r'FRET Signal, A.U.',fontsize=label_font_size)
 ax1.set_xlabel('Time (min)',fontsize=label_font_size)
@@ -651,12 +650,14 @@ ax2= fig5.add_subplot(grid[1:, 0])
 #            linewidth=trace_width, color=mycolors[6])
 ax2.plot(t_plot_Goldbeter, b_trace,linewidth=trace_width, color=mycolors[0],
          label='Martiel 1987')
-ax3 = ax2.twinx()
+# ax3 = ax2.twinx()
+ax3= fig5.add_subplot(grid[1:, 0])
 ax3.plot(t_plot_Maeda, cAMPi_trace,linewidth=trace_width,color=mycolors[1],
          label='Maeda 2004')
-ax3.set_ylabel(r'MAeda 2004 $cAMP_{i}$, A.U.', color=mycolors[1],
-               fontsize=label_font_size-3)
+#ax3.set_ylabel(r'MAeda 2004 $cAMP_{i}$, A.U.', color=mycolors[1],
+#               fontsize=label_font_size-3)
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
+# ax3.set_ylim([-30,260])
 
 ax2.plot(t_plot_Gregor,gregor_campCyto_trace,linewidth=trace_width, 
          color=mycolors[2],label='Gregor 2010')
@@ -669,7 +670,8 @@ ax2.text(-0.13, 1.06, 'B',
          horizontalalignment='center',verticalalignment='center',
          transform = ax2.transAxes, color = 'g', fontsize=abcd_font_size)
 
-ax2.set_ylim([-0.2,1.85])
+# ax2.set_ylim([-0.2,1.85])# oscillations
+ax2.set_ylim([-0.2,1.2]) # adaptive spikes
 ax2.set_xlim([0,6])
 ax2.set_xlabel('Time, A.U.',fontsize=label_font_size)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)

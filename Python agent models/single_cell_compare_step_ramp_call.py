@@ -85,9 +85,8 @@ for i in range(len(Sgro_time)-1):
     r_trace.append(r_now)
     
 # Traces
-A_trace_offset=1.5
 A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
-A_trace_plot=(A_trace_orig+A_trace_offset)/Nh_Sgro;
+A_trace_plot=(A_trace_orig + Nh_Sgro_offset)/Nh_Sgro;
 t_plot_Sgro = np.array(t)/Nt
 # plot stimulus and traces
 label_font_size = 10
@@ -291,7 +290,7 @@ tau=1.5; n=2; K=4; kt=2; delta=0.01
 gamma=3; rho= 0.01 # population density, doesn't matter for single cells
 AgentParam={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,\
                'gamma':gamma,'rho':rho}
-x0=0.01; y0=0.05; z0=0.005
+x0=0.01; y0=0.06; z0=0.005
 Kamino_agent=Kamino2017_agent([x0,y0,z0],AgentParam)
 
 x_trace=[x0]; y_trace=[y0]
@@ -321,7 +320,7 @@ for i in range(len(t)-1):
    
 # Convert into np array
 x_trace = np.array(x_trace) # vectorize p_trace
-y_trace = np.array(y_trace)/Nh_Kamino
+y_trace = (np.array(y_trace)-Nh_Kamino_offset)/Nh_Kamino
 t_plot_Kamino = np.array(t)/Nt_Kamino
 
 # plot stimulus and traces
@@ -353,13 +352,13 @@ plt.show()
 
 
 #%% Save all outputs in npz file
-np.savez('single_cell_StepRamp_200218.npz', 
+np.savez('single_cell_StepRamp_200320.npz', 
          t_plot_Goldbeter = t_plot_Goldbeter , b_trace=b_trace,
          t_plot_Maeda = t_plot_Maeda , cAMPi_trace = cAMPi_trace,
          t_plot_Sgro=t_plot_Sgro, A_trace_plot=A_trace_plot,
          t_plot_Kamino=t_plot_Kamino, y_trace=y_trace)
 #%% load saved npz output file
-npzfile = np.load('single_cell_StepRamp_191203.npz')
+npzfile = np.load('single_cell_StepRamp_200320.npz')
 t_plot_Goldbeter =  npzfile['t_plot_Goldbeter'] ; b_trace = npzfile['b_trace']
 t_plot_Maeda=npzfile['t_plot_Maeda'] ; cAMPi_trace=npzfile['cAMPi_trace']
 t_plot_Sgro=npzfile['t_plot_Sgro']; A_trace_plot=npzfile['A_trace_plot']
@@ -417,8 +416,8 @@ ax2= fig3.add_subplot(grid[3:4, 0])
 ax2.plot(t_plot_Goldbeter, b_trace, color=mycolors[0],linewidth=trace_width)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax2.set_title('Martiel 1987',color = mycolors[0],  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax2.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax2.axvspan(12.5, 17.5, alpha=0.3, color='g')
-ax2.set_ylim([-0.2,1.2]); ax2.set_xlim([0,20])
+ax2.axvspan(2, 6, alpha=0.3, color='g'); ax2.axvspan(10, 14, alpha=0.3, color='g')
+ax2.set_ylim([-0.2,1.2]); ax2.set_xlim([0,16])
 ax2.text(-0.1, 1.12, 'B', ha='center',va='center',
          transform = ax2.transAxes, color = 'g', fontsize=abcd_font_size)
 
@@ -426,8 +425,8 @@ ax3= fig3.add_subplot(grid[5:6, 0])
 ax3.plot(t_plot_Maeda, cAMPi_trace, color=mycolors[1],linewidth=trace_width)
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax3.set_title('Maeda 2004', color = mycolors[1],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax3.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax3.axvspan(12.5, 17.5, alpha=0.3, color='g')
-ax3.set_ylim([-0.2,1.2]);  ax3.set_xlim([0,20])
+ax3.axvspan(2,6, alpha=0.3, color='g'); ax3.axvspan(10,14, alpha=0.3, color='g')
+ax3.set_ylim([-0.2,1.2]);  ax3.set_xlim([0,16])
 ax3.text(-0.1, 1.12, 'C', ha='center',va='center',
          transform = ax3.transAxes, color = 'g', fontsize=abcd_font_size)
 
@@ -435,8 +434,8 @@ ax4= fig3.add_subplot(grid[7:8, 0])
 ax4.plot(t_plot_Sgro, A_trace_plot, color=mycolors[5],linewidth=trace_width)
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax4.set_title('Sgro 2015', color = mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax4.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax4.axvspan(12.5, 17.5, alpha=0.3, color='g')
-ax4.set_ylim([-0.2,1.2]);  ax4.set_xlim([0,20])
+ax4.axvspan(2,6, alpha=0.3, color='g'); ax4.axvspan(10,14, alpha=0.3, color='g')
+ax4.set_ylim([-0.2,1.2]);  ax4.set_xlim([0,16])
 ax4.text(-0.1, 1.12, 'D', ha='center',va='center',
          transform = ax4.transAxes, color = 'g', fontsize=abcd_font_size)
 
@@ -444,8 +443,8 @@ ax5= fig3.add_subplot(grid[9:10, 0])
 ax5.plot(t_plot_Kamino, y_trace, color=mycolors[7],linewidth=trace_width)
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax5.set_title('Kamino 2017', color = mycolors[7],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax5.axvspan(2.5, 7.5, alpha=0.3, color='g'); ax5.axvspan(12.5, 17.5, alpha=0.3, color='g')
-ax5.set_ylim([-0.2,1.2]);  ax5.set_xlim([0,20])
+ax5.axvspan(2,6, alpha=0.3, color='g'); ax5.axvspan(10,14, alpha=0.3, color='g')
+ax5.set_ylim([-0.4,1.2]);  ax5.set_xlim([0,16])
 ax5.text(-0.1, 1.12, 'E', ha='center',va='center',
          transform = ax5.transAxes, color = 'g', fontsize=abcd_font_size)
 
