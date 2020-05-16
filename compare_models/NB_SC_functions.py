@@ -93,15 +93,23 @@ def Gregor2010_SC(GregorAgentParam,dt,t,signal_trace):
     t_plot_Gregor = np.array(t)
     return t_plot_Gregor, gregor_thetai_trace, gregor_campCyto_trace
 
-def Sgro2015_SC(SgroAgentParam,dt,t,signal_trace):
+def Sgro2015_SC(SgroAgentParam,dt,t,signal_trace,randseed = 0):
     # Initializations
     A0=-1.5; R0=-0.5
     Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
     A_trace_orig=[A0]; R_trace_orig=[R0]; r_trace=[]
-
+    
+    # this random seed stream consistently give us the predictable results: 
+    # spiking with step and no response with 
+    if randseed != 0 : # with specified seed
+        np.random.seed(randseed) 
+        r = math.sqrt(dt)*np.random.randn(len(t))
+    else:  # without specified seed
+        r = math.sqrt(dt)*np.random.randn(len(t))
     for i in range(len(t)-1):
         signal_now=signal_trace[i]       
-        A_next,R_next,r_now=Sgro_agent.update(dt,signal_now)
+        A_next,R_next,r_now=Sgro_agent.update(dt,signal_now,r[i])
+        # A_next,R_next,r_now=Sgro_agent.update(dt,signal_now)
         A_trace_orig.append(A_next)
         R_trace_orig.append(R_next)
         r_trace.append(r_now)
@@ -267,8 +275,10 @@ def SC_FCD_Noise (z0First_space,  FC_space,num_of_runs, cAMP, Nt, dt, t,
                         '\n 2nd peak prominence='+ '{:#.2n}'.format(np.float64(PkPrm_mean_noise)))   
                 ax2= fig.add_subplot(grid[1:, 0])
                 ax2.set_ylabel(r'$cAMP_{i}$'); ax2.set_xlabel('Time, A.U.');
-                for test in run_time_space:
-                    ax2.plot(t_plot,cAMPi_noise_all_traces[test,:])
+                
+                numoftraces_plot = min(5,num_of_runs)
+                for test in range(numoftraces_plot):
+                    ax2.plot(t_plot,cAMPi_noise_all_traces[test,:],alpha=0.4, linewidth=2)
 #                ax2.plot(t_plot,cAMPi_noise_all_traces[-1,:])              
 #                if PkPos2.size!=0:
 #                    ax2.plot([(stim_time_step2+Pk2Pos)*dt/Nt,Pk2Pos*dt/Nt],[Pk2min,Pk2max],color = 'g',linewidth=2.5)

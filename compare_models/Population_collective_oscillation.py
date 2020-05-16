@@ -22,7 +22,9 @@ from scipy.signal import find_peaks
 from time import perf_counter 
 
 # Normalization parameters
-from NormParam import *
+from Params import NormParams
+for key,val in NormParams.items():
+        exec(key + '=val')
 
 #%% Sgro 2015
 from Sgro2015_agent_and_pop_FUN import Sgro2015_pop

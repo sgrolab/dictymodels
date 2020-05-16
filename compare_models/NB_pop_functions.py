@@ -81,10 +81,10 @@ def Gregor_pop(GregorPopParam,dt,t, campExt_influx_trace, time_separation = 0):
     Amax=GregorPopParam['Amax']   
     Abas=GregorPopParam['Abas']  
     eta = GregorPopParam['eta']
-    rho = Amax=GregorPopParam['rho'] 
-    k = Amax=GregorPopParam['k'] 
-    Vt = Amax=GregorPopParam['Vt'] 
-    Nc = Amax=GregorPopParam['Nc'] 
+    rho =GregorPopParam['rho'] 
+    k = GregorPopParam['k'] 
+    Vt = GregorPopParam['Vt'] 
+    Nc = GregorPopParam['Nc'] 
     campCyto0 = 7.5*np.ones(Nc)
     sinthetai0 = (campCyto0*2-Amax-Abas)/(-Amax+Abas)
     thetai0 = np.arcsin(sinthetai0)
@@ -151,7 +151,7 @@ def Kamino_pop(KaminoPopParam,dt,t,cAMPext_influx_trace):
     return t_plot_Kamino, y_trace, x_trace, z_trace
 
 
-def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, t_tot, stim_time, 
+def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, tlim, stim_time, 
                          title, SC_traces = 0, SC_traces_idx = 0):
     fig = plt.figure(figsize=(11, 4))
     grid = plt.GridSpec(1, 1, wspace=0.5, hspace=0.3)
@@ -160,19 +160,19 @@ def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, t_tot, stim_time
     if SC_traces_idx != 0:
         for this_idx in SC_traces_idx:
             this_trace = SC_traces[this_idx,:] # /np.amax(SC_traces[this_idx,:])
-            ax1.plot(t_plot,this_trace, color='k',alpha=0.6, linewidth=2)     
+            ax1.plot(t_plot,this_trace, color='grey',alpha=0.6, linewidth=2)     
     # Plot population mean
     ax1.plot(t_plot, pop_trace_plot, color='g' ,alpha=0.8,linewidth=3)
     
     # ax1.set_title(r'$cAMP_{e}$ input = '+str(cAMPext_influx), fontsize=20)
     ax1.set_title(title, fontsize=20)
-    ax1.set_xlim([0,t_tot])
+    ax1.set_xlim(tlim)
     
     ax1.set_xlabel('Time, A.U.', fontsize=20); 
     ax1.set_ylabel(r'$cAMP_{i}$ response',fontsize=20 )
     ax1.tick_params(grid_linewidth = 15, labelsize = 20)
     if cAMPext_influx != 0:
-        ax1.axvspan(t_tot*stim_time, t_tot, alpha=0.6, color='g')
+        ax1.axvspan(tlim[1]*stim_time, tlim[1], alpha=0.25, color='g')
 #    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
     plt.show()
 
@@ -199,7 +199,7 @@ def plot_POP_oscillation_FR(title, t_plot,cAMPi_mean,cAMPi_label,
         ax2.tick_params(axis = 'y', labelcolor = 'k', grid_linewidth = 15, labelsize = 20)
     ax1.set_title(title, fontdict={'fontsize':18})
     ax1.set_xlabel('Time, A.U.', fontsize=20); 
-    ax1.set_ylabel(r'cAMPi', color = 'k', fontsize=20 )
+    ax1.set_ylabel(r'cAMPi', color = 'green', fontsize=20 )
     ax1.tick_params(axis = 'y', labelcolor = 'k')
     ax1.tick_params( grid_linewidth = 15, labelsize = 20)
     ax1.set_xlim(tlim)
@@ -207,53 +207,6 @@ def plot_POP_oscillation_FR(title, t_plot,cAMPi_mean,cAMPi_label,
         leg = ax1.legend()
 #    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
     
-
-
-
-def SC_FCD (z0First_space, FC_space, cAMP, Nt, dt, t,
-            prm_lims, SecondPkEndTime, single_trace_to_plot,
-            SC_model, AgentParam):
-    # Initialize peak prominence array
-    PkPrm = np.zeros((len(z0First_space), len(FC_space))) 
-    
-    for j in range(len(z0First_space)):
-        z0First = z0First_space[j]
-        signal_trace=z0First*np.ones(len(t))
-        for k in range(len(FC_space)):
-            FC = FC_space[k]
-            stim_time_step=int(round(0.5*max(t)/dt)) # at this time second step input is applied
-            signal_trace[stim_time_step:] = FC * z0First
-            t_plot, cAMPi_trace,__ = SC_model( AgentParam,dt, t, signal_trace)
-            
-            # cAMPi_trace_second=cAMPi_trace[stim_time_step:] # the second part of trace, second spike
-            # end_time_step= stim_time_step + int(round(2.5*Nt/dt))
-            end_time_step= int(math.floor( SecondPkEndTime *Nt/dt))
-            cAMPi_trace_second=cAMPi_trace[stim_time_step:end_time_step]
-            PkPos, PkProperties = find_peaks(cAMPi_trace_second, prominence=(prm_lims[0],prm_lims[1]))
-            # Check find_peaks
-            # plt.plot(cAMPi_trace_second)
-            # plt.plot(peaks, cAMPi_trace_second[peaks], "x")
-            if PkPos.size: # if there is a second spike
-                PkPrm[j,k]=PkProperties["prominences"][0]
-            else:
-                PkPrm[j,k]=0 # if there is no second spike
-            
-                        # plot single cell traces as selected 
-            if j in single_trace_to_plot[:, 0] and k in single_trace_to_plot[:, 1]:
-                            fig = plt.figure(figsize=(5,3)); grid = plt.GridSpec(3, 1,hspace= 0.3)
-                            ax1= fig.add_subplot(grid[0, 0])
-                            ax1.plot(t_plot,signal_trace)
-                            ax1.set_ylabel(r'$cAMP_{e}$'); 
-                            ax2= fig.add_subplot(grid[1:, 0])
-                            ax2.plot(t_plot,cAMPi_trace)
-                            ax2.set_ylabel(r'$cAMP_{i}$'); ax2.set_xlabel('Time, A.U.');
-#                            ax2.set_title('Priming conc.  '+str(z0First)+' fold change '+ str(FC)+
-#                                          '\n 2nd peak prominence='+str(PkPrm[j,k]))
-                            ax1.set_title('Priming conc.  '+'{:#.2n}'.format(np.float64(z0First)) +
-                                ', fold change '+ '{:#.2n}'.format(np.float64(FC)) + 
-                                '\n 2nd peak prominence='+ '{:#.2n}'.format(np.float64(PkPrm[j,k])))
-                            plt.show()
-    return PkPrm
 
 
 

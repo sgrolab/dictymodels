@@ -21,9 +21,12 @@ from scipy import signal
 from scipy.signal import find_peaks
 from time import perf_counter 
 
-from NB_pop_functions import *
+from NB_pop_functions import plot_POP_oscillation
+
 # Normalization parameters
-from NormParam import *
+from Params import NormParams
+for key,val in NormParams.items():
+        exec(key + '=val')
 
 #%% change back to default
 import matplotlib.style
@@ -32,27 +35,11 @@ matplotlib.style.use('default')
 #%% Golbeter 1987,  Table II/ Fig 3 parameters
 
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var_SCnoise
+from Params import Goldbeter3PopParam
 sigma = 10 # noise strength
 N = 100 # number of cells
-
-k1 = 0.036     # per min
-k2 = 0.666    # per min
-L1 = 10; L2 = 0.005 
-c = 10;           # 0.15 ~ 50
-lamda=0.01; theta=0.01
-e=  1 # 0.108 # compared to 1
-q=4000
-sig= 0.6 # 0.57 # compared to 0.6
-v=12; k= 4 # k prime in the paper
-ki=1.7 # 0.958 # compared to 1.7 
-kt=0.9
-
-kc=5.4 #5.4 # 3.58 # compared to 5.4
-h=5 # ratio of intracellular to extracellular volume, rho 
-
-Goldbeter3PopParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
-            'theta':theta, 'e':e, 'q':q,'sig':sig, 'v':v, 'k':k, \
-            'ki':ki,'kt':kt, 'kc':kc,'h':h, 'sigma':sigma, 'N':N}
+kc=5.4
+h=5
 
 dt=0.001; t_tot=20; t=list(np.arange(0,t_tot*Nt_Goldbeter,dt))
 nSteps = len(t)
@@ -137,17 +124,9 @@ plot_POP_oscillation(t_plot_Goldbeter_short,b_trace_norm_mean_later,cAMPext_infl
 #%% Maeda & Loomis 1998
 from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_pop_SCnoise
 
+from Params import MaedaPopParam
 sigma = 0.1 # noise strength
 N = 100  # number of cells
-
-# parameters from Maeda & Loomis 2004 paper
-k1=2.0; k2=0.9; k3=2.5; k4=1.5; k5=0.6
-k6=0.8; k7=1.0; k8=1.3; k9=0.3; k10=0.8
-k11=0.7; k12=4.9; k13=23; k14=4.5
-MaedaAgentParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
-            'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
-            'k13':k13,'k14':k14, 'N':N, 'sigma':sigma}
-
 gamma = 0# [cAMP]e flow rate 
 rho = 1 # cell density
 
@@ -167,7 +146,7 @@ cAMPi_trace= np.zeros((N,nSteps)); cAMPi_trace[:,0] = cAMPi0
 cAMPe_trace=np.zeros((nSteps,1));cAMPe_trace[0] = cAMPe0;
 CAR1_trace= np.zeros((N,nSteps)); CAR1_trace[:,0] = CAR10
 
-MaedaLoomis_pop=MaedaLoomis2004_pop_SCnoise([1,1],ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10, MaedaAgentParam)
+MaedaLoomis_pop=MaedaLoomis2004_pop_SCnoise([1,1],ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10, MaedaPopParam)
 
 cAMPext_influx = 0; cAMPext_influx_trace = np.ones(nSteps)*cAMPext_influx
 
@@ -218,12 +197,12 @@ plot_POP_oscillation(t_plot_Maeda_short,cAMPi_trace_norm_mean_later,cAMPext_infl
 
 #%% Kamino 2017, fig 5D group oscillations
 from Kamino2017_agent_and_pop_FUN import Kamino2017_pop_SCnoise
-   
-tau=1.5; n=2; K=4; kt=2; 
-delta=0  #################!!!!!!!!!!!!
+
+from Params import KaminoPopParam
+KaminoPopParam['delta'] = 0 # only for population oscillations and population add cAMP
+
 gamma = 3;  # dilution rate
 rho = 1 # cell density
-
 
 dt=0.001
 t_tot= 20                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
@@ -232,19 +211,13 @@ nSteps = len(t)
 cAMPext_influx = 0
 cAMPext_influx_trace = cAMPext_influx*np.ones(len(t)) # z0, background cAMP signal
 
-sigma = 0.01# noise strength
-N=100 # number of cells in a population
-
-# Pack parameters 
-Param={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,'sigma':sigma, 'N':N,'rho':rho,'gamma':gamma}
-
 x0=0.01*np.ones(N)
 y0=0.08*np.ones(N)
 z0=0
 x_trace=np.zeros((N,nSteps)); x_trace[:,0] = x0
 y_trace=np.zeros((N,nSteps)); y_trace[:,0] = y0
 z_trace=np.zeros((nSteps,1)); z_trace[0] = z0
-Kamino_pop = Kamino2017_pop_SCnoise(x0,y0,z0,Param)
+Kamino_pop = Kamino2017_pop_SCnoise(x0,y0,z0, KaminoPopParam)
 
 for i in range(nSteps-1):
     x_next,y_next,z_next=Kamino_pop.update(cAMPext_influx_trace[i],dt)
@@ -317,12 +290,10 @@ plot_POP_oscillation(t_plot_Kamino_short,y_trace_norm_mean_later,cAMPext_influx,
 #%% Sgro 2015
 from Sgro2015_agent_and_pop_FUN import Sgro2015_pop
 
-e=0.1; tauA=0.09; tauR=tauA/e; g=0.5; sigma = 0.15 # noise strength
+from Params import SgroPopParam
+sigma = 0.15 # noise strength
 N = 100 # number of cells in the population
 rho = 10**(-3.5); j = 0.5
-SgroPopParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':sigma,'N':N,\
-            'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'flux_thrs':0, 'rho': rho,'j': j}
 
 A0=-1.5*np.ones(N) # + np.random.uniform(-sigma,sigma,N); ###########
 R0=-0.5*np.ones(N) # + np.random.uniform(-sigma,sigma,N); 
@@ -424,26 +395,14 @@ plot_POP_oscillation(t_plot_Sgro_short,A_trace_norm_mean_later,0,
 
 from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
 
+from Params import GregorPopParam
 Amax=20;  Abas=0.4 # uM
-w=2*math.pi/6 # min-1
-Vc=1.1e-9 # ml
-St=1.33 # cm2
-Sc=1.3e-6 # cm2
-K=0.0004 # uM, 400 pM
-c_sec= 3.6 # min-1
-c_excite=1.01 # min-1
-
 Nc=100 # Num of cells
 eta=0.02 # noise stength
 
-rho = 1/2 #1/ml
-Vt = 1 #chamber size ml
-k = 5 #ml/min
 ext_input = 0
 time_separation = 0
 
-GregorPopParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
-            'c_sec':c_sec,'c_excite':c_excite,'Nc':Nc}
 
 campCyto0 = 7.5*np.ones(Nc)
 sinthetai0 = (campCyto0*2-Amax-Abas)/(-Amax+Abas)

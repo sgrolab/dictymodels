@@ -15,27 +15,22 @@ import pandas as pd
 import scipy.io
 
 # Normalization parameters
-from NormParam import *
+from Params import NormParams
+for key,val in NormParams.items():
+        exec(key + '=val')
 
 # set up new default font
 import matplotlib
 font = {'family' : 'Arial'}
 matplotlib.rc('font', **font)
+
 #%% Adaptive spiking
 # Gregor 2010
 from Gregor2010_agent_and_pop_FUN import  Gregor2010_agent
 
-Amax=20;  Abas=0.4 # uM
-w=2*math.pi/6 # min-1
-Vc=1.1e-9 # ml
-St=1.33 # cm2
-Sc=1.3e-6 # cm2
-K=0.0004 # uM, 400 pM
-c_sec= 3.6 # min-1
-c_excite=1.01 # min-1
+from Params import GregorAgentParam
 
-GregorAgentParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
-            'c_sec':c_sec,'c_excite':c_excite}
+Amax = GregorAgentParam['Amax']; Abas= GregorAgentParam['Abas']; 
 # Initializations
 campCyto0 = 0.4
 sinthetai0 = (campCyto0*2-Amax-Abas)/(-Amax+Abas)
@@ -122,10 +117,12 @@ plt.show()
 #%% Sgro 2015
 from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
 
-e=0.1; tauA=0.09; tauR=tauA/e; g=0.5
-SgroAgentParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
-            'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
-            'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
+from Params import SgroAgentParam
+# e=0.1; tauA=0.09; tauR=tauA/e; g=0.5
+# SgroAgentParam={'e':e,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
+#             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
+#             'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
+
 
 A0=-1.5; R0=-0.5
 Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
@@ -191,40 +188,9 @@ leg = ax1.legend();
 
 #%% Goldbeter 1987
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
-##Fig 5 parameters
-#k1 = 0.036     # per min
-#k2 = 0.666    # per min
-#L1 = 10; L2 = 0.005 
-#c = 10;           # 0.15 ~ 50
-#lamda=0.01; theta=0.01
-#e=  0.108 # compared to 1
-#q=4000
-#sig= 0.57 # compared to 0.6
-#v=12; k= 4 # k prime in the paper
-#ki=0.958 # compared to 1.7 
-#kt=0.9
-#kc=3.58 # compared to 5.4
-#h=5
 
-# Table 2 parameters 
-k1 = 0.036     # per min
-k2 = 0.666    # per min
-L1 = 10; L2 = 0.005 
-c = 10;           # 0.15 ~ 50
-lamda=0.01; theta=0.01
-e=  1 
-q=4000
-sig= 0.6
-v=12; k= 4 # k prime in the paper
-ki=1.7
-kt=0.9
-kc=5.4
-h=5
-
-Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
-            'theta':theta, 'e':e, 'q':q,'sig':sig, 'v':v, 'k':k, \
-            'ki':ki,'kt':kt, 'kc':kc,'h':h}
-
+# Table 2 parameters
+from Params import Goldbeter3AgentParam
 p0=0.8; a0=3; b0=0.9; g0=0
 
 # Fig 2, 4 variable model, autonomous oscillation
@@ -329,19 +295,8 @@ ax2.legend( frameon=False,loc='upper center',ncol=3,prop={'size': 15})
 plt.show()
 #%% Maeda Loomis 2004
 from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_agent
+from Params import MaedaAgentParam
 
-## Laub loomis parameters
-#k1=1.4; k2=0.9; k3=2.5; k4=1.5; k5=0.6
-#k6=0.8; k7=2.0; k8=1.3; k9=0.7; k10=1.0
-#k11=0.3; k12=3.1; k13=1.8; k14=1.5
-
-# Maeda & Loomis 2004 parameters
-k1=2.0; k2=0.9; k3=2.5; k4=1.5; k5=0.6
-k6=0.8; k7=1.0; k8=1.3; k9=0.3; k10=0.8
-k11=0.7; k12=4.9; k13=23; k14=4.5
-MaedaAgentParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
-            'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
-            'k13':k13,'k14':k14}
 ACA0=0.1; PKA0=0.1; ERK20=0.1; RegA0=0.1; cAMPi0=0.01; 
 cAMPe0=0.1; CAR10=0.1
 state0= [ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10]
@@ -481,12 +436,10 @@ plt.show()
 #%% Adaptive spike for individual cells
 from Kamino2017_agent_and_pop_FUN import Kamino2017_agent 
 
-tau=1.5; n=2; K=4; kt=2; delta=0.01
-gamma=3; rho= 0.01 # population density, doesn't matter for single cells
-AgentParam={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,\
-               'gamma':gamma,'rho':rho}
+from Params import KaminoAgentParam
+
 x0=0.01; y0=0.06; z0=0.005
-Kamino_agent=Kamino2017_agent([x0,y0,z0],AgentParam)
+Kamino_agent=Kamino2017_agent([x0,y0,z0], KaminoAgentParam)
 
 x_trace=[x0]; y_trace=[y0]
 

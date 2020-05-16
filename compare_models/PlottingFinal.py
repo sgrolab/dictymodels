@@ -9,6 +9,7 @@ Plotting script for "Bridging Scales to Model Emergent Collective Oscillations i
 """
 # import packages
 
+import os
 import numpy as np
 import random
 import math
@@ -17,7 +18,13 @@ import pandas as pd
 import pandas as pd
 
 # Normalization parameters
-from NormParam import *
+# from NormParam import *
+from NB_pop_functions import plot_POP_oscillation
+#Normalization parameters
+from Params import NormParams
+for key,val in NormParams.items():
+        exec(key + '=val')
+        
 from NB_pop_functions import * 
 from iocustom import import_npz
 
@@ -1160,19 +1167,26 @@ fig3.text(0.5, 0.02, 'Time, A.U.', fontsize=label_font_size, ha='center')
 plt.show()
 
 #%% Fig 7 pop FR with SC noise
-# Experimental data
-PopRateExp = np.array([[0.129660088,0.171190476,0.152777778,0.171016069,0.132986111,0.149074074,0.144444444,0.177170868,0.162719633,0.178571429],
-[0.065434419,0.131937322,0.131658497,0.156811146,0.147619048,0.162799043,0.147368421,0.171820616,0.11875,0.1],
-[0.075416667,0.152597403,0.138703704,0.161497326,0.183333333,0.157142857,0.132373581,0.139815266,0.117989418,0.103125],
-[0.057236842,0.164138177,0.13287037,0.165909091,0.126666667,0.166827485,0.086222222,0.065789474,0.047584541,0.055555556],
-[0.019047619,0.103693161,0.122423896,0.100198413,0.106683375,0.091592443,0.034122807,0.042105263,0.031818182,0],
-[0.014285714,0.026428571,0.031578947,0.049938272,0.038095238,0.00625,0.010526316,0,0,0],
-[0,0.02375,0.022222222,0.050595238,0,0,0,0,0,0]])
-JExp = np.linspace(1,10, num=10) # np.array([0,1,2,4,6,8,10,15,16,20])
-RhoExp = np.linspace(1,7, num=7) #  np.array([0.5,0.25,0.125,0.0625,0.03125,0.015625,0.0078125])
+# # Experimental data
+# PopRateExp = np.array([[0.129660088,0.171190476,0.152777778,0.171016069,0.132986111,0.149074074,0.144444444,0.177170868,0.162719633,0.178571429],
+# [0.065434419,0.131937322,0.131658497,0.156811146,0.147619048,0.162799043,0.147368421,0.171820616,0.11875,0.1],
+# [0.075416667,0.152597403,0.138703704,0.161497326,0.183333333,0.157142857,0.132373581,0.139815266,0.117989418,0.103125],
+# [0.057236842,0.164138177,0.13287037,0.165909091,0.126666667,0.166827485,0.086222222,0.065789474,0.047584541,0.055555556],
+# [0.019047619,0.103693161,0.122423896,0.100198413,0.106683375,0.091592443,0.034122807,0.042105263,0.031818182,0],
+# [0.014285714,0.026428571,0.031578947,0.049938272,0.038095238,0.00625,0.010526316,0,0,0],
+# [0,0.02375,0.022222222,0.050595238,0,0,0,0,0,0]])
+# JExp = np.linspace(1,10, num=10) # np.array([0,1,2,4,6,8,10,15,16,20])
+# RhoExp = np.linspace(1,7, num=7) #  np.array([0.5,0.25,0.125,0.0625,0.03125,0.015625,0.0078125])
+# np.savez('Gregor2010_pop_firing_rate.npz', PopRateExp = PopRateExp,
+#          JExp = JExp, RhoExp = RhoExp)
+  # load experimental data
+npzfile = np.load('Gregor2010_pop_firing_rate.npz')
+PopRateExp = npzfile['PopRateExp']
+JExp = npzfile['JExp']; RhoExp = npzfile['RhoExp']
+
 # Simulation outputs
 # Goldbeter 1987 from parallel computing outputs
-OUT_path = 'C:/Users/ellin/Documents/GitHub/dictymodels/Python agent models/'
+OUT_path = 'C:/Users/ellin/Documents/GitHub/dictymodels/model_outputs/'
 Gold_OUT = np.load(OUT_path + 'pop_FR_Goldbeter_200311_hnorm_dt0.001_noise0ParamLen40.npz')
 kc_arr_Gold =  Gold_OUT['kc_arr']
 h_arr_Gold =  Gold_OUT['h_arr']
@@ -1666,7 +1680,7 @@ plt.subplots_adjust(left=0.05, right=0.95, top=0.93, bottom=0.07, wspace=0.15, h
 #%% fig S9-12 population firing rate
 # import population firing rate heatmap outputs
 # Goldbeter 1987s
-OUT_path = 'C:/Users/ellin/Documents/GitHub/dictymodels/Python agent models/'
+OUT_path = 'C:/Users/ellin/Documents/GitHub/dictymodels/model_outputs/'
 Gold_OUT = np.load(OUT_path + 'pop_FR_Goldbeter_200311_hnorm_dt0.001_noise0ParamLen40.npz')
 Gold_OUT_noise10 = np.load(OUT_path + 'pop_FR_Goldbeter_200311_hnorm_dt0.001_noise10ParamLen40.npz')
 kc_arr_Gold_noise10 =  Gold_OUT_noise10['kc_arr']
@@ -1695,8 +1709,8 @@ gamma_arr_Kamino_noise =  Kamino_OUT_noise['gamma_arr']
 pop_rate_Kamino_noise = Kamino_OUT_noise['pop_rate_Kamino']
 
 # load parameter pair  npz output file 
-import_npz('pop_FR_supp_200426.npz',globals())
-import_npz('pop_FR_supp_200426_cont.npz',globals())
+import_npz(OUT_path+'pop_FR_supp_200426.npz',globals())
+import_npz(OUT_path+'pop_FR_supp_200430_cont.npz',globals())
 #%% Specify plottig sizes
 title_font_size = 20
 label_font_size = 20
@@ -1720,7 +1734,7 @@ heatmap = ax0.pcolor(kc_arr_Gold_noise10, oneoverh_arr_Gold_noise10, pop_rate_Go
 # ax1.set_xscale('log');
 ax0.set_yscale('log')
 heatmap.set_clim(0,1.5)
-ax0.set_xlabel('Flow Rate, A.U.', size=sublabel_font_size-2)
+ax0.set_xlabel('Dilution Rate, A.U.', size=sublabel_font_size-2)
 ax0.set_ylabel('Cell Density, A.U.', size=sublabel_font_size-2)
 cbar=fig.colorbar(heatmap, ax=ax0, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
@@ -1767,7 +1781,7 @@ heatmap = ax0.pcolor(gamma_arr_Maeda_noise1, rho_arr_Maeda_noise1,
 # ax1.set_xscale('log');
 ax0.set_yscale('log')
 heatmap.set_clim(0,0.55)
-ax0.set_xlabel('Flow Rate, A.U.', size=sublabel_font_size-2)
+ax0.set_xlabel('Dilution Rate, A.U.', size=sublabel_font_size-2)
 ax0.set_ylabel('Cell Density, A.U.', size=sublabel_font_size-2)
 cbar=fig.colorbar(heatmap, ax=ax0, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
@@ -1815,7 +1829,7 @@ heatmap = ax0.pcolor(k_arr_Gregor_noise, rho_arr_Gregor_noise,
 ax0.set_xlim([0,50])
 ax0.set_yscale('log')
 heatmap.set_clim(0,1.2)
-ax0.set_xlabel('Flow Rate, A.U.', size=sublabel_font_size-2)
+ax0.set_xlabel('Dilution Rate, A.U.', size=sublabel_font_size-2)
 ax0.set_ylabel('Cell Density, A.U.', size=sublabel_font_size-2)
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'population firing rate',size=tick_font_size)
@@ -1863,7 +1877,7 @@ heatmap = ax0.pcolor(j_arr_Sgro_regular_noise, rho_arr_Sgro_regular_noise,
 # ax1.set_xscale('log');
 ax0.set_yscale('log')
 heatmap.set_clim(0,0.55)
-ax0.set_xlabel('Flow Rate, A.U.', size=sublabel_font_size-2)
+ax0.set_xlabel('Dilution Rate, A.U.', size=sublabel_font_size-2)
 ax0.set_ylabel('Cell Density, A.U.', size=sublabel_font_size-2)
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'population firing rate',size=tick_font_size)
@@ -1909,7 +1923,7 @@ heatmap = ax0.pcolor(gamma_arr_Kamino_noise, rho_arr_Kamino_noise,
 ax0.set_xscale('log');
 ax0.set_yscale('log')
 heatmap.set_clim(0,0.65)
-ax0.set_xlabel('Flow Rate, A.U.', size=sublabel_font_size-2)
+ax0.set_xlabel('Dilution Rate, A.U.', size=sublabel_font_size-2)
 ax0.set_ylabel('Cell Density, A.U.', size=sublabel_font_size-2)
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'population firing rate',size=tick_font_size)
