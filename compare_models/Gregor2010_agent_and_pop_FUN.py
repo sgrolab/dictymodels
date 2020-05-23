@@ -100,7 +100,7 @@ class Gregor2010_pop:
         
         self.campCyto_now=campCyto_next
         self.campExt_now=campExt_next
-        self.thetai_now=thetai_next    
+        self.thetai_now=thetai_next                                     
         return thetai_next, campCyto_next, campExt_next
     
     

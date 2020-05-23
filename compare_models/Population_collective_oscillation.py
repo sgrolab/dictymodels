@@ -114,7 +114,7 @@ plt.show()
 from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
 
 Amax=20;  Abas=0.4 # uM
-w=2*pi/6 # min-1
+w=2*math.pi/6 # min-1
 Vc=1.1e-9 # ml
 St=1.33 # cm2
 Sc=1.3e-6 # cm2
@@ -124,10 +124,10 @@ c_excite=1.01 # min-1
 
 Nc=100 # Num of cells
 
-rho = 1/12 #1/ml
+rho =1/3 #1/12 #1/ml
 Vt = 1 #chamber size ml
 k = 5 #ml/min
-ext_input = 0
+# ext_input = 0
 time_separation = 0
 
 GregorPopParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
@@ -138,21 +138,32 @@ sinthetai0 = (campCyto0*2-Amax-Abas)/(-Amax+Abas)
 thetai0 = np.arcsin(sinthetai0)
 campExt0 = 0 # Vc*St/Sc*rho/K*c_sec*1/Nc*np.sum(campCyto0);
 
-Gregor_pop=Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam)
+Gregor_pop_obj=Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam)
 
-dt=0.005; t_tot=15*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
+dt=0.005; t_tot=80*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
+
+# cAMPe influx level. By default low, itermediate and high levels are 0.0001, 10 and 1000
+cAMPext_influx= 0
+stim_time= 0.5 # cAMPext_influx happens at half the total time
+# allow for oscillation stablize for longer before cAMPe is applied
+stim_time_step=int(round(stim_time*t_tot/dt)) # at this time step input is applied
+cAMPext_influx_trace=np.zeros(len(t))
+cAMPext_influx_trace[stim_time_step:] = cAMPext_influx
+
 
 eta=0.002 # noise stength
 # initializations
-gregor_thetai_trace=np.zeros((Nc,len(t))) 
-gregor_campCyto_trace=np.zeros((Nc,len(t))) 
-gregor_campExt_trace=np.zeros(len(t)) 
+gregor_thetai_trace=np.zeros((Nc,len(t))) ; gregor_thetai_trace[:,0] = thetai0;
+gregor_campCyto_trace=np.zeros((Nc,len(t))) ; gregor_campCyto_trace[:,0] = campCyto0
+gregor_campExt_trace=np.zeros(len(t)) ; gregor_campExt_trace[0] = campExt0; 
 
 for i in range(len(t)-1):
     thetai_now=gregor_thetai_trace[:,i]
     campCyto_now=gregor_campCyto_trace[:,i]
     campExt_now=gregor_campExt_trace[i]
-    thetai_next, campCyto_next, campExt_next = Gregor_pop.update(dt,eta,rho,k,Vt,time_separation,ext_input)
+    thetai_next, campCyto_next, campExt_next = Gregor_pop_obj.update(dt,eta,rho,k,Vt,
+                                                                     time_separation,
+                                                                     cAMPext_influx_trace[i])
     gregor_thetai_trace[:,i+1] = thetai_next
     gregor_campCyto_trace[:,i+1] = campCyto_next
     gregor_campExt_trace[i+1] = campExt_next
@@ -166,7 +177,7 @@ t_plot_Gregor = np.array(t)/Nt_Gregor
 
 
 #  check simulation traces
-label_font_size=25; trace_width=3; tick_font_size=18
+label_font_size=25; trace_width=1.5; tick_font_size=18
 
 fig,ax = plt.subplots()
 ax.plot(t_plot_Gregor,gregor_campCyto_trace_mean,linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
@@ -174,11 +185,18 @@ ax.plot(t_plot_Gregor,gregor_campCyto_trace_mean,linewidth=trace_width, label= r
 # ax.plot(t_plot_Sgro,A_trace_plot[2,:],linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
 # ax.set_ylim([-0.2,1.3])
 ax.set_xlabel('Time')
-ax.set_ylabel('Activator')
-ax.set_title(r'Gregor 2010 group oscillation, $rho$= '+str(rho)+', k= '+str(k)+', time separation= '+str(time_separation))
+ax.set_ylabel('cAMPi')
+ax.set_title(r'Gregor 2010 group oscillation, $rho$= '+str(rho)+', k= '+str(k)+
+             '\n noise='+str(eta)+', cAMPe input='+str(cAMPext_influx)+', time separation= '+str(time_separation))
+
+ax2 = ax.twinx()
+ax2.plot(t_plot_Gregor,gregor_campExt_trace,linewidth=trace_width,color = 'g', label= r'$cAMP_{ext}$')
+ax2.set_ylabel('cAMPe')
+
 leg = ax.legend()
 ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 plt.show()
+
 
 ##Get the oscillation period
 #later_portion = 0.2 # start count peaks after this X total simulation time
@@ -189,8 +207,8 @@ plt.show()
 #plt.plot(gregor_campCyto_trace_mean_later)
 #plt.plot(PkPos, gregor_campCyto_trace_mean_later[PkPos], "x")
 
-#Gregor_pop_osc_period = (1-later_portion)*t_tot / len(PkPos)
-#print('group oscillation period for Gregor is '+str(Gregor_pop_osc_period))
+#Gregor_pop_obj_osc_period = (1-later_portion)*t_tot / len(PkPos)
+#print('group oscillation period for Gregor is '+str(Gregor_pop_obj_osc_period))
 
 #%% Golbeter 1987,  Table II/ Fig 3 parameters
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var

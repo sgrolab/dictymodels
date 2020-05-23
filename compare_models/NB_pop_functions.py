@@ -85,6 +85,7 @@ def Gregor_pop(GregorPopParam,dt,t, campExt_influx_trace, time_separation = 0):
     k = GregorPopParam['k'] 
     Vt = GregorPopParam['Vt'] 
     Nc = GregorPopParam['Nc'] 
+    
     campCyto0 = 7.5*np.ones(Nc)
     sinthetai0 = (campCyto0*2-Amax-Abas)/(-Amax+Abas)
     thetai0 = np.arcsin(sinthetai0)
@@ -93,7 +94,7 @@ def Gregor_pop(GregorPopParam,dt,t, campExt_influx_trace, time_separation = 0):
     Gregor_pop_obj=Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam)
     gregor_thetai_trace=np.zeros((Nc,len(t))) ;  gregor_thetai_trace[:,0] = thetai0; 
     gregor_campCyto_trace=np.zeros((Nc,len(t))) ; gregor_campCyto_trace[:,0] = campCyto0
-    gregor_campExt_trace=np.zeros(len(t)) 
+    gregor_campExt_trace=np.zeros(len(t)) ; gregor_campExt_trace[0] = campExt0; 
     
     for i in range(len(t)-1):
         thetai_next, campCyto_next, campExt_next = Gregor_pop_obj.update(dt,eta,rho,k,Vt,time_separation,campExt_influx_trace[i])

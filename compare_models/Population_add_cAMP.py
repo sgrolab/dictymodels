@@ -240,7 +240,7 @@ GregorPopParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
 dt=0.005; t_tot=30*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
 eta=0.002 # noise stength
 
-ext_input_arr = np.array([0.0001,10,1000]) #np.logspace(0,3,num=5)
+ext_input_arr = np.array([1000]) # np.array([0.0001,10,1000]) #np.logspace(0,3,num=5)
 campCyto_traces = np.zeros((len(ext_input_arr),len(t)))
 campCyto_traces_single_cell = np.zeros((len(ext_input_arr),Nc,len(t)))
 time_separation = 0
@@ -269,8 +269,9 @@ for ext_input in ext_input_arr:
         gregor_campExt_trace[i+1] = campExt_next
         
     #Traces
-    # gregor_thetai_trace= np.array(gregor_thetai_trace) 
-    # gregor_campExt_trace = np.array(gregor_campExt_trace)
+    gregor_thetai_trace= np.array(gregor_thetai_trace) 
+    gregor_campExt_trace = np.array(gregor_campExt_trace)
+    
     gregor_campCyto_trace= np.array(gregor_campCyto_trace)/Nh_Gregor
     gregor_campCyto_trace_mean= np.mean(gregor_campCyto_trace,axis = 0)
     gregor_campCyto_trace_mean = gregor_campCyto_trace_mean
@@ -278,17 +279,35 @@ for ext_input in ext_input_arr:
     campCyto_traces[count,:] = gregor_campCyto_trace_mean
     campCyto_traces_single_cell[count,:,:] = gregor_campCyto_trace
     count = count+1
-#    #  check simulation traces
-#    label_font_size=25; trace_width=3; tick_font_size=18
-#    fig,ax = plt.subplots()
-#    ax.plot(t_plot_Gregor,gregor_campCyto_trace_mean,linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
-#    # ax.plot(t_plot_Gregor,gregor_campExt_trace,linewidth=trace_width, label= r'$cAMP_{ext}$')
-#    ax.set_xlabel('Time')
-#    ax.set_ylabel('Activator')
-#    ax.set_title(r'Gregor 2010, cAMP input='+str(ext_input)+' T_sep= '+str(time_separation))
-#    leg = ax.legend()
-#    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
-#    plt.show()
+    
+    #     #  check simulation traces
+    # label_font_size=25; trace_width=3; tick_font_size=18
+    # fig,ax = plt.subplots()
+    # ax.plot(t_plot_Gregor,gregor_campCyto_trace_mean,linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
+    # # ax.plot(t_plot_Gregor,gregor_campExt_trace,linewidth=trace_width, label= r'$cAMP_{ext}$')
+    # ax.set_xlabel('Time')
+    # ax.set_ylabel('Activator')
+    # ax.set_title(r'Gregor 2010, cAMP input='+str(ext_input)+' T_sep= '+str(time_separation))
+    # leg = ax.legend()
+    # ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
+    # plt.show()
+    
+    label_font_size=25; trace_width=3; tick_font_size=18
+    
+    fig = plt.figure(figsize=(10, 10))
+    grid = plt.GridSpec(1, 2, wspace=0.5, hspace=0.3)
+    
+    ax1= fig.add_subplot(grid[0, 0])
+    ax1.plot(t_plot_Gregor,gregor_campCyto_trace_mean,linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
+    ax1.set_xlabel('Time')
+    ax1.set_ylabel('cAMPi')
+    
+    ax2= fig.add_subplot(grid[0, 1])
+    ax2.plot(t_plot_Gregor,gregor_campExt_trace,linewidth=trace_width, label= r'$cAMP_{ext}$')
+    ax2.set_xlabel('Time')
+    ax2.set_ylabel('cAMPe')
+
+    plt.show()
     
 #%% Plot  3 traces: low, medium and high [cAMP]ext 
 fig = plt.figure(figsize=(11, 10))
