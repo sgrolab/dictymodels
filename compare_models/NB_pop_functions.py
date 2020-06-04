@@ -210,4 +210,3 @@ def plot_POP_oscillation_FR(title, t_plot,cAMPi_mean,cAMPi_label,
     
 
 
-

@@ -152,7 +152,7 @@ for j in range(len(z0First_space_Sgro)):
                 R_now=R_trace_orig[i]
                 signal_now=signal_trace[i]
         
-                A_next,R_next,r_now=Sgro_agent.update(dt,signal_now)
+                A_next,R_next,r_now=Sgro_agent.update(dt,signal_now, r=0)
                 A_trace_orig.append(A_next)
                 R_trace_orig.append(R_next)
        
@@ -205,11 +205,11 @@ PkPrm_Sgro_mean=np.mean(PkPrm_Sgro_woNoise,axis=2)
 label_font_size = 9
 trace_width = 2
 
-fig3 = plt.figure(figsize=(6, 6))
+fig3 = plt.figure(figsize=(6, 4.5))
 grid = plt.GridSpec(1, 1, wspace=0.3, hspace=0.2)
 
 colors = plt.cm.summer(np.linspace(0,1,len(z0First_space_Sgro)+1))
-title_font_size = 20 
+title_font_size = 22
 label_font_size = 20
 tick_font_size = 16
 legend_font_size = 15
@@ -217,16 +217,20 @@ trace_width = 5
 ax3= fig3.add_subplot(grid[0, 0])
 for i in range(len(z0First_space_Sgro)):
     ax3.plot(FC_space_Sgro,PkPrm_Sgro_woNoise[i,:], color = colors[i],
-             linewidth=trace_width,label='Priming cAMP='+str(z0First_space_Sgro[i]))
-
+             linewidth=trace_width,label='Prime Conc.'+str(z0First_space_Sgro[i]))
+ax3.set_xscale('log')
 ax3.set_ylim([-0.3,1])
+ax3.set_xlim([FC_space_Sgro[0],FC_space_Sgro[-1]])
 ax3.set_ylabel( 'Second spike prominence',fontsize=label_font_size)
-ax3.set_xlabel(r'$cAMP_{ext}$'+' fold change',fontsize=label_font_size)
+ax3.set_xlabel(r'$cAMP_{e}$'+' fold change',fontsize=label_font_size)
 # ax3.set_xscale('log')
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_title('Sgro 2015, w/o noise', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.set_title('Sgro 2015, w/o noise', fontdict={'fontsize': title_font_size})
+ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
 leg = ax3.legend();
 ax3.legend( frameon=False,loc='bottom center',ncol=2,prop={'size': legend_font_size})
+
+fig3.savefig('figS12_FCD_Sgro_wonoise_tight_200604.png', bbox_inches='tight') 
 
 #%% Sgro 2015, with noise
 from Sgro2015_agent_and_pop_FUN import Sgro2015_agent

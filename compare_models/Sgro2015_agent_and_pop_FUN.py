@@ -19,7 +19,7 @@ class Sgro2015_agent:
         self.R_now=state[1] # initial state input as a list variable [A0,R0]
         
     
-    def update(self,dt,signal,r = 0):
+    def update(self,dt,signal,r = False):
         e=self.AgentParam['e']   
         g=self.AgentParam['g'] 
         c0=self.AgentParam['c0'] 
@@ -34,7 +34,7 @@ class Sgro2015_agent:
         
         fA=self.A_now-(self.A_now)**3/3-self.R_now+a*np.log(1+signal/Kd)
         fR=e*(self.A_now-g*self.R_now+c0)
-        if r ==0:   # for no specified noise term 
+        if r == False:   # for no specified noise term 
             r= math.sqrt(dt)*np.random.normal(loc = 0, scale = 1)
         A_next=self.A_now+fA*dt+sigma*r
         R_next=self.R_now+fR*dt

@@ -398,9 +398,12 @@ from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
 from Params import GregorPopParam
 Amax=20;  Abas=0.4 # uM
 Nc=100 # Num of cells
-eta=0.02 # noise stength
+Vt = 1
+rho = 1/12; k=5;
 
-ext_input = 0
+eta=0 # noise stength
+
+ext_input = 0.002
 time_separation = 0
 
 
@@ -411,7 +414,7 @@ campExt0 = 0 # Vc*St/Sc*rho/K*c_sec*1/Nc*np.sum(campCyto0);
 
 Gregor_pop=Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam)
 
-dt=0.005; t_tot=20; t=list(np.arange(0,t_tot*Nt_Gregor,dt))
+dt=0.001; t_tot=60; t=list(np.arange(0,t_tot*Nt_Gregor,dt))
 nSteps = len(t)
 # initializations
 gregor_thetai_trace=np.zeros((Nc,len(t))) 
@@ -431,15 +434,16 @@ for i in range(nSteps - 1):
 # gregor_thetai_trace= np.array(gregor_thetai_trace) 
 # gregor_campExt_trace = np.array(gregor_campExt_trace)
 later_portion = 0.25
-gregor_campCyto_trace_norm= np.array(gregor_campCyto_trace)/Nh_Gregor
+gregor_campCyto_trace_norm = np.array(gregor_campCyto_trace)/Nh_Gregor
 gregor_campCyto_trace_norm_later=gregor_campCyto_trace_norm[:,math.floor(nSteps * later_portion):] # the later part of trace
 gregor_campCyto_trace_norm_mean = np.mean(gregor_campCyto_trace_norm,axis=0)
-gregor_campCyto_trace_norm_mean_later=gregor_campCyto_trace_norm_mean[math.floor(nSteps * later_portion):]
+gregor_campCyto_trace_norm_mean_later=gregor_campCyto_trace_norm_mean_noise0[math.floor(nSteps * later_portion):]
 
 t_plot_Gregor = np.array(t)/Nt_Gregor
 t_plot_Gregor_short = t_plot_Gregor[0:math.floor(nSteps * (1-later_portion))] 
 
-pop_max = np.amax(y_trace_norm_mean_later); pop_min = np.amin(y_trace_norm_mean_later); 
+pop_max = np.amax(gregor_campCyto_trace_norm_mean_later); 
+pop_min = np.amin(gregor_campCyto_trace_norm_mean_later); 
 pk_find_thresh = 0.5
 PkPos, PkProperties = find_peaks(gregor_campCyto_trace_norm_mean_later, prominence=pk_find_thresh)
 
@@ -453,34 +457,39 @@ else:
     firing_rate = len(PkPos)/(t_tot*(1-later_portion))
     height = np.mean(PkProperties["prominences"])
 
-# Check find_peaks
-title = 'Gregor 2010, noise=' +str(eta)+', density='+str(rho)+', J='+str(k)+'\n ,pk_find_thresh='+str(pk_find_thresh)
-fig = plt.figure()
-plt.plot(gregor_campCyto_trace_norm_mean_later)
-plt.plot(PkPos, gregor_campCyto_trace_norm_mean_later[PkPos], "x")
-plt.title(title+' FR= '+str(firing_rate))
+# # Check find_peaks
+# title = 'Gregor 2010, noise=' +str(eta)+', density='+str(rho)+', J='+str(k)+'\n ,pk_find_thresh='+str(pk_find_thresh)
+# fig = plt.figure()
+# plt.plot(gregor_campCyto_trace_norm_mean_later)
+# plt.plot(PkPos, gregor_campCyto_trace_norm_mean_later[PkPos], "x")
+# plt.title(title+' FR= '+str(firing_rate))
 
-# plot population mean and selected single cell traces
-SC_traces_idx = [0,2,4,6,8,10]
-# title = r'Martiel 1987, $cAMP_{e}$ input = '+str(cAMPext_influx)
-plot_POP_oscillation(t_plot_Gregor_short,gregor_campCyto_trace_norm_mean_later,cAMPext_influx,
-                     t_tot*(1-later_portion), 0,title, gregor_campCyto_trace_norm_later, SC_traces_idx)
+# # plot population mean and selected single cell traces
+# SC_traces_idx = [0,2,4,6,8,10]
+# # title = r'Martiel 1987, $cAMP_{e}$ input = '+str(cAMPext_influx)
+# plot_POP_oscillation(t_plot_Gregor_short,gregor_campCyto_trace_norm_mean_later,cAMPext_influx,
+#                      t_tot*(1-later_portion), 0,title, gregor_campCyto_trace_norm_later, SC_traces_idx)
 
 
-# #  check simulation traces
-# label_font_size=25; trace_width=3; tick_font_size=18
+#  check simulation traces
+label_font_size=20; trace_width=3; tick_font_size=16
+title_font_size = 22
 
-# fig,ax = plt.subplots()
-# ax.plot(t_plot_Gregor,gregor_campCyto_trace_mean,linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
-# # ax.plot(t_plot_Gregor,gregor_campExt_trace,linewidth=trace_width, label= r'$cAMP_{ext}$')
-# # ax.plot(t_plot_Sgro,A_trace_plot[2,:],linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
-# # ax.set_ylim([-0.2,1.3])
-# ax.set_xlabel('Time')
-# ax.set_ylabel('Activator')
+fig3 = plt.figure(figsize=(8,5))
+grid = plt.GridSpec(2,1, wspace=0.15, hspace=0.78)
+ax=fig3.add_subplot(grid[0, 0])
+ax.plot(t_plot_Gregor,gregor_campCyto_trace_norm_mean ,linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
+# ax.plot(t_plot_Gregor,gregor_campExt_trace,linewidth=trace_width, label= r'$cAMP_{ext}$')
+# ax.plot(t_plot_Sgro,A_trace_plot[2,:],linewidth=trace_width, label= r'activator, $cAMP_{cyto}$')
+# ax.set_ylim([-0.2,1.3])
+ax.set_xlabel('Time')
+ax.set_ylabel(r'$cAMP_{i}$')
+ax.tick_params(axis='both', which='major', labelsize=tick_font_size)
 # ax.set_title(r'Gregor 2010 group oscillation, $rho$= '+str(rho)+', k= '+str(k)+', time separation= '+str(time_separation))
+ax.set_title(r'Gregor 2010 population oscillation',fontdict={'fontsize': title_font_size})
 # leg = ax.legend()
 # ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
-# plt.show()
+plt.show()
 
 ##Get the oscillation period
 #later_portion = 0.2 # start count peaks after this X total simulation time
@@ -493,6 +502,13 @@ plot_POP_oscillation(t_plot_Gregor_short,gregor_campCyto_trace_norm_mean_later,c
 
 #Gregor_pop_osc_period = (1-later_portion)*t_tot / len(PkPos)
 #print('group oscillation period for Gregor is '+str(Gregor_pop_osc_period))
+#%% save outputs
+np.savez('pop_osc_Gregor_noise_200604.npz', 
+         t_plot_Gregor = t_plot_Gregor, 
+         gregor_campCyto_trace_norm = gregor_campCyto_trace_norm,
+         gregor_campCyto_trace_norm_mean = gregor_campCyto_trace_norm_mean,
+         gregor_campCyto_trace_norm_noise0 = gregor_campCyto_trace_norm_noise0 ,
+         gregor_campCyto_trace_norm_mean_noise0  = gregor_campCyto_trace_norm_mean_noise0 )
 #%%
 label_font_size=30
 trace_width=5
