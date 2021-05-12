@@ -36,6 +36,136 @@ sublabel_font_size = 22
 trace_width=3
 tick_font_size=20
 
+#%% time scale separation supp figure
+
+############################ 1/14 stop here
+from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
+
+A0=-1.5; R0=-0.5
+dt=0.005 ; t_tot=6*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
+
+e_small=0.1; e_big = 0.6
+tauA=0.09; tauR=tauA/e_small; g=0.5; c0 = 1.2
+a= 0.058; Kd = 1e-5
+# Create agent with small or big e
+SgroAgentParam={'e':e_small,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
+            'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
+            'flux_thrs':0}
+Sgro_agent_smalle=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
+SgroAgentParam={'e':e_big,'tauA':tauA,'tauR':tauR,'g':g,'c0':1.2,'sigma':0.15,'N':100,\
+            'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
+            'flux_thrs':0}
+Sgro_agent_bige=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
+
+
+
+# define extracellular stim trace
+signal =1
+stim_time_step=int(round(1/6*t_tot/dt)) # at this time step input is applied
+signal_trace=np.zeros(len(t))
+signal_trace[stim_time_step:] = signal
+
+# initializations
+A_trace_orig_smalle=[A0]; R_trace_orig_smalle=[R0]
+A_trace_orig_bige=[A0]; R_trace_orig_bige=[R0]
+
+for i in range(len(t)-1):
+    A_now=A_trace_orig_1[i]
+    R_now=R_trace_orig_1[i]
+    signal_now=signal_trace[i]
+    
+    A_next,R_next,r_now=Sgro_agent_smalle.update(dt,signal_now)
+    A_trace_orig_smalle.append(A_next)
+    R_trace_orig_smalle.append(R_next)
+    
+    A_next,R_next,r_now=Sgro_agent_bige.update(dt,signal_now)
+    A_trace_orig_bige.append(A_next)
+    R_trace_orig_bige.append(R_next)
+
+A_trace_offset=1.5
+A_trace_orig_smalle = np.array(A_trace_orig_smalle) # vectorize A_trace_orig
+R_trace_orig_smalle = np.array(R_trace_orig_smalle)
+A_trace_plot_smalle=(A_trace_orig_smalle+A_trace_offset)/Nh_Sgro
+
+A_trace_orig_bige = np.array(A_trace_orig_bige) # vectorize A_trace_orig
+R_trace_orig_bige = np.array(R_trace_orig_bige)
+A_trace_plot_bige=(A_trace_orig_bige+A_trace_offset)/Nh_Sgro;
+
+t_plot_Sgro = np.array(t)/(Nt_Sgro)
+# nullclines
+A_null = np.linspace(-2.5,2.5,num=200)
+dAdt_null=A_null-1/3*A_null**3+a*np.log(1+signal/Kd)
+dRdt_null=1/g*(A_null+c0)
+
+#%% Different excitability- trace, nullcline & streamplot
+#label_font_size = 15
+#trace_width = 2
+tick_font_size = 20
+
+fig5 = plt.figure(figsize=(12,9))
+grid = plt.GridSpec(3, 2, wspace=0.3, hspace=0.8)
+
+ax0 = fig5.add_subplot(grid[0, 0])
+ax0.plot(t_plot_Sgro, A_trace_plot_smalle, 'green',linewidth=trace_width)
+ax0.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
+ax0.set_title('Excitability: '+str(e_small),fontsize=label_font_size)
+ax0.set_xlim([0,6]); ax0.set_ylim([-0.4,1.2])
+ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
+
+ax1= fig5.add_subplot(grid[1:, 0])
+ax1.plot( A_null,dRdt_null,'darkgrey',linewidth=trace_width)
+ax1.plot( A_null,dAdt_null,'deepskyblue',linewidth=trace_width)
+ax1.plot( A_trace_orig_smalle, R_trace_orig_smalle,'darkgreen',linewidth=trace_width)
+ax1.set_ylim([-0.7,3])
+ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
+
+# A_arr = np.arange(-2.5,3,0.5)
+# R_arr = np.arange(-0.7,3,0.2)
+# makelong = 1
+# A_mesh, R_mesh = np.meshgrid(A_arr , R_arr )
+# dA = A_mesh-(np.power(A_mesh,3))/3-R_mesh+a*np.log(1+signal/Kd); dA=makelong*dA
+# dR = e_small*(A_mesh-g* R_mesh+c0); dR=makelong*dR
+# #ax1.quiver(A_mesh, R_mesh,dA,dR, linewidths=0.1, edgecolors='k')
+ax1.streamplot(A_mesh,R_mesh,dA, dR,density=1,color='forestgreen')
+ax1.plot(A_trace_orig_smalle[0],R_trace_orig_smalle[0],'*',markersize = 12,color='springgreen')
+
+
+ax00 = fig5.add_subplot(grid[0, 1])
+ax00.plot(t_plot_Sgro, A_trace_plot_bige, 'green',linewidth=trace_width)
+ax00.axvline(x=1, ls='--', linewidth=trace_width, color=mycolors[6])
+ax00.set_title('Excitability: '+str(e_big),fontsize=label_font_size)
+ax00.set_xlim([0,6]); ax00.set_ylim([-0.4,1.2])
+ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
+
+ax2= fig5.add_subplot(grid[1:, 1])
+ax2.plot(A_null,dRdt_null, 'darkgrey',linewidth=trace_width)
+ax2.plot(A_null, dAdt_null,'deepskyblue',linewidth=trace_width)
+ax2.plot( A_trace_orig_bige, R_trace_orig_bige,'green',linewidth=trace_width)
+ax2.set_ylim([-0.7,3])
+ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
+
+# ax1.set_aspect('equal')
+# A_arr = np.arange(-2.5,3,0.5)
+# R_arr = np.arange(-0.7,3,0.2)
+# makelong = 1
+# A_mesh, R_mesh = np.meshgrid(A_arr , R_arr )
+# dA = A_mesh-(np.power(A_mesh,3))/3-R_mesh+a*np.log(1+signal/Kd); dA=makelong*dA
+# dR = e_big*(A_mesh-g* R_mesh+c0); dR=makelong*dR
+#ax2.quiver(A_mesh, R_mesh,dA,dR, linewidths=0.1, edgecolors='k')
+ax2.streamplot(A_mesh, R_mesh,dA,dR, density=1,color='forestgreen')
+ax2.plot(A_trace_orig_bige[0],R_trace_orig_bige[0],'*',markersize = 12,color='springgreen')
+
+fig5.text(0.04, 0.95,'A',ha='center', va='center', fontsize=abcd_font_size)
+fig5.text(0.04, 0.8, r'$cAMP_{i}$'+'\n(Activator)', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
+fig5.text(0.5, 0.65,'Time, A.U.',ha='center', va='center',fontsize=label_font_size)
+fig5.text(0.5, 0.04,r'$cAMP_{i}$'+'(Activator)',ha='center', va='center',fontsize=label_font_size)
+fig5.text(0.04, 0.35, 'Inhibitor', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
+
+fig5.text(0.5, 0.95,'Sgro 2015',ha='center', va='center',color=mycolors[5],fontsize=title_font_size)
+plt.show()
+
+
+#%%
 # experimental ramp
 my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
 Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
@@ -334,7 +464,25 @@ np.savez('figS2_excitability_200422.npz',
 
 #%% load data
 from iocustom import import_npz
-import_npz('figS2_excitability_200422.npz',globals())
+import_npz('../model_outputs/figS2_excitability_200422.npz',globals())
+
+#%% jacobian matrix, 20201228
+# Sgro 2015
+from numpy import linalg as LA
+e = 0.1; gamma = 0.5
+SgroJac =  np.array([[1-(-0.9)**2,-1],[e,-e*gamma]])
+w, v = LA.eig(SgroJac)
+print(w)
+print(v)
+
+#%% Kamino2017
+tau = 1.5; x = 0.98
+z0= 1 
+KaminoJac =  np.array([[-1/tau, 0],[-2*z0*x/(x**2+z0**2)**2, -1]])
+w, v = LA.eig(KaminoJac)
+print(w)
+print(v)
+
 
 #%% Different excitability- trace, nullcline & streamplot
 #label_font_size = 15
@@ -769,7 +917,6 @@ dydt_null_no_stim_short = (0+delta)**n/((0+delta)**n+(np.power(K*x_null_short,n)
 dydt_null_no_stim_long = (0+delta)**n/((0+delta)**n+(np.power(K*x_null_long,n)))
 dydt_null_1 = (signal_1+delta)**n/((signal_1+delta)**n+(np.power(K*x_null_short,n)))
 dydt_null_10k = (signal_10k+delta)**n/((signal_10k+delta)**n+(np.power(K*x_null_long,n)))
-
 
 #%%adaptive spike & oscillation- trace and nullcline
 abcd_font_size = 28

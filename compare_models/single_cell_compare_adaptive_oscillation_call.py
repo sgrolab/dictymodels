@@ -126,7 +126,7 @@ from Params import SgroAgentParam
 
 A0=-1.5; R0=-0.5
 Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)
-dt=0.005 ; t_tot=6*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
+dt=0.005 ; t_tot=3*Nt_Sgro; t=list(np.arange(0,t_tot,dt))
 
 # define extracellular stim trace
 constant_signal_arr = np.array([1]) #np.logspace(-3, 2, num=5)
@@ -135,7 +135,7 @@ A_plot_all = np.zeros((len(constant_signal_arr),len(t)))
 
 for j in range(len(constant_signal_arr)):
     constant_signal= constant_signal_arr[j]
-    stim_time_step=int(round(1/6*t_tot/dt)) # at this time step input is applied
+    stim_time_step=int(round(1/3*t_tot/dt)) # at this time step input is applied
     signal_trace=np.zeros(len(t))
     signal_trace[stim_time_step:] = constant_signal
 
@@ -153,6 +153,7 @@ for j in range(len(constant_signal_arr)):
         r_trace.append(r_now)
         
     # Traces
+    R_trace_orig = np.array(R_trace_orig)
     A_trace_orig = np.array(A_trace_orig) # vectorize A_trace_orig
     A_trace_plot=(A_trace_orig + Nh_Sgro_offset)/Nh_Sgro;
     A_plot_all[j,:] = A_trace_plot
@@ -172,19 +173,40 @@ for j in range(len(constant_signal_arr)):
 colors = plt.cm.summer(np.linspace(0,1,len(constant_signal_arr)+1))
 t_plot_Sgro = np.array(t)/(Nt_Sgro)
 fig3 = plt.figure(figsize=(6, 6))
-grid = plt.GridSpec(1, 1, wspace=0.3, hspace=0.2)
-ax1= fig3.add_subplot(grid[0, 0])
+grid = plt.GridSpec(3, 1, wspace=0.3, hspace=0.8)
+
+
+
+ax0 = fig3.add_subplot(grid[0, 0])
+ax0.plot(t_plot_Sgro, signal_trace, 'k',linewidth=trace_width)
+ax0.tick_params(axis='both', which='both',labelsize=tick_font_size)
+# ax0.set_xticks([]); ax0.set_yticks([]);
+# ax0.set_ylabel( 'cAMP input' ,fontsize=label_font_size)
+ax0.set_xlim([0,3]); ax0.set_ylim([-0.1,1.1])
+
+ax1= fig3.add_subplot(grid[1, 0])
 
 for j in range(len(constant_signal_arr))   :
     this_A_trace = A_plot_all[j,:]
     signal = constant_signal_arr[j]
     ax1.plot(t_plot_Sgro,this_A_trace,linewidth=2.5,
              color=colors[j], label = 'Input='+str(signal))
-ax1.axvline(1,color='grey',linewidth='2.5')
-ax1.set_ylabel( 'cAMPi trace, A.U.',fontsize=label_font_size)
-ax1.set_xlabel('Time, A.U.',fontsize=label_font_size)
-ax1.set_title('Sgro 2015')
+ax1.axvline(x=1, ls='--', linewidth=2 , color='grey')
+ax1.tick_params(axis='both', which='both',labelsize=tick_font_size)
+# ax1.set_ylabel( 'A , A.U.',fontsize=label_font_size)
+# ax1.set_xlabel('Time, A.U.',fontsize=label_font_size)
+# ax1.set_title('Sgro 2015')
 leg = ax1.legend();
+ax1.set_xlim([0,3]);
+
+ax2= fig3.add_subplot(grid[2, 0])   
+ax2.plot(t_plot_Sgro,R_trace_orig, linewidth=2.5,
+             color=colors[j], label = 'Input='+str(signal))
+ax2.axvline(x=1, ls='--', linewidth=2 , color='grey')
+ax2.tick_params(axis='both', which='both',labelsize=tick_font_size)
+ax2.set_xlabel( 'Time, A.U.' ,fontsize=label_font_size)
+ax2.set_xlim([0,3]);
+
 
 #%% Goldbeter 1987
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var

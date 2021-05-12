@@ -37,18 +37,32 @@ def cm2inch(value):
     return value/2.54
 
 #%% imaging colors
-colors = np.array([[69,183,204],
-                  [255,162,111],
-                  [10,68,12],
-                  [110,60,178],
-                  [222,76,105],
+colors = np.array([[240,145,147],
+                  [240,206,109],
+                  [130,191,91],
+                  [150,110,184],
+                  [125,208,227],
                   [59,34,255], # color for experiments
                   [35,145,40]])# color for models
-goldcolor = (colors[0,:]+(255-colors[0,:])*0.1)/255 # tint factor, larger means more "whiteness" to the original color
+goldcolor = (colors[0,:]+(255-colors[0,:])*0)/255 # tint factor, larger means more "whiteness" to the original color
 maedacolor = (colors[1,:]+(255-colors[1,:])*0)/255
-gregorcolor = (colors[2,:]+(255-colors[2,:])*0.4)/255
-sgrocolor = (colors[3,:]+(255-colors[3,:])*0.3)/255
-kaminocolor = (colors[4,:]+(255-colors[4,:])*0.2)/255
+gregorcolor = (colors[2,:]+(255-colors[2,:])*0)/255
+sgrocolor = (colors[3,:]+(255-colors[3,:])*0)/255
+kaminocolor = (colors[4,:]+(255-colors[4,:])*0)/255
+
+# color combo 2
+# colors = np.array([[168,69,154],
+#                   [129,129,129],
+#                   [87,96,171],
+#                   [90,173,90],
+#                   [105,201,205],
+#                   [59,34,255], # color for experiments
+#                   [35,145,40]])# color for models
+# goldcolor = (colors[0,:]+(255-colors[0,:])*0)/255 # tint factor, larger means more "whiteness" to the original color
+# maedacolor = (colors[1,:]+(255-colors[1,:])*0)/255
+# gregorcolor = (colors[2,:]+(255-colors[2,:])*0)/255
+# sgrocolor = (colors[3,:]+(255-colors[3,:])*0)/255
+# kaminocolor = (colors[4,:]+(255-colors[4,:])*0)/255
 
 expcolor = (colors[5,:]+(255-colors[5,:])*0)/255
 simcolor = (colors[6,:]+(255-colors[6,:])*0)/255
@@ -105,16 +119,16 @@ ax02= fig5.add_subplot(grid[3:7, 0])
 #ax2.axvline(x = 5 , ymin=-0.2, ymax = 1.2, ls = '--', 
 #            linewidth=trace_width, color=mycolors[6])
 ax02.plot(t_plot_Goldbeter, b_trace,linewidth=trace_width, color = goldcolor,
-         label='Martiel 1987')
+         label='Receptor desensitization')
 ax02.plot(t_plot_Maeda, cAMPi_trace,linewidth=trace_width,color = maedacolor,
-         label='Maeda 2004')
+         label='CDINFB')
 ax02.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax02.plot(t_plot_Gregor,gregor_campCyto_trace,linewidth=trace_width, 
-         color= gregorcolor,label='Gregor 2010')
+         color= gregorcolor,label='Phase oscillator')
 ax02.plot(t_plot_Sgro, A_trace_plot,linewidth=trace_width,
-         color=sgrocolor, label='Sgro 2015')
+         color=sgrocolor, label='IPNFB')
 ax02.plot(t_plot_Kamino, y_trace,linewidth=trace_width, 
-         ls = '--',color=kaminocolor, label='Kamino 2017')
+         ls = '--',color=kaminocolor, label='IFFL')
 ax02.set_title('Simulation',color = 'k', fontsize = title_font_size)
 ax02.text(-0.19, 1.05, 'C',
          horizontalalignment='center',verticalalignment='center',
@@ -151,21 +165,21 @@ ax2= fig5.add_subplot(grid[3:7, 1])
 #ax2.axvline(x = 5 , ymin=-0.2, ymax = 1.2, ls = '--', 
 #            linewidth=trace_width, color=mycolors[6])
 ax2.plot(t_plot_Goldbeter_osc, b_trace_osc,linewidth=trace_width, color=goldcolor,
-         label='Martiel 1987')
+         label='Receptor desensitization')
 ax3 = ax2.twinx()
 ax3.plot(t_plot_Maeda_osc, cAMPi_trace_osc,linewidth=trace_width,color=maedacolor,
-         label='Maeda 2004')
+         label='CDINFB')
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_ylabel(r'Maeda 2004 $cAMP_{i}$, A.U.', color=maedacolor,
+ax3.set_ylabel(r'CDINFB $cAMP_{i}$, A.U.', color=maedacolor,
                 fontsize=label_font_size-3)
 ax3.set_ylim([-55,260])
 
 ax2.plot(t_plot_Gregor_osc,gregor_campCyto_trace_osc,linewidth=trace_width, 
-         color = gregorcolor,label='Gregor 2010')
+         color = gregorcolor,label='Phase oscillator')
 ax2.plot(t_plot_Sgro_osc, A_trace_plot_osc,linewidth=trace_width,
-         color= sgrocolor, label='Sgro 2015')
+         color= sgrocolor, label='IPNFB')
 ax2.plot(t_plot_Kamino_osc, y_trace_osc, linewidth=trace_width, 
-         ls = '--',color=kaminocolor, label='Kamino 2017')
+         ls = '--',color=kaminocolor, label='IFFL')
 ax2.set_title('Simulation',color = 'k', fontsize = title_font_size)
 ax2.text(-0.13, 1.05, 'D',
          ha='center',va='center',transform = ax2.transAxes, 
@@ -248,10 +262,10 @@ ax0.text(1.16, -0.8,'Time, A.U.',ha='center', va='center',
          transform = ax0.transAxes, fontsize=sublabel_font_size)
 ax1.text(1.16, -0.3,r'Inhibitor',ha='center', va='center',
          transform = ax1.transAxes, fontsize=sublabel_font_size)
-ax0.text(1.16, 2,'Martiel 1987',ha='center', va='center',
+ax0.text(1.16, 2,'Receptor desensitization',ha='center', va='center',
          transform = ax0.transAxes,color= goldcolor,fontsize=title_font_size)
 
-# Sgro 2015
+# IPNFB
 ax3 = fig5.add_subplot(grid[0, 2])
 ax3.plot(t_plot_Sgro, A_trace_plot_1, color = sgrocolor ,linewidth=trace_width)
 ax3.axvline(x=1, ls='--', linewidth=trace_width, color='darkgrey')
@@ -295,10 +309,10 @@ ax3.text(1.16, -0.8,'Time, A.U.',ha='center', va='center',
          transform = ax3.transAxes, fontsize=sublabel_font_size)
 ax4.text(1.16, -0.35,r'$cAMP_{i}$'+'(Activator)',ha='center', va='center',
          transform = ax4.transAxes, fontsize=sublabel_font_size)
-ax3.text(1.16, 2,'Sgro 2015',ha='center', va='center',
+ax3.text(1.16, 2,'IPNFB',ha='center', va='center',
          transform = ax3.transAxes,color= sgrocolor,fontsize=title_font_size)
 
-# Kamino 2017
+# IFFL
 ax7 = fig5.add_subplot(grid[4, 0])
 ax7.plot(t_plot_Kamino, y_trace_1_hnorm, color = kaminocolor,linewidth=trace_width)
 ax7.axvline(x=1, ls='--', linewidth=trace_width, color='darkgrey')
@@ -345,7 +359,7 @@ ax7.text(1.16, -0.8,'Time, A.U.',ha='center', va='center',
          transform = ax7.transAxes, fontsize=sublabel_font_size)
 ax8.text(1.16, -0.3,r'Inhibitor',ha='center', va='center',
          transform = ax8.transAxes, fontsize=sublabel_font_size)
-ax7.text(1.16, 2,'Kamino 2017',ha='center', va='center',
+ax7.text(1.16, 2,'IFFL',ha='center', va='center',
          transform = ax7.transAxes,color= kaminocolor,fontsize=title_font_size)
 
 grid.tight_layout(fig5,rect=[0, 0, 1, 1],pad = 10)
@@ -400,7 +414,7 @@ fig5.text(0.5, 0.62,'Time, A.U.',ha='center', va='center',fontsize=label_font_si
 fig5.text(0.5, 0.02,r'$cAMP_{i}$'+'(Activator)',ha='center', va='center',fontsize=label_font_size)
 fig5.text(0.04, 0.35, 'Inhibitor', ha='center', va='center', rotation='vertical',fontsize= label_font_size)
 
-fig5.text(0.5, 0.95,'Sgro 2015',ha='center', va='center',color=sgrocolor,fontsize=title_font_size)
+fig5.text(0.5, 0.95,'IPNFB',ha='center', va='center',color=sgrocolor,fontsize=title_font_size)
 
 grid.tight_layout(fig5,rect=[0, 0, 1, 1],pad = 10) # can not make all axes height small enough to accomodate all axes decorations 
 plt.show()
@@ -425,7 +439,7 @@ fig3 = plt.figure(figsize=(cm2inch(35),cm2inch(18)))
 grid = plt.GridSpec(4, 3, wspace=0.31, hspace=0.9)
 
 # ax0 = fig3.add_subplot(grid[0, 0])
-ax0 = fig3.add_axes([0.124, 0.72, 0.215, 0.1])
+ax0 = fig3.add_axes([0.085, 0.72, 0.245, 0.1])
 ax0.plot(Sgro2015Figure3excel["Ramp Input (min Time)"],Sgro2015Figure3excel["Ramp Input (nM cAMP)"],
                               color='k', linewidth = trace_width)
 ax0.set_title('Experiment',color='k', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
@@ -438,7 +452,7 @@ ax0.set_xlim([0,80])
 ax0.set_ylim([-0.1,1.1])
 ax0.xaxis.set_major_formatter(plt.NullFormatter()) # hide x axis
 ax0.text(-0.33, 1.6, 'A', ha='center',va='center',
-         transform = ax0.transAxes, color = expcolor, fontsize=abcd_font_size)
+         transform = ax0.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax1= fig3.add_subplot(grid[1:3, 0])
 ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 1 FRET Trace"],
@@ -456,16 +470,18 @@ ax1.set_ylim([-0.1,0.6]); ax1.set_xlim([0,80])
 ax2= fig3.add_subplot(grid[0:2, 1])
 ax2.plot(t_plot_Goldbeter, b_trace, color=goldcolor,linewidth=trace_width)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('Martiel 1987',color = goldcolor,  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+# ax2.set_title('Receptor desensitization',color = goldcolor,  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.set_title('Receptor Desensitization',color = goldcolor,  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax2.axvspan(2, 6, alpha=0.3, color=simcolor); ax2.axvspan(10, 14, alpha=0.3, color='g')
 ax2.set_ylim([-0.2,1.2]); ax2.set_xlim([0,16])
 ax2.text(-0.3, 1.14, 'B', ha='center',va='center',
-         transform = ax2.transAxes, color = simcolor, fontsize=abcd_font_size)
+         transform = ax2.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax3= fig3.add_subplot(grid[0:2, 2])
 ax3.plot(t_plot_Maeda, cAMPi_trace, color= maedacolor,linewidth=trace_width)
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_title('Maeda 2004', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+# ax3.set_title('CDINFB', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.set_title('CDINFB', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax3.axvspan(2,6, alpha=0.3, color=simcolor); ax3.axvspan(10,14, alpha=0.3, color='g')
 ax3.set_ylim([-0.2,1.2]);  ax3.set_xlim([0,16])
 # ax3.text(-0.12, 1.06, 'C', ha='center',va='center',
@@ -474,7 +490,7 @@ ax3.set_ylim([-0.2,1.2]);  ax3.set_xlim([0,16])
 ax4= fig3.add_subplot(grid[2:, 1])
 ax4.plot(t_plot_Sgro, A_trace_plot, color=sgrocolor,linewidth=trace_width)
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('Sgro 2015', color = sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.set_title('IPNFB', color = sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax4.axvspan(2,6, alpha=0.3, color=simcolor); ax4.axvspan(10,14, alpha=0.3, color='g')
 ax4.set_ylim([-0.4,1.2]);  ax4.set_xlim([0,16])
 # ax4.text(-0.12, 1.06, 'D', ha='center',va='center',
@@ -483,7 +499,7 @@ ax4.set_ylim([-0.4,1.2]);  ax4.set_xlim([0,16])
 ax5= fig3.add_subplot(grid[2:, 2])
 ax5.plot(t_plot_Kamino, y_trace, color=kaminocolor,linewidth=trace_width)
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5.set_title('Kamino 2017', color = kaminocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5.set_title('IFFL', color = kaminocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax5.axvspan(2,6, alpha=0.3, color= simcolor); ax5.axvspan(10,14, alpha=0.3, color='g')
 ax5.set_ylim([-0.4,1.2]);  ax5.set_xlim([0,16])
 # ax5.text(-0.12, 1.06, 'E', ha='center',va='center',
@@ -491,9 +507,9 @@ ax5.set_ylim([-0.4,1.2]);  ax5.set_xlim([0,16])
 
 fig3.text(0.36, 0.5, r'$cAMP_{i}$', fontsize=label_font_size,va='center', rotation='vertical')
 fig3.text(0.65, 0.02, 'Time, A.U.', fontsize=label_font_size, ha='center')
-grid.tight_layout(fig5,rect=[0, 0, 1, 1]) # can not make all axes height small enough to accomodate all axes decorations 
+grid.tight_layout(fig3,rect=[0, 0, 1, 1]) # can not make all axes height small enough to accomodate all axes decorations 
 # plt.show()
-fig3.savefig('fig3_sc_step_ramp_tight_200530.png', bbox_inches='tight')
+# fig3.savefig('fig3_sc_step_ramp_tight_200530.png', bbox_inches='tight')
 
 #%% fig S3 single cell  ramp input nullcline
 # load simulation data
@@ -543,10 +559,10 @@ ax1.streamplot(p_mesh,b_mesh,dp, db,color='forestgreen')
 
 ax0.text(-0.24, 1.5, 'A', ha='center',va='center',
          transform = ax0.transAxes, color = 'k', fontsize=abcd_font_size)
-ax0.text(0.5, 1.18,'Martiel 1987',ha='center', va='center',
+ax0.text(0.5, 1.18,'Receptor desensitization',ha='center', va='center',
          transform = ax0.transAxes, color= goldcolor, fontsize=title_font_size)
 
-# Sgro 2015
+# IPNFB
 ax2 = fig5.add_subplot(grid[0, 1],xticks=[0,2.5,5,7.5])
 ax2.plot(t_plot_Sgro, A_trace_plot, color = sgrocolor,linewidth=trace_width)
 ax2.axvspan(2.5, 7.5, alpha=0.2, color=simcolor);
@@ -572,10 +588,10 @@ ax3.set_ylabel('Inhibitor',fontsize= label_font_size)
 
 ax2.text(-0.24, 1.5, 'B', ha='center',va='center',
          transform = ax2.transAxes, color = 'k', fontsize=abcd_font_size)
-ax2.text(0.5, 1.18,'Sgro 2015',ha='center', va='center',
+ax2.text(0.5, 1.18,'IPNFB',ha='center', va='center',
          transform = ax2.transAxes, color= sgrocolor, fontsize=title_font_size)
 
-# Kamino 2017
+# IFFL
 ax4= fig5.add_subplot(grid[0, 2],xticks=[0,2.5,5,7.5])
 ax4.plot(t_plot_Kamino, y_trace_hnorm, color = kaminocolor,linewidth=trace_width)
 ax4.axvspan(2.5, 7.5, alpha=0.2, color=simcolor);
@@ -601,7 +617,7 @@ ax5.streamplot(x_mesh,y_mesh,dx, dy,color='forestgreen')
 ax5.set_xlim([-0.5,2]); ax5.set_ylim([-0.1,1.1])
 ax4.text(-0.24, 1.5, 'C', ha='center',va='center',
          transform = ax4.transAxes, color = 'k', fontsize=abcd_font_size)
-ax4.text(0.5, 1.18,'Kamino 2017',ha='center', va='center',
+ax4.text(0.5, 1.18,'IFFL',ha='center', va='center',
          transform = ax4.transAxes, color= kaminocolor, fontsize=title_font_size)
 
 fig5.savefig('figS3_ramp_nullclines_tight_200530.png', bbox_inches='tight')
@@ -616,12 +632,12 @@ import_npz('../model_outputs/single_cell_entrainment_200320.npz',globals())
 
 abcd_font_size = 28
 label_font_size=22
-title_font_size = 24
+title_font_size = 20
 sublabel_font_size = 18
 trace_width=3
 tick_font_size=20
 
-fig3 = plt.figure(figsize=(cm2inch(25),cm2inch(33)))
+fig3 = plt.figure(figsize=(cm2inch(22),cm2inch(33)))
 grid = plt.GridSpec(6, 2, wspace=0.35, hspace=1.5)
 
 ax0u= fig3.add_subplot(grid[0, 0])
@@ -635,14 +651,14 @@ ax0u.set_xlim([0,23]); ax0u.tick_params(axis='both', which='major', labelsize=ti
 for i in range(4):
     ax0u.axvspan(4.5+i*6, 4.5+i*6+1, alpha=0.2, color=expcolor)
 ax0u.text(-0.35 , 1.85, 'A', ha='center',va='center',
-     transform = ax0u.transAxes, color = expcolor, fontsize=abcd_font_size)
+     transform = ax0u.transAxes, color = 'k', fontsize=abcd_font_size)
 ax0u.text(-0.3, -0.5, 'FRET, A.U.',ha='center',va='center', rotation='vertical',
      transform = ax0u.transAxes, color = 'k', fontsize=sublabel_font_size)
 ax0u.text(0.5, 1.23, r'$cAMP_{e}$ input',ha='center',va='center', 
      transform = ax0u.transAxes, alpha=0.6, color = expcolor, fontsize= sublabel_font_size)
 
 #ax0l= fig3.add_subplot(grid[1, 0])
-ax0l = fig3.add_axes([0.13, 0.7, 0.305,0.072])
+ax0l = fig3.add_axes([0.13, 0.7, 0.325,0.062])
 ax0l.plot(Sgro2015Figure4excel["Time (min)"]-1,Sgro2015Figure4excel["Cell 1 FRET Trace (5 min pulse)"],
                                'k',linewidth=trace_width)
 ax0l.plot(Sgro2015Figure4excel["Time (min)"]-1,Sgro2015Figure4excel["Cell 2 FRET Trace (5 min pulse)"],
@@ -669,7 +685,7 @@ cbar.ax.tick_params(labelsize = tick_font_size)
 cbar.set_label( 'Entrainment quality',size= sublabel_font_size)
 ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax00.text(-0.3 , 1.25, 'B', ha='center',va='center',
-     transform = ax00.transAxes, color = expcolor, fontsize=abcd_font_size)
+     transform = ax00.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax1= fig3.add_subplot(grid[2:4, 0], xticks = [0.8,1.2,1.6], yticks = [0.3,0.6,0.9,1.2])
 heatmap = ax1.pcolor(period_space_Gold, PkWdth_space_Gold,MeanR_Gold, cmap='jet') 
@@ -681,9 +697,9 @@ cbar=fig3.colorbar(heatmap, ax=ax1, ticks=[0,0.2, 0.4,0.6,0.8,1]);
 cbar.ax.tick_params(labelsize = tick_font_size) 
 
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1.set_title('Martiel 1987',color=goldcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax1.set_title('Receptor Desensitization',color=goldcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax1.text(-0.42 , 1.1, 'C', ha='center',va='center',
-     transform = ax1.transAxes, color = simcolor, fontsize=abcd_font_size)
+     transform = ax1.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax2= fig3.add_subplot(grid[2:4, 1], xticks = [0.8,1.2,1.6], yticks = [0.3,0.6,0.9,1.2])
 heatmap = ax2.pcolor(period_space_Maeda, PkWdth_space_Maeda,MeanR_Maeda, cmap='jet') # cmap='jet'
@@ -692,7 +708,7 @@ cbar=fig3.colorbar(heatmap, ax=ax2, ticks=[0,0.2, 0.4,0.6,0.8,1]);
 cbar.ax.tick_params(labelsize = tick_font_size) 
 
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('Maeda 2004',color=maedacolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.set_title('CDINFB',color=maedacolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # ax2.text(-0.3 , 1.1, 'D',ha='center',va='center',
 #      transform = ax2.transAxes, color = simcolor, fontsize=abcd_font_size)
 
@@ -704,7 +720,7 @@ cbar=fig3.colorbar(heatmap, ax=ax3, ticks=[0,0.2, 0.4,0.6,0.8,1]);
 cbar.ax.tick_params(labelsize = tick_font_size) 
 
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_title('Sgro 2015',  color= sgrocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.set_title('IPNFB',  color= sgrocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # ax3.text(-0.3 , 1.1, 'E', ha='center',va='center',
 #      transform = ax3.transAxes, color = simcolor, fontsize=abcd_font_size)
 
@@ -716,7 +732,7 @@ cbar.ax.tick_params(labelsize = tick_font_size)
 #ax4.set_ylabel('Peak Width, A.U.',fontsize=label_font_size)
 #ax4.set_xlabel('Entrainment period, A.U.',fontsize=label_font_size)
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('Kamino 2017', color= kaminocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.set_title('IFFL', color= kaminocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # ax4.text(-0.3 , 1.1, 'F', ha='center',va='center',
 #      transform = ax4.transAxes, color = simcolor, fontsize=abcd_font_size)
 
@@ -724,7 +740,7 @@ fig3.text(0.5, 0.05,'Period, A.U.', ha='center', va='center',fontsize=label_font
 fig3.text(0.04, 0.4, 'Peak Width, A.U.', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 
 # fig3.savefig('fig4_sc_entrainment_200530.png', bbox_inches='tight')
-fig3.savefig('fig4_sc_entrainment_goldbeter0_1_tight_200530.png', bbox_inches='tight')
+# fig3.savefig('fig4_sc_entrainment_goldbeter0_1_tight_200530.png', bbox_inches='tight')
 #%% fig S5 Gldbeter entrainment
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_agent_3var
 
@@ -769,7 +785,7 @@ cbar.ax.tick_params(labelsize = tick_font_size)
 cbar.set_label( 'Entrainment quality',size= sublabel_font_size)
 
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_title('Martiel 1987',color=goldcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax0.set_title('Receptor desensitization',color=goldcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax0.text(-0.42 , 1.16, 'A', ha='center',va='center',
      transform = ax0.transAxes, color ='k', fontsize=abcd_font_size)
 
@@ -948,7 +964,7 @@ ax1.set_xlim([FC_space_Gold[0],FC_space_Gold[-1]])
 ax1.set_xscale('log')
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 # ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-ax1.set_title('Martiel 1987', color= goldcolor,
+ax1.set_title('Receptor desensitization', color= goldcolor,
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax1.text(-0.3, 1.15, 'B', ha='center',va='center',
          transform = ax1.transAxes, color = simcolor, fontsize=abcd_font_size)
@@ -964,7 +980,7 @@ for i in range(len(z0First_space_Loomis)):
 ax2.set_xlim([FC_space_Loomis[0],FC_space_Loomis[-1]])
 ax2.set_xscale('log')
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('Maeda 2004', color = maedacolor,
+ax2.set_title('CDINFB', color = maedacolor,
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # ax2.text(-0.1, 1.18, 'C', ha='center',va='center',
 #          transform = ax2.transAxes, color = simcolor, fontsize=abcd_font_size)
@@ -981,7 +997,7 @@ ax5.set_ylim([-0.1,1]);
 ax5.set_xlim([FC_space_Sgro[0],FC_space_Sgro[-1]])
 ax5.set_xscale('log')
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5.set_title('Sgro 2015', color=sgrocolor,
+ax5.set_title('IPNFB', color=sgrocolor,
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # ax5.text(-0.1, 1.18, 'D', ha='center',va='center',
 #          transform = ax5.transAxes, color = simcolor, fontsize=abcd_font_size)
@@ -994,7 +1010,7 @@ ax4.set_ylim([0,1.1]);
 ax4.set_xlim([FC_space_Kamino[0],FC_space_Kamino[-1]])    
 ax4.set_xscale('log')
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('Kamino 2017',  color=kaminocolor,
+ax4.set_title('IFFL',  color=kaminocolor,
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # ax4.text(-0.1, 1.18, 'E', ha='center',va='center',
 #          transform = ax4.transAxes, color = simcolor, fontsize=abcd_font_size)
@@ -1037,7 +1053,7 @@ ax1.set_xscale('log')
 ax1.set_xlim([scd_space_Gold[0],scd_space_Gold[-1]])
 # ax1.set_xlabel(r'Second step [$cAMP_{e}$]',fontsize=label_font_size)
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1.set_title('Martiel 1987', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax1.set_title('Receptor desensitization', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 ax2= fig3.add_subplot(grid[0:4, 1])
 for i in range(len(z0First_space_Loomis)):
@@ -1047,7 +1063,7 @@ ax2.set_xscale('log')
 ax2.set_xlim([scd_space_Loomis[0],scd_space_Loomis[-1]])
 # ax2.set_xlabel(r'Fold change in [$cAMP_{e}$]',fontsize=label_font_size)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('Maeda 2004', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.set_title('CDINFB', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 ax2.legend(bbox_to_anchor=(0.74,-0.2),ncol=2,prop={'size': 18})
 
@@ -1090,7 +1106,7 @@ for i in range(len(z0First_space_Sgro_noise)):
                           rotation=45,fontsize=tick_font_size)
     ax[i].tick_params(axis='both', which='major', labelsize=tick_font_size)
     ax[i].set_title('Prime concentration '+str(round(z0_now,2)), fontdict={'fontsize': label_font_size, 'fontweight': 'medium'})
-fig.text(0.5, 0.97, 'Sgro 2015 (with noise)', ha='center', va='center',fontsize=title_font_size,color=sgrocolor,)
+fig.text(0.5, 0.97, 'IPNFB (with noise)', ha='center', va='center',fontsize=title_font_size,color=sgrocolor,)
 fig.text(0.5, 0.02, r'$cAMP_{e}$'+' fold change', ha='center', va='center',fontsize=label_font_size)
 fig.text(0.01, 0.55, 'Second peak prominence, A.U.', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 
@@ -1106,8 +1122,8 @@ Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xls
 import_npz('../model_outputs/pop_oscillation_SCnoise_200409.npz',globals())
 
 abcd_font_size = 28
-label_font_size=24
-title_font_size = 26
+label_font_size=22
+title_font_size = 22
 sublabel_font_size = 22
 trace_width=3
 tick_font_size=20
@@ -1124,7 +1140,7 @@ ax0.set_title('Experiment', fontdict={'fontsize': title_font_size, 'fontweight':
 ax0.set_ylim([-0.1,0.5]); ax0.set_xlim([0,120])
 ax0.set_xlabel('Time (min)', size=sublabel_font_size)
 ax0.text(-0.14 , 1.2, 'A', ha='center',va='center',
-     transform = ax0.transAxes, color = expcolor, fontsize=abcd_font_size)
+     transform = ax0.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax1= fig3.add_subplot(grid[0, 1])
 for this_idx in SC_traces_idx:
@@ -1134,10 +1150,10 @@ for this_idx in SC_traces_idx:
 ax1.plot(t_plot_Goldbeter_short,b_trace_norm_mean_later,
          color=goldcolor,alpha=0.8, linewidth=trace_width)
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1.set_title('Martiel 1987', color=goldcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax1.set_title('Receptor Desensitization', color=goldcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax1.set_ylim([-0.3,1.7]); ax1.set_xlim([0,15])
 ax1.text(-0.08 , 1.2, 'B', ha='center',va='center',
-     transform = ax1.transAxes, color = simcolor, fontsize=abcd_font_size)
+     transform = ax1.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax2= fig3.add_subplot(grid[1,0])
 for this_idx in SC_traces_idx:
@@ -1147,10 +1163,10 @@ for this_idx in SC_traces_idx:
 ax2.plot(t_plot_Maeda_short,cAMPi_trace_norm_mean_later,
          color=maedacolor,alpha=0.8, linewidth=trace_width)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('Maeda 2004',color= maedacolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.set_title('CDINFB',color= maedacolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax2.set_ylim([0.1,0.6]); ax2.set_xlim([0,15])
 ax2.text(-0.14 , 1.2, 'C', ha='center',va='center',
-     transform = ax2.transAxes, color = simcolor, fontsize=abcd_font_size)
+     transform = ax2.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax3= fig3.add_subplot(grid[1, 1])
 for this_idx in SC_traces_idx:
@@ -1160,10 +1176,10 @@ for this_idx in SC_traces_idx:
 ax3.plot(t_plot_Gregor_short,gregor_campCyto_trace_norm_mean_later,
          color=gregorcolor,alpha=0.8, linewidth=trace_width)
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_title('Gregor 2010', color=gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.set_title('Phase Oscillator', color=gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax3.set_ylim([-0.2,1.5]); ax3.set_xlim([0,15])
 ax3.text(-0.08 , 1.2, 'D', ha='center',va='center',
-     transform = ax3.transAxes, color = simcolor, fontsize=abcd_font_size)
+     transform = ax3.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax4= fig3.add_subplot(grid[2, 0])
 for this_idx in SC_traces_idx:
@@ -1173,10 +1189,10 @@ for this_idx in SC_traces_idx:
 ax4.plot(t_plot_Sgro_short,A_trace_norm_mean_later,
          color= sgrocolor,alpha=0.8, linewidth=trace_width)
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('Sgro 2015', color=sgrocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.set_title('IPNFB', color=sgrocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax4.set_ylim([-0.3,1.3]); ax4.set_xlim([0,15])
 ax4.text(-0.14 , 1.2, 'E', ha='center',va='center',
-     transform = ax4.transAxes, color = simcolor, fontsize=abcd_font_size)
+     transform = ax4.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax5= fig3.add_subplot(grid[2,1])
 for this_idx in SC_traces_idx:
@@ -1186,10 +1202,10 @@ for this_idx in SC_traces_idx:
 ax5.plot(t_plot_Kamino_short,y_trace_norm_mean_later,
          color= kaminocolor,alpha=0.8, linewidth=trace_width)
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5.set_title('Kamino 2017', color= kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5.set_title('IFFL', color= kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax5.set_ylim([-0.5,1.5]); ax5.set_xlim([0,15])
 ax5.text(-0.08 , 1.2, 'F', ha='center',va='center',
-     transform = ax5.transAxes, color = simcolor, fontsize=abcd_font_size)
+     transform = ax5.transAxes, color = 'k', fontsize=abcd_font_size)
 
 fig3.text(0.04, 0.5, r'$cAMP_{i}$', fontsize=label_font_size,va='center', rotation='vertical')
 fig3.text(0.56, 0.02, 'Time, A.U.', fontsize=label_font_size, ha='center')
@@ -1197,7 +1213,7 @@ plt.show()
 
 plt.subplots_adjust(left=0.14, right=0.97, top=0.9, bottom=0.1)
 # grid.tight_layout(fig3,rect=[0, 0, 1, 1])
-fig3.savefig('fig6_pop_oscillation_tight_200530.png', bbox_inches='tight') 
+# fig3.savefig('fig6_pop_oscillation_tight_200530.png', bbox_inches='tight') 
 
 #%% Fig 7 population add cAMP, with single cell noise
 # Experimental data
@@ -1264,7 +1280,7 @@ ax11.set_xlim([0,30]); ax11.set_ylim([-0.25,1.75])
 ax11.text(-0.06 , 1.2, 'B',
          horizontalalignment='center',verticalalignment='center',
          transform = ax11.transAxes, color = simcolor, fontsize=abcd_font_size)
-ax11.set_title('Martiel 1987',color = goldcolor, size=title_font_size)
+ax11.set_title('Receptor desensitization',color = goldcolor, size=title_font_size)
 
 ax12= fig.add_subplot(grid[1, 1])
 for count in range(5):
@@ -1291,7 +1307,7 @@ ax13.text(0.73,0.88,r'High $cAMP_{e}$ input', ha='center',va='center',
 ax13.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax13.axvspan(15, 30, alpha=0.2, color=simcolor)
 ax13.set_xlim([0,30]); ax13.set_ylim([-0.25,1.75])
-# Maeda 2004
+# CDINFB
 ax21= fig.add_subplot(grid[0, 2])
 for count in range(5):
     ax21.plot(t_plot_Maeda_short,cAMPi_traces_norm[0,count,:],
@@ -1305,7 +1321,7 @@ ax21.set_xlim([0,30]); ax21.set_ylim([0.1,0.9])
 ax21.text(-0.06 , 1.2, 'C',
          horizontalalignment='center',verticalalignment='center',
          transform = ax21.transAxes, color = simcolor, fontsize=abcd_font_size)
-ax21.set_title('Maeda 2004',color = maedacolor, size=title_font_size)
+ax21.set_title('CDINFB',color = maedacolor, size=title_font_size)
 
 ax22= fig.add_subplot(grid[1, 2])
 for count in range(5):
@@ -1331,7 +1347,7 @@ ax23.tick_params(grid_linewidth = tick_font_size, labelsize = tick_font_size)
 ax23.axvspan(15, 30, alpha=0.2, color = simcolor)
 ax23.set_xlim([0,30]); ax23.set_ylim([0.1,0.9])
 
-# Gregor 2010
+# Phase oscillator
 ax31= fig.add_subplot(grid[3, 0])
 ax31.plot(t_plot_Gregor[1:],campCyto_traces[0,1:] , color=gregorcolor,linewidth=trace_width)  
 for count in range(5):
@@ -1346,7 +1362,7 @@ ax31.axvspan(15, 30, alpha=0.2, color= simcolor)
 ax31.set_xlim([0,30]); ax31.set_ylim([-0.2,1.5])
 ax31.text(-0.06 , 1.2, 'D', ha='center',va='center',
          transform = ax31.transAxes, color = simcolor, fontsize=abcd_font_size)
-ax31.set_title('Gregor 2010',color = gregorcolor, size=title_font_size)
+ax31.set_title('Phase oscillator',color = gregorcolor, size=title_font_size)
 
 ax32= fig.add_subplot(grid[4, 0])
 ax32.plot(t_plot_Gregor[1:],campCyto_traces[1,1:], color=gregorcolor,linewidth=trace_width)
@@ -1372,7 +1388,7 @@ ax33.tick_params(grid_linewidth = tick_font_size, labelsize = tick_font_size)
 ax33.axvspan(15, 30, alpha=0.2, color=simcolor)
 ax33.set_xlim([0,30]); ax33.set_ylim([-0.2,1.5])
 
-# Sgro 2015
+# IPNFB
 ax41= fig.add_subplot(grid[3, 1])
 for count in range(5):
     ax41.plot(t_plot_Sgro,A_traces_single_cell[0,count,:],
@@ -1385,7 +1401,7 @@ ax41.axvspan(15, 30, alpha=0.2, color=simcolor)
 ax41.set_xlim([0,30]); ax41.set_ylim([-0.25,1.25])
 ax41.text(-0.06 , 1.2, 'E',ha='center',va='center',
          transform = ax41.transAxes, color = simcolor, fontsize=abcd_font_size)
-ax41.set_title('Sgro 2015',color = sgrocolor, size=title_font_size)
+ax41.set_title('IPNFB',color = sgrocolor, size=title_font_size)
 
 ax42= fig.add_subplot(grid[4, 1])
 for count in range(5):
@@ -1412,7 +1428,7 @@ ax43.tick_params(grid_linewidth = tick_font_size, labelsize = tick_font_size)
 ax43.axvspan(15, 30, alpha=0.2, color=simcolor)
 ax43.set_xlim([0,30]); ax43.set_ylim([-0.25,1.25])
 
-# Kamino 2017
+# IFFL
 ax51= fig.add_subplot(grid[3, 2])
 for count in range(5):
     ax51.plot(t_plot_Kamino,y_traces_norm[0,count,:],
@@ -1425,7 +1441,7 @@ ax51.axvspan(15, 30, alpha=0.2, color=simcolor)
 ax51.set_xlim([0,30]); ax51.set_ylim([-0.4,1.6])
 ax51.text(-0.06 , 1.2, 'F', ha='center',va='center',
          transform = ax51.transAxes, color = simcolor, fontsize=abcd_font_size)
-ax51.set_title('Kamino 2017',color = kaminocolor, size=title_font_size)
+ax51.set_title('IFFL',color = kaminocolor, size=title_font_size)
 
 ax52= fig.add_subplot(grid[4, 2])
 for count in range(5):
@@ -1500,7 +1516,7 @@ rho_arr_Maeda_noise1 =  Maeda_OUT_noise1['rho_arr']
 gamma_arr_Maeda_noise1 =  Maeda_OUT_noise1['gamma_arr']
 pop_rate_Maeda_noise1 = Maeda_OUT_noise1['pop_rate_Maeda']
 
-# Gregor 2010 from parallel computing outputs
+# Phase oscillator from parallel computing outputs
 Gregor_OUT_noise = np.load(OUT_path +'pop_fire_rate_Gregor_OUT_191026_noise0.002.npz')
 k_arr_Gregor_noise =  Gregor_OUT_noise['k_arr']
 rho_arr_Gregor_noise =  Gregor_OUT_noise['rho_arr']
@@ -1511,7 +1527,7 @@ k_arr_Gregor =  Gregor_OUT['k_arr']
 rho_arr_Gregor =  Gregor_OUT['rho_arr']
 pop_rate_Gregor = Gregor_OUT['pop_rate_Gregor']
 
-# Sgro 2015
+# IPNFB
 Sgro_no_noise_OUT = np.load(OUT_path +'pop_fire_rate_Sgro_OUT_200414_same_init_cond_ttot_25.0_dt0.005_sigma0_dir_cpl0.npz')
 j_arr_Sgro_no_noise =  Sgro_no_noise_OUT['j_arr']
 rho_arr_Sgro_no_noise =  Sgro_no_noise_OUT['rho_arr']
@@ -1527,7 +1543,7 @@ j_arr_Sgro_regular_noise =  Sgro_regular_noise_OUT['j_arr']
 rho_arr_Sgro_regular_noise =  Sgro_regular_noise_OUT['rho_arr']
 pop_rate_Sgro_regular_noise =  Sgro_regular_noise_OUT['pop_rate_Sgro']
 
-# Kamino 2017 from parallel computing outputs
+# IFFL from parallel computing outputs
 Kamino_OUT = np.load(OUT_path +'pop_FR_Kamino_200401_dt0.001_noise_0_PrmLen_25PkFindThr0.03.npz')
 rho_arr_Kamino =  Kamino_OUT['rho_arr']
 gamma_arr_Kamino =  Kamino_OUT['gamma_arr']
@@ -1539,7 +1555,7 @@ gamma_arr_Kamino_noise =  Kamino_OUT_noise['gamma_arr']
 pop_rate_Kamino_noise = Kamino_OUT_noise['pop_rate_Kamino']
 
 #%%
-title_font_size = 20
+title_font_size = 18
 label_font_size = 20
 sublabel_font_size = 18
 tick_font_size = 18
@@ -1570,7 +1586,7 @@ cbar.set_label( 'cAMP pulses/min',size=tick_font_size)
 #ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax0.text(-0.6 , 1.6, 'A',
          horizontalalignment='center',verticalalignment='center',
-         transform = ax0.transAxes, color = expcolor, fontsize=abcd_font_size)
+         transform = ax0.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax1= fig3.add_subplot(grid[1,0],xticks=[0,25,50,75,100])
 heatmap = ax1.pcolor(kc_arr_Gold_noise10, oneoverh_arr_Gold_noise10, pop_rate_Gold_noise10.transpose(), cmap='jet') # cmap='jet'
@@ -1580,10 +1596,10 @@ heatmap.set_clim(0,1.5)
 cbar=fig3.colorbar(heatmap, ax=ax1, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1.set_title('Martiel 1987\nwith noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax1.set_title('Receptor Desensitization\nwith noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax1.text(-0.6 , 1.2, 'B',
          horizontalalignment='center',verticalalignment='center',
-         transform = ax1.transAxes, color = simcolor, fontsize=abcd_font_size)
+         transform = ax1.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax1lower= fig3.add_subplot(grid[2,0],xticks=[0,25,50,75,100])
 heatmap = ax1lower.pcolor(kc_arr_Gold, oneoverh_arr_Gold, pop_rate_Gold.transpose(), cmap='jet') # cmap='jet'
@@ -1593,7 +1609,7 @@ heatmap.set_clim(0,1.5)
 cbar=fig3.colorbar(heatmap, ax=ax1lower, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
 ax1lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1lower.set_title('Martiel 1987\nw/o noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax1lower.set_title('Receptor Desensitization\nw/o noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 ax2= fig3.add_subplot(grid[1,1],xticks=[0,25,50,75,100])
 heatmap = ax2.pcolor(gamma_arr_Maeda_noise1, rho_arr_Maeda_noise1, pop_rate_Maeda_noise1.transpose(), cmap='jet') # cmap='jet'
@@ -1601,10 +1617,10 @@ heatmap.set_clim(0,0.55)
 ax2.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax2);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('Maeda 2004\nwith noise', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.set_title('CDINFB\nwith noise', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax2.text(-0.3 , 1.2, 'C',
          horizontalalignment='center',verticalalignment='center',
-         transform = ax2.transAxes, color = simcolor, fontsize=abcd_font_size)
+         transform = ax2.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax2lower= fig3.add_subplot(grid[2,1],xticks=[0,25,50,75,100])
 heatmap = ax2lower.pcolor(gamma_arr_Maeda, rho_arr_Maeda, pop_rate_Maeda.transpose(), cmap='jet') # cmap='jet'
@@ -1612,7 +1628,7 @@ heatmap.set_clim(0,0.55)
 ax2lower.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax2lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax2lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2lower.set_title('Maeda 2004\nw/o noise', color= maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2lower.set_title('CDINFB\nw/o noise', color= maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 ax3= fig3.add_subplot(grid[1,2], xticks=[0,25,50,75,100])
 heatmap = ax3.pcolor(k_arr_Gregor_noise, rho_arr_Gregor_noise, pop_rate_Gregor_noise.transpose(), cmap='jet') # cmap='jet'
@@ -1620,10 +1636,10 @@ heatmap.set_clim(0,1.2)
 ax3.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax3);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_title('Gregor 2010\nwith noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.set_title('Phase Oscillator\nwith noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax3.text(-0.3 , 1.2, 'D',
          horizontalalignment='center',verticalalignment='center',
-         transform = ax3.transAxes, color = simcolor, fontsize=abcd_font_size)
+         transform = ax3.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax3lower = fig3.add_subplot(grid[2,2], xticks=[0,25,50,75,100])
 heatmap = ax3lower.pcolor(k_arr_Gregor, rho_arr_Gregor, pop_rate_Gregor.transpose(), cmap='jet') # cmap='jet'
@@ -1631,7 +1647,7 @@ heatmap.set_clim(0,1.2)
 ax3lower.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax3lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax3lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3lower.set_title('Gregor 2010\nw/o noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3lower.set_title('Phase Oscillator\nw/o noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 # Sgro regular noise (sig = 0.15)
 ax4= fig3.add_subplot(grid[1,3],xticks=[0,0.5,1])
@@ -1641,10 +1657,10 @@ heatmap.set_clim(0,0.55)
 ax4.set_yscale('log'); # ax4.set_ylim([10**(-5),10**(-3)]); 
 cbar=fig3.colorbar(heatmap, ax=ax4);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('Sgro 2015\nwith noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.set_title('IPNFB\nwith noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax4.text(-0.3 , 1.2, 'E',
          horizontalalignment='center',verticalalignment='center',
-         transform = ax4.transAxes, color = simcolor, fontsize=abcd_font_size)
+         transform = ax4.transAxes, color = 'k', fontsize=abcd_font_size)
 # ax4.set_xticklabels([0,0.25,0.5,0.75,1], rotation=45,fontsize=tick_font_size)
 
 # Sgro w/o noise  (sig = 0.0)
@@ -1655,7 +1671,7 @@ heatmap.set_clim(0,0.55)
 ax4lower.set_yscale('log'); # ax4lower.set_ylim([10**(-5),10**(-3)]); 
 cbar=fig3.colorbar(heatmap, ax=ax4lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax4lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4lower.set_title('Sgro 2015\nw/o noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4lower.set_title('IPNFB\nw/o noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 # # Sgro low noise  (sig = 0.1)
 # ax4lower= fig3.add_subplot(grid[2,3],xticks=[0,0.25,0.5,0.75,1])
@@ -1665,7 +1681,7 @@ ax4lower.set_title('Sgro 2015\nw/o noise', color= sgrocolor,fontdict={'fontsize'
 # ax4lower.set_yscale('log'); ax4lower.set_ylim([10**(-5),10**(-3)]); 
 # cbar=fig3.colorbar(heatmap, ax=ax4lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 # ax4lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-# ax4lower.set_title('Sgro 2015\nlow noise', color=mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+# ax4lower.set_title('IPNFB\nlow noise', color=mycolors[5],fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 
 ax5= fig3.add_subplot(grid[1,4], xticks=[0,25,50,75,100])
@@ -1675,10 +1691,10 @@ heatmap.set_clim(0,0.65)
 ax5.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax5);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5.set_title('Kamino 2017\nwith noise', color= kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5.set_title('IFFL\nwith noise', color= kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax5.text(-0.3 , 1.2, 'F',
          horizontalalignment='center',verticalalignment='center',
-         transform = ax5.transAxes, color = simcolor, fontsize=abcd_font_size)
+         transform = ax5.transAxes, color = 'k', fontsize=abcd_font_size)
 
 # insets
 #ax7= fig3.add_axes([0.77,0.13,0.08,0.16])
@@ -1698,7 +1714,7 @@ heatmap.set_clim(0,0.65)
 ax5lower.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax5lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax5lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5lower.set_title('Kamino 2017\nw/o noise', color = kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5lower.set_title('IFFL\nw/o noise', color = kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 ax5lowerin= fig3.add_axes([0.835,0.115,0.042,0.082])
 heatmap = ax5lowerin.pcolor(gamma_arr_Kamino, rho_arr_Kamino,
@@ -1715,7 +1731,7 @@ fig3.text(0.08, 0.35, 'Population Density, A.U.',fontsize=label_font_size, va='c
 
 # plt.subplots_adjust(left=0.1, right=0.96, top=0.93, bottom=0.04, wspace=0.4, hspace=0.72)
 # grid.tight_layout(fig5,rect=[0, 0, 1, 1]) 
-fig3.savefig('fig8_pop_firing_rate_tight_200530.png', bbox_inches='tight') 
+#fig3.savefig('fig8_pop_firing_rate_tight_200530.png', bbox_inches='tight') 
 
 #%% fig S9-12 population firing rate
 # import population firing rate heatmap outputs
@@ -1732,17 +1748,17 @@ Maeda_OUT_noise1 = np.load(OUT_path +'pop_FR_Maeda_200331_hnorm_dt0.0001_noise1P
 rho_arr_Maeda_noise1 =  Maeda_OUT_noise1['rho_arr']
 gamma_arr_Maeda_noise1 =  Maeda_OUT_noise1['gamma_arr']
 pop_rate_Maeda_noise1 = Maeda_OUT_noise1['pop_rate_Maeda']
-# Gregor 2010 
+# Phase oscillator 
 Gregor_OUT_noise = np.load(OUT_path +'pop_fire_rate_Gregor_OUT_191026_noise0.002.npz')
 k_arr_Gregor_noise =  Gregor_OUT_noise['k_arr']
 rho_arr_Gregor_noise =  Gregor_OUT_noise['rho_arr']
 pop_rate_Gregor_noise = Gregor_OUT_noise['pop_rate_Gregor']
-# Sgro 2015
+# IPNFB
 Sgro_regular_noise_OUT = np.load(OUT_path +'pop_fire_rate_Sgro_OUT_200413_same_init_cond_ttot_25.0_dt0.005_sigma0.15_dir_cpl0.npz')
 j_arr_Sgro_regular_noise =  Sgro_regular_noise_OUT['j_arr']
 rho_arr_Sgro_regular_noise =  Sgro_regular_noise_OUT['rho_arr']
 pop_rate_Sgro_regular_noise =  Sgro_regular_noise_OUT['pop_rate_Sgro']
-# Kamino 2017 
+# IFFL 
 Kamino_OUT_noise = np.load(OUT_path +'pop_FR_Kamino_200401_dt0.001_noise_0.01_PrmLen_25PkFindThr0.03.npz')
 rho_arr_Kamino_noise =  Kamino_OUT_noise['rho_arr']
 gamma_arr_Kamino_noise =  Kamino_OUT_noise['gamma_arr']
@@ -1780,7 +1796,7 @@ cbar=fig.colorbar(heatmap, ax=ax0, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'population firing rate',size=tick_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_title('Martiel 1987\nwith noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax0.set_title('Receptor desensitization\nwith noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax0.plot(kc_arr[0:3],1/h_arr[0:3],'X',markersize =  m_size,color = m_color)
 ax0.plot(kc_arr[3:],1/h_arr[3:],'v',markersize =  m_size,color = m_color)
 
@@ -1829,7 +1845,7 @@ cbar=fig.colorbar(heatmap, ax=ax0, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'population firing rate',size=tick_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_title('Maeda 2004\nwith noise', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax0.set_title('CDINFB\nwith noise', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax0.plot(gamma_arr_Maeda[0:3],rho_arr_Maeda[0:3],'X',markersize =  m_size,color = m_color)
 ax0.plot(gamma_arr_Maeda[3:],rho_arr_Maeda[3:],'v',markersize =  m_size,color = m_color)
 
@@ -1860,7 +1876,7 @@ fig.text(0.29, 0.55, r'$cAMP_{i}$', ha='center', va='center', rotation='vertical
 
 fig.savefig('figS8_popFR_Maeda_tight_200530.png', bbox_inches='tight') 
 
-#%% Fig S9 Gregor 2010
+#%% Fig S9 Phase oscillator
 fig, ax = plt.subplots(nrows=2, ncols=4, figsize=(cm2inch(43),cm2inch(20)))
 plt.subplots_adjust(left=0.1, right=0.97, top=0.9, bottom=0.1, 
                     wspace=0.24, hspace=0.6)
@@ -1908,7 +1924,7 @@ fig.text(0.62, 0.02, ' Time, A.U.', ha='center', va='center',fontsize=label_font
 fig.text(0.29, 0.55, r'$cAMP_{i}$', ha='center', va='center', rotation='vertical',fontsize=label_font_size)       
 fig.savefig('figS9_popFR_Gregor_tight_200530.png', bbox_inches='tight') 
 
-#%% Fig S10 Sgro 2015
+#%% Fig S10 IPNFB
 m_size = 8; m_color = 'w'
 
 fig, ax = plt.subplots(nrows=2, ncols=4, figsize=(cm2inch(43),cm2inch(20)))
@@ -1927,7 +1943,7 @@ ax0.set_ylabel('Cell Density, A.U.', size=sublabel_font_size-2)
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'population firing rate',size=tick_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_title('Sgro 2015\nwith noise', color = sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax0.set_title('IPNFB\nwith noise', color = sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax0.plot(j_arr_Sgro[0:3], rho_arr_Sgro[0:3],'X',markersize =  m_size,color = m_color)
 ax0.plot(j_arr_Sgro[3:], rho_arr_Sgro[3:],'v',markersize =  m_size,color = m_color)
 
@@ -1956,7 +1972,7 @@ fig.text(0.29, 0.55, r'$cAMP_{i}$', ha='center', va='center', rotation='vertical
 
 fig.savefig('figS10_popFR_Sgro_tight_200530.png', bbox_inches='tight') 
 
-#%% Fig S11 Kamino 2017
+#%% Fig S11 IFFL
 m_size = 8; m_color = 'lightgrey'
 
 fig, ax = plt.subplots(nrows=2, ncols=4, figsize=(cm2inch(45),cm2inch(20)))
@@ -1975,7 +1991,7 @@ ax0.set_ylabel('Cell Density, A.U.', size=sublabel_font_size-2)
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'population firing rate',size=tick_font_size)
 ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.set_title('Kamino 2017\nwith noise', color = kaminocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax0.set_title('IFFL\nwith noise', color = kaminocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax0.plot(gamma_arr_Kamino[0:3], rho_arr_Kamino[0:3],'X',markersize =  m_size,color = m_color)
 ax0.plot(gamma_arr_Kamino[3:], rho_arr_Kamino[3:],'v',markersize =  m_size,color = m_color)
 
@@ -2004,7 +2020,7 @@ fig.text(0.29, 0.55, r'$cAMP_{i}$', ha='center', va='center', rotation='vertical
 
 fig.savefig('figS11_popFR_Kamino_tight_200530.png', bbox_inches='tight') 
 
-#%% Fig S13 Gregor 2010 pop oscillations with and w/o noise
+#%% Fig S13 Phase oscillator pop oscillations with and w/o noise
 import_npz('../model_outputs/pop_osc_Gregor_noise0_200604.npz',globals())
 import_npz('../model_outputs/pop_osc_Gregor_200604.npz',globals())
 
@@ -2040,7 +2056,7 @@ fig3.text(0.05, 0.5,r'$cAMP_{i}$, A.U.', ha='center', va='center',rotation='vert
           fontsize=title_font_size)
 fig3.text(0.5, 0.01, 'Time, A.U.', ha='center', 
           va='center',fontsize= title_font_size)
-fig3.text(0.5, 1,'Gregor 2010 population oscillations',ha='center', va='center',
+fig3.text(0.5, 1,'Phase oscillator population oscillations',ha='center', va='center',
           color= 'k',fontsize=title_font_size)
 plt.show()
 

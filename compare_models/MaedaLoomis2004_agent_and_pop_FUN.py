@@ -115,8 +115,7 @@ class MaedaLoomis2004_pop:
         cAMPe_next=self.cAMPe_now+(k11*rho*self.ACA_now-(k12+gamma)*(self.cAMPe_now - campExt_influx))*dt
         if cAMPe_next < 0 :
             cAMPe_next = 0
-        CAR1_next=self.CAR1_now+(k13*self.cAMPe_now - k14*self.CAR1_now)*dt
-        
+        CAR1_next=self.CAR1_now+(k13*self.cAMPe_now- k14*self.CAR1_now)*dt
         
         self.ACA_now=ACA_next
         self.PKA_now=PKA_next
