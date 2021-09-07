@@ -153,7 +153,7 @@ def Kamino_pop(KaminoPopParam,dt,t,cAMPext_influx_trace):
 
 
 def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, tlim, stim_time, 
-                         title, SC_traces = 0, SC_traces_idx = 0):
+                         title, SC_traces = 0, SC_traces_idx = 0, ylim=[]):
     fig = plt.figure(figsize=(11, 4))
     grid = plt.GridSpec(1, 1, wspace=0.5, hspace=0.3)
     ax1= fig.add_subplot(grid[0, 0])
@@ -174,13 +174,16 @@ def plot_POP_oscillation(t_plot,pop_trace_plot, cAMPext_influx, tlim, stim_time,
     ax1.tick_params(grid_linewidth = 15, labelsize = 20)
     if cAMPext_influx != 0:
         ax1.axvspan(tlim[1]*stim_time, tlim[1], alpha=0.25, color='g')
-#    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
+#    ax1.set_xlim([0,30]); 
+    if len(ylim)!=0:
+        ax1.set_ylim(ylim)
     plt.show()
 
 
 def plot_POP_oscillation_FR(title, t_plot,cAMPi_mean,cAMPi_label,
                             R_mean,R_label, cAMPe_trace ,tlim,
-                            SC_traces = 0, SC_traces_idx = 0):
+                            SC_traces = 0, SC_traces_idx = 0,
+                            ylim_i=[], ylim_e=[]):
     fig = plt.figure(figsize=(7, 5))
     grid = plt.GridSpec(1, 1, wspace=0.5, hspace=0.3)
     ax1= fig.add_subplot(grid[0, 0])
@@ -204,6 +207,10 @@ def plot_POP_oscillation_FR(title, t_plot,cAMPi_mean,cAMPi_label,
     ax1.tick_params(axis = 'y', labelcolor = 'k')
     ax1.tick_params( grid_linewidth = 15, labelsize = 20)
     ax1.set_xlim(tlim)
+    if len(ylim_i)!=0:
+        ax1.set_ylim(ylim_i)
+    if len(ylim_e)!=0:
+        ax2.set_ylim(ylim_e)   
     if not np.isscalar(R_mean):
         leg = ax1.legend()
 #    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])

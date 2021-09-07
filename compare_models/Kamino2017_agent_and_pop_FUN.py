@@ -105,7 +105,7 @@ class Kamino2017_pop_SCnoise: # population with noisy single cells
         self.z_now=z0 # initial state input as a list variable [x0,y0,z0]
         
     
-    def update(self, z0_influx, dt, overriding_sig=None): 
+    def update(self, z0_influx, dt, overriding_sig=None, r=np.array([])): 
         tau=self.Param['tau']   
         n=self.Param['n'] 
         K=self.Param['K'] 
@@ -116,7 +116,9 @@ class Kamino2017_pop_SCnoise: # population with noisy single cells
         sigma=self.Param['sigma'] # sigma is noise strength in single cells
         N = self.Param['N'] # number of cells in the population
         
-        r = math.sqrt(dt)*np.random.normal(0, 1, N)  # random number for noise
+        if r.size==0:
+            r = math.sqrt(dt)*np.random.normal(0, 1, N)  # random number for noise
+            
         dxdt=((self.z_now+delta)-self.x_now)/tau
         dydt=np.power((self.z_now+delta),n)/(np.power((self.z_now+delta),n)+np.power((K*self.x_now),n))-self.y_now
         

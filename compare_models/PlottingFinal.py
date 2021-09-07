@@ -64,8 +64,10 @@ kaminocolor = (colors[4,:]+(255-colors[4,:])*0)/255
 # sgrocolor = (colors[3,:]+(255-colors[3,:])*0)/255
 # kaminocolor = (colors[4,:]+(255-colors[4,:])*0)/255
 
-expcolor = (colors[5,:]+(255-colors[5,:])*0)/255
-simcolor = (colors[6,:]+(255-colors[6,:])*0)/255
+# expcolor = (colors[5,:]+(255-colors[5,:])*0)/255
+# simcolor = (colors[6,:]+(255-colors[6,:])*0)/255
+expcolor = 'darkgrey'
+simcolor = 'darkgrey'
 
 #%% Figure 2- single cell adaptive spiking and oscillations
 # experimental data
@@ -428,18 +430,21 @@ Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xls
 # load simulation data
 import_npz('../model_outputs/single_cell_StepRamp_200320.npz',globals())
 
+expcolor = 'blue'
+simcolor = 'k'
 abcd_font_size = 28
 label_font_size=20
 title_font_size = 22
 sublabel_font_size = 18
 trace_width=3
-tick_font_size=20
+tick_font_size=17
 
-fig3 = plt.figure(figsize=(cm2inch(35),cm2inch(18)))
-grid = plt.GridSpec(4, 3, wspace=0.31, hspace=0.9)
+# fig3 = plt.figure(figsize=(cm2inch(35),cm2inch(18)))
+fig3 = plt.figure(figsize=(14,8))
+grid = plt.GridSpec(4, 3, wspace=0.3, hspace=0.9)
 
 # ax0 = fig3.add_subplot(grid[0, 0])
-ax0 = fig3.add_axes([0.085, 0.72, 0.245, 0.1])
+ax0 = fig3.add_axes([0.123, 0.72, 0.217, 0.1])
 ax0.plot(Sgro2015Figure3excel["Ramp Input (min Time)"],Sgro2015Figure3excel["Ramp Input (nM cAMP)"],
                               color='k', linewidth = trace_width)
 ax0.set_title('Experiment',color='k', fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
@@ -451,8 +456,8 @@ ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax0.set_xlim([0,80])
 ax0.set_ylim([-0.1,1.1])
 ax0.xaxis.set_major_formatter(plt.NullFormatter()) # hide x axis
-ax0.text(-0.33, 1.6, 'A', ha='center',va='center',
-         transform = ax0.transAxes, color = 'k', fontsize=abcd_font_size)
+# ax0.text(-0.33, 1.6, 'A', ha='center',va='center',
+#          transform = ax0.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax1= fig3.add_subplot(grid[1:3, 0])
 ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 1 FRET Trace"],
@@ -461,7 +466,7 @@ ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cel
                                color='grey', linewidth = trace_width)
 ax1.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 3 FRET Trace"],
                                color='lightgrey', linewidth = trace_width)
-ax1.axvspan(10, 30, alpha=0.2, color=expcolor); ax1.axvspan(50, 70, alpha=0.2, color='b')
+ax1.axvspan(10, 30, alpha=0.2, color=expcolor); ax1.axvspan(50, 70, alpha=0.2, color= expcolor)
 ax1.set_ylabel('FRET,\n A.U.',fontsize=sublabel_font_size)
 ax1.set_xlabel('Time (min)',fontsize=sublabel_font_size)
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
@@ -472,17 +477,17 @@ ax2.plot(t_plot_Goldbeter, b_trace, color=goldcolor,linewidth=trace_width)
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 # ax2.set_title('Receptor desensitization',color = goldcolor,  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax2.set_title('Receptor Desensitization',color = goldcolor,  fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax2.axvspan(2, 6, alpha=0.3, color=simcolor); ax2.axvspan(10, 14, alpha=0.3, color='g')
+ax2.axvspan(2, 6, alpha=0.3, color=simcolor); ax2.axvspan(10, 14, alpha=0.3, color= simcolor)
 ax2.set_ylim([-0.2,1.2]); ax2.set_xlim([0,16])
-ax2.text(-0.3, 1.14, 'B', ha='center',va='center',
-         transform = ax2.transAxes, color = 'k', fontsize=abcd_font_size)
+# ax2.text(-0.3, 1.14, 'B', ha='center',va='center',
+#          transform = ax2.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax3= fig3.add_subplot(grid[0:2, 2])
 ax3.plot(t_plot_Maeda, cAMPi_trace, color= maedacolor,linewidth=trace_width)
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
 # ax3.set_title('CDINFB', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax3.set_title('CDINFB', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax3.axvspan(2,6, alpha=0.3, color=simcolor); ax3.axvspan(10,14, alpha=0.3, color='g')
+ax3.axvspan(2,6, alpha=0.3, color=simcolor); ax3.axvspan(10,14, alpha=0.3, color=simcolor)
 ax3.set_ylim([-0.2,1.2]);  ax3.set_xlim([0,16])
 # ax3.text(-0.12, 1.06, 'C', ha='center',va='center',
 #          transform = ax3.transAxes, color = simcolor, fontsize=abcd_font_size)
@@ -491,7 +496,7 @@ ax4= fig3.add_subplot(grid[2:, 1])
 ax4.plot(t_plot_Sgro, A_trace_plot, color=sgrocolor,linewidth=trace_width)
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax4.set_title('IPNFB', color = sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax4.axvspan(2,6, alpha=0.3, color=simcolor); ax4.axvspan(10,14, alpha=0.3, color='g')
+ax4.axvspan(2,6, alpha=0.3, color=simcolor); ax4.axvspan(10,14, alpha=0.3, color= simcolor)
 ax4.set_ylim([-0.4,1.2]);  ax4.set_xlim([0,16])
 # ax4.text(-0.12, 1.06, 'D', ha='center',va='center',
 #          transform = ax4.transAxes, color = simcolor, fontsize=abcd_font_size)
@@ -500,14 +505,17 @@ ax5= fig3.add_subplot(grid[2:, 2])
 ax5.plot(t_plot_Kamino, y_trace, color=kaminocolor,linewidth=trace_width)
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax5.set_title('IFFL', color = kaminocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax5.axvspan(2,6, alpha=0.3, color= simcolor); ax5.axvspan(10,14, alpha=0.3, color='g')
+ax5.axvspan(2,6, alpha=0.3, color= simcolor); ax5.axvspan(10,14, alpha=0.3, color= simcolor)
 ax5.set_ylim([-0.4,1.2]);  ax5.set_xlim([0,16])
 # ax5.text(-0.12, 1.06, 'E', ha='center',va='center',
 #          transform = ax5.transAxes, color = simcolor, fontsize=abcd_font_size)
 
 fig3.text(0.36, 0.5, r'$cAMP_{i}$', fontsize=label_font_size,va='center', rotation='vertical')
-fig3.text(0.65, 0.02, 'Time, A.U.', fontsize=label_font_size, ha='center')
-grid.tight_layout(fig3,rect=[0, 0, 1, 1]) # can not make all axes height small enough to accomodate all axes decorations 
+fig3.text(0.65, 0.03, 'Time, A.U.', fontsize=label_font_size, ha='center')
+
+fig3.text(0.05, 0.92, 'A', fontsize=abcd_font_size, ha='center')
+fig3.text(0.37, 0.92, 'B', fontsize=abcd_font_size, ha='center')
+# grid.tight_layout(fig3,rect=[0, 0, 1, 1]) # can not make all axes height small enough to accomodate all axes decorations 
 # plt.show()
 # fig3.savefig('fig3_sc_step_ramp_tight_200530.png', bbox_inches='tight')
 
@@ -520,7 +528,7 @@ label_font_size=22
 title_font_size = 24
 sublabel_font_size = 18
 trace_width=3
-tick_font_size=20
+tick_font_size=17
 m_size = 18 # marker size
 m_color = np.array([0,255,127])/255
 
@@ -630,15 +638,15 @@ Sgro2015Figure4excel = pd.read_excel(r'C:/Users/ellin/Dropbox/AACP Science/Dicty
 # load simulation data
 import_npz('../model_outputs/single_cell_entrainment_200320.npz',globals())
 
-abcd_font_size = 28
-label_font_size=22
-title_font_size = 20
+abcd_font_size = 26
+label_font_size=20
+title_font_size = 19
 sublabel_font_size = 18
 trace_width=3
-tick_font_size=20
+tick_font_size=17
 
-fig3 = plt.figure(figsize=(cm2inch(22),cm2inch(33)))
-grid = plt.GridSpec(6, 2, wspace=0.35, hspace=1.5)
+fig3 = plt.figure(figsize=(cm2inch(22),cm2inch(30)))
+grid = plt.GridSpec(6, 2, wspace=0.30, hspace=1.2)
 
 ax0u= fig3.add_subplot(grid[0, 0])
 ax0u.plot(Sgro2015Figure4excel["Time (min)"]-1,Sgro2015Figure4excel["Cell 1 FRET Trace (1 min pulse)"],
@@ -650,15 +658,15 @@ ax0u.plot(Sgro2015Figure4excel["Time (min)"]-1,Sgro2015Figure4excel["Cell 3 FRET
 ax0u.set_xlim([0,23]); ax0u.tick_params(axis='both', which='major', labelsize=tick_font_size)
 for i in range(4):
     ax0u.axvspan(4.5+i*6, 4.5+i*6+1, alpha=0.2, color=expcolor)
-ax0u.text(-0.35 , 1.85, 'A', ha='center',va='center',
-     transform = ax0u.transAxes, color = 'k', fontsize=abcd_font_size)
+# ax0u.text(-0.32 , 1.85, 'A', ha='center',va='center',
+#      transform = ax0u.transAxes, color = 'k', fontsize=abcd_font_size)
 ax0u.text(-0.3, -0.5, 'FRET, A.U.',ha='center',va='center', rotation='vertical',
      transform = ax0u.transAxes, color = 'k', fontsize=sublabel_font_size)
-ax0u.text(0.5, 1.23, r'$cAMP_{e}$ input',ha='center',va='center', 
+ax0u.text(0.5, 1.23, r'$cAMP_{e}$ Input',ha='center',va='center', 
      transform = ax0u.transAxes, alpha=0.6, color = expcolor, fontsize= sublabel_font_size)
 
 #ax0l= fig3.add_subplot(grid[1, 0])
-ax0l = fig3.add_axes([0.13, 0.7, 0.325,0.062])
+ax0l = fig3.add_axes([0.125, 0.7, 0.337,0.066])
 ax0l.plot(Sgro2015Figure4excel["Time (min)"]-1,Sgro2015Figure4excel["Cell 1 FRET Trace (5 min pulse)"],
                                'k',linewidth=trace_width)
 ax0l.plot(Sgro2015Figure4excel["Time (min)"]-1,Sgro2015Figure4excel["Cell 2 FRET Trace (5 min pulse)"],
@@ -668,7 +676,7 @@ ax0l.plot(Sgro2015Figure4excel["Time (min)"]-1,Sgro2015Figure4excel["Cell 3 FRET
 ax0l.set_xlim([0,23]); ax0l.tick_params(axis='both', which='major', labelsize=tick_font_size)
 for i in range(4):
     ax0l.axvspan(4.5+i*6, 4.5+i*6+5, alpha=0.2, color=expcolor)
-ax0l.text(0.5, -0.6, 'Time(min)',ha='center',va='center',
+ax0l.text(0.5, -0.6, 'Time (min)',ha='center',va='center',
      transform = ax0l.transAxes, color = 'k', fontsize=sublabel_font_size)
 
 #ax00= fig3.add_subplot(grid[0:2, 1])
@@ -677,15 +685,15 @@ PeriodExp = np.linspace(3, 6, num=4); PkWdthExp = np.linspace(1,5,5)
 entrainmentRs = Sgro2015Figure4["entrainmentRs"][:,0:4]; entrainmentRs[entrainmentRs == 0] = 'nan'
 heatmap = ax00.pcolor(PeriodExp, PkWdthExp,np.flip(entrainmentRs,0), cmap='jet') 
 heatmap.set_clim(0,1)
-ax00.set_xlabel('Period(min)', size=sublabel_font_size)
-ax00.set_ylabel('Peak Width(min)', size=sublabel_font_size)
+ax00.set_xlabel('Period (min)', size=sublabel_font_size)
+ax00.set_ylabel('Peak Width (min)', size=sublabel_font_size)
 
 cbar=fig3.colorbar(heatmap, ax=ax00,ticks=[0,0.2, 0.4,0.6,0.8,1]);
 cbar.ax.tick_params(labelsize = tick_font_size) 
-cbar.set_label( 'Entrainment quality',size= sublabel_font_size)
+cbar.set_label( 'Entrainment Quality',size= sublabel_font_size)
 ax00.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax00.text(-0.3 , 1.25, 'B', ha='center',va='center',
-     transform = ax00.transAxes, color = 'k', fontsize=abcd_font_size)
+# ax00.text(-0.28 , 1.25, 'B', ha='center',va='center',
+#      transform = ax00.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax1= fig3.add_subplot(grid[2:4, 0], xticks = [0.8,1.2,1.6], yticks = [0.3,0.6,0.9,1.2])
 heatmap = ax1.pcolor(period_space_Gold, PkWdth_space_Gold,MeanR_Gold, cmap='jet') 
@@ -698,8 +706,8 @@ cbar.ax.tick_params(labelsize = tick_font_size)
 
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax1.set_title('Receptor Desensitization',color=goldcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax1.text(-0.42 , 1.1, 'C', ha='center',va='center',
-     transform = ax1.transAxes, color = 'k', fontsize=abcd_font_size)
+# ax1.text(-0.34 , 1.1, 'C', ha='center',va='center',
+#      transform = ax1.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax2= fig3.add_subplot(grid[2:4, 1], xticks = [0.8,1.2,1.6], yticks = [0.3,0.6,0.9,1.2])
 heatmap = ax2.pcolor(period_space_Maeda, PkWdth_space_Maeda,MeanR_Maeda, cmap='jet') # cmap='jet'
@@ -739,6 +747,9 @@ ax4.set_title('IFFL', color= kaminocolor,fontdict={'fontsize': title_font_size, 
 fig3.text(0.5, 0.05,'Period, A.U.', ha='center', va='center',fontsize=label_font_size)
 fig3.text(0.04, 0.4, 'Peak Width, A.U.', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 
+fig3.text(0.02, 0.91,'A', ha='center', va='center',fontsize=abcd_font_size)
+fig3.text(0.53, 0.91,'B', ha='center', va='center',fontsize=abcd_font_size)
+fig3.text(0.02, 0.61,'C', ha='center', va='center',fontsize=abcd_font_size)
 # fig3.savefig('fig4_sc_entrainment_200530.png', bbox_inches='tight')
 # fig3.savefig('fig4_sc_entrainment_goldbeter0_1_tight_200530.png', bbox_inches='tight')
 #%% fig S5 Gldbeter entrainment
@@ -1082,14 +1093,14 @@ fig3.savefig('figS5_sc_FCD_2ndinput_tight_200530.png', bbox_inches='tight')
 
 colors = plt.cm.Greens(np.linspace(0,1,len(z0First_space_Sgro_noise)+2))
 
-title_font_size = 20
+title_font_size = 22
 label_font_size = 18
 tick_font_size = 17
 legend_font_size = 17
 trace_width = 5
 markers=['+', 'd', '2', 'x']
 # plot FC vs. second response amplitude, violoin plot
-fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(cm2inch(45),cm2inch(13)))
+fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(cm2inch(45),cm2inch(15)))
 for i in range(len(z0First_space_Sgro_noise)):
     z0_now = z0First_space_Sgro_noise[i]
     data = PkPrm_Sgro_noise[i,:,:].tolist()
@@ -1105,13 +1116,13 @@ for i in range(len(z0First_space_Sgro_noise)):
     ax[i].set_xticklabels(np.around(FC_space_Sgro_noise,decimals=1), 
                           rotation=45,fontsize=tick_font_size)
     ax[i].tick_params(axis='both', which='major', labelsize=tick_font_size)
-    ax[i].set_title('Prime concentration '+str(round(z0_now,2)), fontdict={'fontsize': label_font_size, 'fontweight': 'medium'})
-fig.text(0.5, 0.97, 'IPNFB (with noise)', ha='center', va='center',fontsize=title_font_size,color=sgrocolor,)
-fig.text(0.5, 0.02, r'$cAMP_{e}$'+' fold change', ha='center', va='center',fontsize=label_font_size)
-fig.text(0.01, 0.55, 'Second peak prominence, A.U.', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
+    ax[i].set_title('Priming Conc. '+str(round(z0_now,2)), fontdict={'fontsize': label_font_size, 'fontweight': 'medium'})
+fig.text(0.5, 0.97, 'IPNFB', ha='center', va='center',fontsize=title_font_size,color=sgrocolor,)
+fig.text(0.5, 0.03, r'$cAMP_{e}$'+' Fold Change', ha='center', va='center',fontsize=label_font_size)
+fig.text(0.01, 0.55, 'Second Peak Prominence, A.U.', ha='center', va='center', rotation='vertical',fontsize=label_font_size)
 
-plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.18, wspace=0.15, hspace=0)
-fig.savefig('figS6_sc_FCD_Sgro_violin_tight_200530.png', bbox_inches='tight') 
+plt.subplots_adjust(left=0.05, right=0.95, top=0.85, bottom=0.18, wspace=0.15, hspace=0.1)
+# fig.savefig('figS6_sc_FCD_Sgro_violin_tight_200530.png', bbox_inches='tight') 
 
 #%% Fig 6 pop oscillations
 # experimental data
@@ -1562,8 +1573,8 @@ tick_font_size = 18
 trace_width = 2
 abcd_font_size = 28
 
-fig3 = plt.figure(figsize=(cm2inch(48),cm2inch(24)))
-grid = plt.GridSpec(3,5, wspace=0.35, hspace=0.6)
+fig3 = plt.figure(figsize=(cm2inch(52),cm2inch(26)))
+grid = plt.GridSpec(3,5, wspace=0.4, hspace=0.6)
 
 ax0= fig3.add_subplot(grid[0,0])
 ax0.set_xticks([0,2,4,6,8]); 
@@ -1584,7 +1595,7 @@ cbar=fig3.colorbar(heatmap, ax=ax0,ticks=[0,0.05,0.1,0.15]);
 cbar.ax.tick_params(labelsize = tick_font_size) 
 cbar.set_label( 'cAMP pulses/min',size=tick_font_size)
 #ax0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax0.text(-0.6 , 1.6, 'A',
+ax0.text(-0.55 , 1.6, 'A',
          horizontalalignment='center',verticalalignment='center',
          transform = ax0.transAxes, color = 'k', fontsize=abcd_font_size)
 
@@ -1596,8 +1607,8 @@ heatmap.set_clim(0,1.5)
 cbar=fig3.colorbar(heatmap, ax=ax1, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1.set_title('Receptor Desensitization\nwith noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax1.text(-0.6 , 1.2, 'B',
+ax1.set_title('Receptor Desensitization\nwith Noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax1.text(-0.55 , 1.2, 'B',
          horizontalalignment='center',verticalalignment='center',
          transform = ax1.transAxes, color = 'k', fontsize=abcd_font_size)
 
@@ -1609,26 +1620,26 @@ heatmap.set_clim(0,1.5)
 cbar=fig3.colorbar(heatmap, ax=ax1lower, ticks=[0,0.5,1,1.5])
 cbar.ax.tick_params(labelsize = tick_font_size) 
 ax1lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax1lower.set_title('Receptor Desensitization\nw/o noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax1lower.set_title('Receptor Desensitization\nw/o Noise', color = goldcolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 ax2= fig3.add_subplot(grid[1,1],xticks=[0,25,50,75,100])
 heatmap = ax2.pcolor(gamma_arr_Maeda_noise1, rho_arr_Maeda_noise1, pop_rate_Maeda_noise1.transpose(), cmap='jet') # cmap='jet'
-heatmap.set_clim(0,0.55)
+heatmap.set_clim(0,0.65)
 ax2.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax2);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2.set_title('CDINFB\nwith noise', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax2.text(-0.3 , 1.2, 'C',
+ax2.set_title('CDINFB\nwith Noise', color = maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2.text(-0.25 , 1.2, 'C',
          horizontalalignment='center',verticalalignment='center',
          transform = ax2.transAxes, color = 'k', fontsize=abcd_font_size)
 
 ax2lower= fig3.add_subplot(grid[2,1],xticks=[0,25,50,75,100])
 heatmap = ax2lower.pcolor(gamma_arr_Maeda, rho_arr_Maeda, pop_rate_Maeda.transpose(), cmap='jet') # cmap='jet'
-heatmap.set_clim(0,0.55)
+heatmap.set_clim(0,0.65)
 ax2lower.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax2lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax2lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax2lower.set_title('CDINFB\nw/o noise', color= maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax2lower.set_title('CDINFB\nw/o Noise', color= maedacolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 ax3= fig3.add_subplot(grid[1,2], xticks=[0,25,50,75,100])
 heatmap = ax3.pcolor(k_arr_Gregor_noise, rho_arr_Gregor_noise, pop_rate_Gregor_noise.transpose(), cmap='jet') # cmap='jet'
@@ -1636,8 +1647,8 @@ heatmap.set_clim(0,1.2)
 ax3.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax3);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3.set_title('Phase Oscillator\nwith noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax3.text(-0.3 , 1.2, 'D',
+ax3.set_title('Phase Oscillator\nwith Noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3.text(-0.25 , 1.2, 'D',
          horizontalalignment='center',verticalalignment='center',
          transform = ax3.transAxes, color = 'k', fontsize=abcd_font_size)
 
@@ -1647,18 +1658,18 @@ heatmap.set_clim(0,1.2)
 ax3lower.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax3lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax3lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax3lower.set_title('Phase Oscillator\nw/o noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax3lower.set_title('Phase Oscillator\nw/o Noise',color= gregorcolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 # Sgro regular noise (sig = 0.15)
 ax4= fig3.add_subplot(grid[1,3],xticks=[0,0.5,1])
 heatmap = ax4.pcolor(j_arr_Sgro_regular_noise, rho_arr_Sgro_regular_noise, 
                      pop_rate_Sgro_regular_noise.transpose(), cmap='jet') # cmap='jet'
-heatmap.set_clim(0,0.55)
+heatmap.set_clim(0,0.65)
 ax4.set_yscale('log'); # ax4.set_ylim([10**(-5),10**(-3)]); 
 cbar=fig3.colorbar(heatmap, ax=ax4);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4.set_title('IPNFB\nwith noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-ax4.text(-0.3 , 1.2, 'E',
+ax4.set_title('IPNFB\nwith Noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4.text(-0.25 , 1.2, 'E',
          horizontalalignment='center',verticalalignment='center',
          transform = ax4.transAxes, color = 'k', fontsize=abcd_font_size)
 # ax4.set_xticklabels([0,0.25,0.5,0.75,1], rotation=45,fontsize=tick_font_size)
@@ -1667,11 +1678,11 @@ ax4.text(-0.3 , 1.2, 'E',
 ax4lower= fig3.add_subplot(grid[2,3],xticks=[0,0.5,1])
 heatmap = ax4lower.pcolor(j_arr_Sgro_no_noise, rho_arr_Sgro_no_noise, 
                           pop_rate_Sgro_no_noise.transpose(), cmap='jet') # cmap='jet'
-heatmap.set_clim(0,0.55)
+heatmap.set_clim(0,0.65)
 ax4lower.set_yscale('log'); # ax4lower.set_ylim([10**(-5),10**(-3)]); 
 cbar=fig3.colorbar(heatmap, ax=ax4lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax4lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax4lower.set_title('IPNFB\nw/o noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax4lower.set_title('IPNFB\nw/o Noise', color= sgrocolor,fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 # # Sgro low noise  (sig = 0.1)
 # ax4lower= fig3.add_subplot(grid[2,3],xticks=[0,0.25,0.5,0.75,1])
@@ -1691,14 +1702,14 @@ heatmap.set_clim(0,0.65)
 ax5.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax5);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5.set_title('IFFL\nwith noise', color= kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5.set_title('IFFL\nwith Noise', color= kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 ax5.text(-0.3 , 1.2, 'F',
          horizontalalignment='center',verticalalignment='center',
          transform = ax5.transAxes, color = 'k', fontsize=abcd_font_size)
 
 # insets
 #ax7= fig3.add_axes([0.77,0.13,0.08,0.16])
-ax5in= fig3.add_axes([0.835,0.41,0.042,0.082])
+ax5in= fig3.add_axes([0.83,0.41,0.042,0.082])
 heatmap = ax5in.pcolor(gamma_arr_Kamino_noise, rho_arr_Kamino_noise,
                        pop_rate_Kamino_noise.transpose(), cmap='jet') # cmap='jet'
 heatmap.set_clim(0,0.65)
@@ -1714,9 +1725,9 @@ heatmap.set_clim(0,0.65)
 ax5lower.set_yscale('log')
 cbar=fig3.colorbar(heatmap, ax=ax5lower);cbar.ax.tick_params(labelsize = tick_font_size) 
 ax5lower.tick_params(axis='both', which='major', labelsize=tick_font_size)
-ax5lower.set_title('IFFL\nw/o noise', color = kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+ax5lower.set_title('IFFL\nw/o Noise', color = kaminocolor, fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
-ax5lowerin= fig3.add_axes([0.835,0.115,0.042,0.082])
+ax5lowerin= fig3.add_axes([0.83,0.115,0.042,0.082])
 heatmap = ax5lowerin.pcolor(gamma_arr_Kamino, rho_arr_Kamino,
                        pop_rate_Kamino.transpose(), cmap='jet') # cmap='jet'
 heatmap.set_clim(0,0.65)
@@ -1726,7 +1737,7 @@ ax5lowerin.spines['bottom'].set_color('white');ax5lowerin.spines['top'].set_colo
 ax5lowerin.spines['left'].set_color('white');ax5lowerin.spines['right'].set_color('white')
 
 
-fig3.text(0.51, 0.045, 'Dilution Rate, A.U.',fontsize=label_font_size, ha='center')
+fig3.text(0.51, 0.035, 'Dilution Rate, A.U.',fontsize=label_font_size, ha='center')
 fig3.text(0.08, 0.35, 'Population Density, A.U.',fontsize=label_font_size, va='center', rotation='vertical')
 
 # plt.subplots_adjust(left=0.1, right=0.96, top=0.93, bottom=0.04, wspace=0.4, hspace=0.72)

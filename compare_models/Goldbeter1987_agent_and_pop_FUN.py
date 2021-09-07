@@ -176,7 +176,7 @@ class Goldbeter1987_pop_3var_SCnoise:
 		self.p_now=p0
 		self.b_now=b0 
 		self.g_now=g0 
-	def update(self,dt, a, campExt_influx):
+	def update(self,dt, a, campExt_influx, r =np.array([])):
 		k1=self.param['k1']   
 		k2=self.param['k2']  
 		L1=self.param['L1']  
@@ -196,18 +196,17 @@ class Goldbeter1987_pop_3var_SCnoise:
 		
 		sigma = self.param['sigma']# single cell noise strength
 		N = self.param['N']# number of cells in the population
-		
 		f1 = (k1+k2*self.g_now)/(1+self.g_now)
 		f2 = (k1*L1+k2*L2*c*self.g_now)/(1+c*self.g_now)
 		Ysq = (self.p_now*self.g_now/(1+ self.g_now))**2
 		PI = a*(lamda*theta + e*Ysq)/(1 + theta*a + (1 + a)*e*Ysq)
-		
-		r = math.sqrt(dt)*np.random.normal(0,1,N)
-		
+		if r.size ==0:
+        		r=math.sqrt(dt)*np.random.normal(0,1,N)
+        
 		p_next = self.p_now+dt*(-f1*self.p_now+f2*(1-self.p_now))
 		b_next = self.b_now+dt*(q*sig*PI-(ki+kt)*self.b_now) +r*sigma # noise added to intracellular cAMP term
 		g_next = self.g_now+dt*(kt/h*np.sum(self.b_now)/N-kc*(self.g_now-campExt_influx)) # campExt_influx: contant cAMP input to the system
-        
+
 		self.p_now = p_next
 		self.b_now = b_next
 		self.g_now = g_next

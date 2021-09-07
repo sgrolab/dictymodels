@@ -65,7 +65,7 @@ class Sgro2015_pop:
         self.cAMPext_now = cAMPext0
         
     
-    def update(self, dt, time_separation, alphaf): # alphaf is exernal cAMP influx
+    def update(self, dt, time_separation, alphaf, r =np.array([])): # alphaf is exernal cAMP influx
         e=self.PopParam['e']   
         g=self.PopParam['g'] 
         c0=self.PopParam['c0'] 
@@ -80,7 +80,9 @@ class Sgro2015_pop:
         j = self.PopParam['j']
         
         # r = math.sqrt(dt)*np.random.uniform(-1,1,N)
-        r = math.sqrt(dt)*np.random.normal(0, 1, N)
+         # don't fix random seed when r is empty array, fix random seed if r isn't a random array
+        if r.size == 0:
+            r=  math.sqrt(dt)*np.random.normal(0,1,N)
         fA=self.A_now-(np.power(self.A_now,3))/3-self.R_now+a*np.log(1+self.cAMPext_now/Kd)
         fR=e*(self.A_now-g*self.R_now+c0)
         if time_separation == 0:

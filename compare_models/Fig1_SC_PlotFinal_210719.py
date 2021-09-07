@@ -98,19 +98,19 @@ t_plot_Sgro_osc = npzfile['t_plot_Sgro']; A_trace_plot_osc = npzfile['A_trace_pl
 t_plot_Kamino_osc = npzfile['t_plot_Kamino']; y_trace_osc = npzfile['y_trace']
 
 # plotting font sizes
-ABCD_font_size = 25
-abcd_font_size = 25
-label_font_size=17
-title_font_size = 17
-sublabel_font_size = 15
+ABCD_font_size = 22
+abcd_font_size = 22
+label_font_size=15
+title_font_size = 15
+sublabel_font_size = 13
 trace_width=2
-tick_font_size=15
+tick_font_size=13
 
-fig = plt.figure(figsize=(15.8,12.8))
-grid = plt.GridSpec(12, 8, wspace=0.8, hspace=0.3)
+fig = plt.figure(figsize=(16,12.8))
+grid = plt.GridSpec(10,13, wspace=1.8, hspace=1)
 # grid = plt.GridSpec(9, 2, wspace=0.3, hspace=1.8)
 
-axA01= fig.add_subplot(grid[0, 0:3])
+axA01= fig.add_subplot(grid[0:2, 0:3])
 axA01.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 1 FRET Trace (1nM)"],
                               linewidth=trace_width,color='k')
 axA01.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 2 FRET Trace (1nM)"],
@@ -119,112 +119,121 @@ axA01.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET 
                                linewidth=trace_width,color='darkgrey')
 axA01.set_ylabel('FRET, A.U.',fontsize=label_font_size)
 
-axA01.set_xlabel('Time (min)',fontsize=label_font_size)
-axA01.axvline(x=5, ls='--', linewidth=trace_width, color = expcolor) #dashed line at 5 (cAMP onset)
+# axA01.set_xlabel('Time (min)',fontsize=label_font_size)
+axA01.text(1.1,-0.35,' Time (min)', ha='center',va='center',
+         transform = axA01.transAxes, color = 'k', fontsize=label_font_size)
+axA01.axvline(x=5, ls='--', linewidth=trace_width-0.5, color = expcolor) #dashed line at 5 (cAMP onset)
 axA01.set_ylim([-0.1,0.7]); axA01.set_xlim([0, 30])
 axA01.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axA01.set_title('Experiment',color = 'k', fontsize = title_font_size)
+axA01.set_title('Experiment:\nAdaptive Spiking',color = 'k', fontsize = title_font_size)
 axA01.text(0.7,0.8,' 1nM cAMP', ha='center',va='center',
          transform = axA01.transAxes, color = 'k', fontsize=label_font_size-1)
 # axA01.text(-0.06, 1.4, '(a)',
 #          ha='center',va='center',
 #          transform = axA01.transAxes, color = expcolor, fontsize=abcd_font_size)
-axA01.text(-0.25, 1.15, 'A',
+axA01.text(-0.1, 1.25, 'A',
          ha='center',va='center',
          transform = axA01.transAxes, color = 'k', fontsize=ABCD_font_size)
 
-axA02= fig.add_subplot(grid[2:5, 0:3])
-#axA2.axvline(x = 5 , ymin=-0.2, ymax = 1.2, ls = '--', 
-#            linewidth=trace_width, color=mycolors[6])
+axA02= fig.add_subplot(grid[3:6, 0:3])
 axA02.plot(t_plot_Goldbeter, b_trace,linewidth=trace_width, color = goldcolor,
          label='Receptor Desensitization')
-# axA02.plot(t_plot_Maeda, cAMPi_trace,linewidth=trace_width,color = maedacolor,
-#          label='Coupled direct and indirect feedback')
-axA02.plot(t_plot_Maeda, cAMPi_trace,linewidth=trace_width,color = maedacolor,
-         label='CDINFB')
 axA02.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axA02.plot(t_plot_Gregor,gregor_campCyto_trace,linewidth=trace_width, 
-         color= gregorcolor,label='Phase Oscillator')
-# axA02.plot(t_plot_Sgro, A_trace_plot,linewidth=trace_width,
-#          color=sgrocolor, label='Interlocking positive-negative feedback')
 axA02.plot(t_plot_Sgro, A_trace_plot,linewidth=trace_width,
          color=sgrocolor, label='IPNFB')
 axA02.plot(t_plot_Kamino, y_trace,linewidth=trace_width, 
          ls = '--',color=kaminocolor, label='IFFL')
-axA02.set_title('Simulation',color = 'k', fontsize = title_font_size)
-axA02.text(-0.25, 1.05, 'B',
-         ha='center',va='center',
-         transform = axA02.transAxes, color = simcolor, fontsize=abcd_font_size)
-axA02.set_ylim([-0.4,1.2])#([-0.2,1.2]) # adaptive spikes
+axA02.set_title('Adaptive Spiking\nReproduced in 3 Models',color = 'k', fontsize = title_font_size)
+axA02.text(-0.1, 1.1, 'B',
+          ha='center',va='center',
+          transform = axA02.transAxes, color = simcolor, fontsize=abcd_font_size)
+
+axA02.set_ylim([-0.4,1.2])
 axA02.set_xlim([0,6])
-# axA02.set_xlabel('Time, A.U.',fontsize=label_font_size)
 axA02.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axA02.set_xlabel('Time, A.U.',fontsize=label_font_size)
-axA02.set_ylabel(r'$cAMP_{i}$, A.U.',fontsize=label_font_size) 
+axA02.axvline(x=1, ls='--', linewidth=trace_width-0.5, color = 'k')
 
 # leg = axA2.legend()
-axA02.legend(frameon=False,bbox_to_anchor=(1.07,-2.45),ncol=2,prop={'size': 14})
+# axA02.legend(frameon=False,bbox_to_anchor=(1.07,-2.45),ncol=2,prop={'size': 14})
+h1, l1 = axA02.get_legend_handles_labels()
+
+axA03= fig.add_subplot(grid[6:9, 0:3])
+axA03.plot(t_plot_Maeda, cAMPi_trace,linewidth=trace_width,color = maedacolor,
+         label='CDINFB')
+axA03.tick_params(axis='both', which='major', labelsize=tick_font_size)
+axA03.plot(t_plot_Gregor,gregor_campCyto_trace,linewidth=trace_width, 
+         color= gregorcolor,label='Phase Oscillator')
+# axA03.set_title('Simulation',color = 'k', fontsize = title_font_size)
+# axA03.text(-0.1, 1.1, 'C',
+#          ha='center',va='center',
+#          transform = axA03.transAxes, color = simcolor, fontsize=abcd_font_size)
+axA03.set_ylim([-0.4,1.2])#([-0.2,1.2]) # adaptive spikes
+axA03.set_xlim([0,6])
+axA03.tick_params(axis='both', which='major', labelsize=tick_font_size)
+axA03.axvline(x=1, ls='--', linewidth=trace_width-0.5, color = 'k')
+h2, l2 = axA03.get_legend_handles_labels()
+handles = h1+h2; labels = l1+l2; 
+fig.legend(handles,labels, loc = (0.13,0.03), ncol=2, prop={'size': 13})
 
 
-axA1= fig.add_subplot(grid[6, 0:3])
+axA1= fig.add_subplot(grid[0:2, 3:6])
 axA1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 1 FRET Trace (10uM)"],
                               linewidth=trace_width,color='k')
 axA1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 2 FRET Trace (10uM)"],
                                linewidth=trace_width,color='dimgrey')
 axA1.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET Trace (10uM)"],
                                linewidth=trace_width,color='darkgrey')
+# axA1.set_ylabel('FRET, A.U.',fontsize=label_font_size)
 
-axA1.set_ylabel('FRET, A.U.',fontsize=label_font_size)
-
-axA1.set_xlabel('Time (min)',fontsize=label_font_size)
-axA1.axvline(x=5, ls='--', linewidth=trace_width, color = expcolor) #dashed line at 5 (cAMP onset)
+# axA1.set_xlabel('Time (min)',fontsize=label_font_size)
+axA1.axvline(x=5, ls='--', linewidth=trace_width-0.5, color = 'k') #dashed line at 5 (cAMP onset)
 axA1.set_ylim([-0.1,0.7]); axA1.set_xlim([0, 30])
 axA1.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axA1.set_title('Experiment',color = 'k', fontsize = title_font_size)
+axA1.set_title('Experiment:\nBifurcation Dynamics',color = 'k', fontsize = title_font_size)
 axA1.text(0.7,0.8,' 10uM cAMP', ha='center',va='center',
          transform = axA1.transAxes, color = 'k', fontsize=label_font_size-1)
-axA1.text(-0.25, 1.15, 'C',
+axA1.text(-0.1, 1.25, 'C',
          ha='center',va='center',
          transform = axA1.transAxes, color = expcolor, fontsize=abcd_font_size)
 
-axA2= fig.add_subplot(grid[8:11, 0:3])
-#axA2.axvline(x = 5 , ymin=-0.2, ymax = 1.2, ls = '--', 
-#            linewidth=trace_width, color=mycolors[6])
-axA2.plot(t_plot_Goldbeter_osc, b_trace_osc,linewidth=trace_width, color=goldcolor,
+axA2= fig.add_subplot(grid[3:6, 3:6])
+axA2.plot(t_plot_Sgro_osc, A_trace_plot_osc,linewidth=trace_width,
+         color= sgrocolor, label='Sgro 2015')
+axA2.set_title('Bifurcation Dynamics\nReproduced in 1 Model',color = 'k', fontsize = title_font_size)
+axA2.text(-0.1, 1.1, 'D',
+          ha='center',va='center',transform = axA2.transAxes, 
+          color = simcolor, fontsize=abcd_font_size)
+axA2.set_ylim([-0.4,1.85])# oscillations
+axA2.set_xlim([0,6])
+axA2.tick_params(axis='both', which='major', labelsize=tick_font_size)
+axA2.axvline(x=1, ls='--', linewidth=trace_width-0.5, color = 'k')
+
+
+axA3= fig.add_subplot(grid[6:9, 3:6])
+axA3.plot(t_plot_Goldbeter_osc, b_trace_osc,linewidth=trace_width, color=goldcolor,
          label='Martiel 1987')
-ax3 = axA2.twinx()
+ax3 = axA3.twinx()
 ax3.plot(t_plot_Maeda_osc, cAMPi_trace_osc,linewidth=trace_width,color=maedacolor,
          label='Maeda 2004')
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
 ax3.set_ylabel('CDINFB'+r' $cAMP_{i}$, A.U.', color=maedacolor,
                 fontsize=label_font_size-3)
-# ax3.set_ylabel('Coupled direct and indirect'+'\n negative feedback model,\n'+r'$cAMP_{i}$, A.U.', color=maedacolor,
-#                 fontsize=label_font_size-3)
 ax3.set_ylim([-55,260])
-
-axA2.plot(t_plot_Gregor_osc,gregor_campCyto_trace_osc,linewidth=trace_width, 
+axA3.plot(t_plot_Gregor_osc,gregor_campCyto_trace_osc,linewidth=trace_width, 
          color = gregorcolor,label='Gregor 2010')
-axA2.plot(t_plot_Sgro_osc, A_trace_plot_osc,linewidth=trace_width,
-         color= sgrocolor, label='Sgro 2015')
-axA2.plot(t_plot_Kamino_osc, y_trace_osc, linewidth=trace_width, 
+axA3.plot(t_plot_Kamino_osc, y_trace_osc, linewidth=trace_width, 
          ls = '--',color=kaminocolor, label='Kamino 2017')
-axA2.set_title('Simulation',color = 'k', fontsize = title_font_size)
-axA2.text(-0.25, 1.05, 'D',
-         ha='center',va='center',transform = axA2.transAxes, 
-         color = simcolor, fontsize=abcd_font_size)
+axA3.axvline(x=1, ls='--', linewidth=trace_width-0.5, color = 'k')
 
-axA2.set_ylim([-0.4,1.85])# oscillations
-axA2.set_xlim([0,6])
-axA2.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axA2.set_xlabel('Time, A.U.',fontsize=label_font_size)
-axA2.set_ylabel(r'$cAMP_{i}$, A.U.',fontsize=label_font_size) 
 
-# axA01.text(-0.13,0.5,' FRET, A.U.', ha='center',va='center',rotation=90,
-#           transform = axA01.transAxes, color = 'k', fontsize=label_font_size)
-# axA02.text(-0.13,0.5,r'$cAMP_{i}$, A.U.', ha='center',va='center',rotation=90,
-#           transform = axA02.transAxes, color = 'k', fontsize=label_font_size)
-# axA02.text(0.6,-3,'Time, A.U.', ha='center',va='center',
-#           transform = axA02.transAxes, color = 'k', fontsize=label_font_size)
+axA3.set_ylim([-0.4,1.85])# oscillations
+axA3.set_xlim([0,6])
+axA3.tick_params(axis='both', which='major', labelsize=tick_font_size)
+axA3.text(-0.1,-0.25,'Time, A.U.', ha='center',va='center',
+         transform = axA3.transAxes, color = 'k', fontsize=label_font_size)
+axA3.text(-1.5,1.2,r'$cAMP_{i}$, A.U.', ha='center',va='center',rotation=90,
+         transform = axA3.transAxes, color = 'k', fontsize=label_font_size)
+
 grid.tight_layout(fig,rect=[0, 0, 1, 1],pad = 10)
 fig.tight_layout()
 
@@ -271,8 +280,8 @@ legend_font_size = 11
 colors = plt.cm.summer(np.linspace(0,1,len(z0First_space_Gold)+1))
 
 # wo Maeda
-axC0u = fig.add_axes([0.525,0.84,0.16,0.080],xticks=[0,10,20,30],yticks=[0,2])
-# axC0u = fig.add_subplot(grid[0:1, 7:9], xticks=[0,10,20,30],yticks=[0,2])
+axC0u = fig.add_axes([0.568,0.86,0.137,0.080],xticks=[0,10,20,30],yticks=[0,2])
+# axC0u = fig.add_axes([0.565,0.86,0.14,0.080],xticks=[0,10,20,30],yticks=[0,2])
 axC0u.plot(t_plot_Kamino_B,signal_trace, 'k',linewidth=trace_width)
 axC0u.set_xlim([0,30]); axC0u.set_ylim([-0.5,3.5]); 
 axC0u.tick_params(axis='both', which='major', labelsize=tick_font_size)
@@ -282,15 +291,15 @@ axC0u.tick_params(axis='both', which='major', labelsize=tick_font_size)
 axC0u.text(-0.28, 0.5, r'$cAMP_{e}$'+'\n Input',ha='center',va='center', rotation='vertical',
      transform = axC0u.transAxes, color = 'k', fontsize=sublabel_font_size)
 
-axC0u.annotate(s='', xy=(11,-0.25), xytext=(11,1.25), arrowprops={'arrowstyle':'<->', 'lw':2})
+axC0u.annotate(s='', xy=(11,-0.25), xytext=(11,1.25), arrowprops={'arrowstyle':'<->', 'lw':1.2})
 axC0u.text(0.5, 0.65, 'Priming\nConc.',ha='center',va='center', 
      transform = axC0u.transAxes, color = 'k', fontsize=annotate_size)
 
-axC0u.annotate(s='', xy=(21,0.75), xytext=(21,3.2), arrowprops={'arrowstyle':'<->', 'lw':2})
+axC0u.annotate(s='', xy=(21,0.75), xytext=(21,3.2), arrowprops={'arrowstyle':'<->', 'lw':1.2})
 axC0u.text(0.86, 0.46, 'Fold\nChange',ha='center',va='center', 
      transform = axC0u.transAxes, color = 'k', fontsize=annotate_size)
 
-axC0l = fig.add_axes([0.525,0.73,0.16,0.080],xticks=[0,10,20,30],yticks=[0,0.2,0.4])
+axC0l = fig.add_axes([0.568,0.745,0.137,0.080],xticks=[0,10,20,30],yticks=[0,0.2,0.4])
 # axC0l = fig.add_subplot(grid[2:4,7:9],xticks=[0,10,20,30],yticks=[0,0.2,0.4])
 axC0l.plot(t_plot_Kamino_B, y_trace_B, 'steelblue',linewidth=trace_width)
 axC0l.set_xlim([0,30]); axC0l.set_ylim([-0.05,0.4]); 
@@ -300,11 +309,11 @@ axC0l.text(-0.28, 0.5, r'$cAMP_{i}$'+'\n Response',ha='center',va='center', rota
       transform = axC0l.transAxes, color = 'k', fontsize=sublabel_font_size)
 
 axC0l.annotate('', xy=(23,0.03), xytext=(23,0.16),rotation = 'vertical',
-            arrowprops={'arrowstyle': '<->','lw':2}, va='center')
+            arrowprops={'arrowstyle': '<->','lw':1.2}, va='center')
 axC0l.text(0.75, 0.72, 'Second Peak\nProminence',ha='center',va='center', 
       transform = axC0l.transAxes, color = 'k', fontsize=annotate_size)
 
-axC0 = fig.add_axes([0.74,0.73,0.16,0.19],yticks=[1.5,2,2.5])
+axC0 = fig.add_axes([0.758,0.745,0.137,0.195],yticks=[1.5,2,2.5])
 # axC0 = fig.add_subplot(grid[0:4,9:],yticks=[1.5,2,2.5])
 #for i in range(len(z0First_space_Sgro)):
 #    ax3.plot(FC_space_Sgro_noise,PkPrm_Sgro_mean_noise[i,:], linewidth=trace_width,label='Priming cAMP='+str(z0First_space_Sgro_noise[i]))
@@ -322,15 +331,17 @@ axC0.set_ylim([1.5,2.8]);
 axC0.set_xlabel(r'$cAMP_{e}$'+' Fold Change',fontsize=sublabel_font_size)
 axC0.set_xscale('log')
 axC0.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axC0.set_title('Experiment', color = 'k',fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+# axC0.set_title('Fold-change Detection\nShown in Experiment', color = 'k',fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
+axC0.text(-0.2, 1.1, 'Experiment: Fold-change Detection (FCD)',ha='center',va='center', 
+      transform = axC0.transAxes, color = 'k', fontsize=title_font_size)
 axC0.legend(frameon=False, loc='bottom center',ncol=2,prop={'size': legend_font_size})
 
 #axC0.text(-0.1, 1.15, 'B', ha='center',va='center',
 #         transform = axC0.transAxes, color = 'b', fontsize=abcd_font_size)
-axC0.text(-0.23, 0.53, 'Second Peak Prominence, A.U.', ha='center',va='center', rotation ='vertical',
+axC0.text(-0.23, 0.53, 'Second Peak\nProminence, A.U.', ha='center',va='center', rotation ='vertical',
           transform = axC0.transAxes, fontsize=label_font_size-2)
 #
-axC1= fig.add_subplot(grid[4:7, 4:6])
+axC1= fig.add_subplot(grid[3:6, 7:10])
 # colors = plt.cm.summer(np.linspace(0,1,len(z0First_space_Gold)+1) )
 colors = ['black','dimgrey','grey','lightgrey']
 for i in range(len(z0First_space_Gold)):
@@ -343,9 +354,9 @@ axC1.set_xlim([FC_space_Gold[0],FC_space_Gold[-1]])
 axC1.set_xscale('log')
 axC1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 # axC1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-axC1.set_title('Receptor\n Desensitization', color= goldcolor,
+axC1.set_title('Receptor Desensitization:\nDoes Not Reproduce FCD', color= goldcolor,
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
-axC1.text(-0.45, 1.15, 'F', ha='center',va='center',
+axC1.text(-0.32, 1.15, 'F', ha='center',va='center',
          transform = axC1.transAxes, color = simcolor, fontsize=abcd_font_size)
 #leg = axC1.legend();
 #axC1.legend( frameon=False,loc='bottom center',ncol=1,prop={'size': legend_font_size})
@@ -365,7 +376,7 @@ axC1.text(-0.45, 1.15, 'F', ha='center',va='center',
 # #          transform = axC2.transAxes, color = simcolor, fontsize=abcd_font_size)
 
 # Sgro with noise
-axC5= fig.add_subplot(grid[4:7,6:])
+axC5= fig.add_subplot(grid[3:6,10:])
 # colors = plt.cm.summer(np.linspace(0,1,len(z0First_space_Sgro)+1) )
 colors = ['black','dimgrey','grey','lightgrey']
 for i in range(len(z0First_space_Sgro_noise)):
@@ -377,12 +388,12 @@ axC5.set_ylim([-0.1,1]);
 axC5.set_xlim([FC_space_Sgro[0],FC_space_Sgro[-1]])
 axC5.set_xscale('log')
 axC5.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axC5.set_title('IPNFB', color=sgrocolor,
+axC5.set_title('IPNFB: Reproduces FCD\non the Population Level', color=sgrocolor,
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # axC5.text(-0.1, 1.18, 'D', ha='center',va='center',
 #          transform = axC5.transAxes, color = simcolor, fontsize=abcd_font_size)
 
-axC4= fig.add_subplot(grid[8:11, 4:6])
+axC4= fig.add_subplot(grid[7:, 7:10])
 # colors = plt.cm.summer(np.linspace(0,1,len(z0First_space_Kamino)+1) )
 colors = ['black','dimgrey','grey','lightgrey']
 
@@ -392,22 +403,22 @@ axC4.set_ylim([0,1.1]);
 axC4.set_xlim([FC_space_Kamino[0],FC_space_Kamino[-1]])    
 axC4.set_xscale('log')
 axC4.tick_params(axis='both', which='major', labelsize=tick_font_size)
-axC4.set_title('IFFL',  color=kaminocolor,
+axC4.set_title('IFFL: Reproduces FCD\non the Single Cell Level',  color=kaminocolor,
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 # axC4.text(-0.1, 1.18, 'E', ha='center',va='center',
 #          transform = axC4.transAxes, color = simcolor, fontsize=abcd_font_size)
 #leg = axC4.legend();
 #axC4.legend( frameon=False,loc='bottom center',ncol=2,prop={'size': legend_font_size})
-axC4.legend(frameon=False,bbox_to_anchor=(1.35,0.9),ncol=1,prop={'size': 14})
+axC4.legend(frameon=True,bbox_to_anchor=(1.35,0.9),ncol=1,prop={'size': 13})
 
 # axC4.text(-0.26,1.26,'Second peak prominence', ha='center',va='center',rotation=90,
 #           transform = axC5.transAxes, color = 'k', fontsize=label_font_size)
 axC4.text(-0.26,1.26,'Second Peak Prominence', ha='center',va='center',rotation=90,
           transform = axC4.transAxes, color = 'k', fontsize=label_font_size)
-axC4.text(1.12,-0.32,  r'$cAMP_{e}$'+' Fold Change', ha='center',va='center',
+axC4.text(1.12,-0.25,  r'$cAMP_{e}$'+' Fold Change', ha='center',va='center',
           transform = axC4.transAxes, color = 'k', fontsize=label_font_size)
 
-axC0u.text(-0.45, 1.3, 'E',
+axC0u.text(-0.35, 1.25 , 'E',
          ha='center',va='center',
          transform = axC0u.transAxes, color = 'k', fontsize=ABCD_font_size)
 

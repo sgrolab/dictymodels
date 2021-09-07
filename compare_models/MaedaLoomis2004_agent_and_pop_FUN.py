@@ -150,7 +150,7 @@ class MaedaLoomis2004_pop_SCnoise:
         self.cAMPi_now=cAMPi0
         self.cAMPe_now=cAMPe0
         self.CAR1_now=CAR10 
-    def update(self,dt,campExt_influx,rho = 1,gamma = 0):
+    def update(self,dt,campExt_influx,rho = 1,gamma = 0, r=np.array([])):
         k1=self.AgentParam['k1']   
         k2=self.AgentParam['k2']  
         k3=self.AgentParam['k3']  
@@ -168,8 +168,9 @@ class MaedaLoomis2004_pop_SCnoise:
         
         N=self.AgentParam['N'] # number of cells in the population
         sigma = self.AgentParam['sigma'] # noise strength
-        
-        r = math.sqrt(dt)*np.random.normal(0,1,N) 
+        # don't fix random seed when r is empty array, fix random seed if r isn't a random array
+        if r.size == 0: 
+            r=  math.sqrt(dt)*np.random.normal(0,1,N)
         
         ACA_next=self.ACA_now+(k1*self.CAR1_now-k2*np.multiply(self.ACA_now, self.PKA_now))*dt
         PKA_next=self.PKA_now+(k3*self.cAMPi_now-k4*self.PKA_now)*dt

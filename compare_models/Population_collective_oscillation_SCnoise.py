@@ -194,7 +194,11 @@ title = r'Maeda2004, $cAMP_{e}$ input = '+str(cAMPext_influx)
 plot_POP_oscillation(t_plot_Maeda_short,cAMPi_trace_norm_mean_later,cAMPext_influx,
                      t_tot*(1-later_portion), 0,title, cAMPi_trace_norm_later, SC_traces_idx)
 
-
+# Check extracellular cAMP
+title = 'Maeda 2004, noise=' +str(sigma)+', density='+str(rho)+', J='+str(gamma)+',pk_find_prm='+str(pk_find_prm)
+fig = plt.figure()
+plt.plot(cAMPe_trace)
+plt.title(title+'\n external cAMP ')
 #%% Kamino 2017, fig 5D group oscillations
 from Kamino2017_agent_and_pop_FUN import Kamino2017_pop_SCnoise
 
@@ -401,16 +405,21 @@ Nc=100 # Num of cells
 Vt = 1
 rho = 1/12; k=5;
 
-eta=0 # noise stength
+eta=0.002 # 0.002 # noise stength
 
-ext_input = 0.002
-time_separation = 0
+ext_input = 0
+time_separation = 1
 
 
 campCyto0 = 7.5*np.ones(Nc)
 sinthetai0 = (campCyto0*2-Amax-Abas)/(-Amax+Abas)
 thetai0 = np.arcsin(sinthetai0)
 campExt0 = 0 # Vc*St/Sc*rho/K*c_sec*1/Nc*np.sum(campCyto0);
+
+# campCyto0 = np.zeros(Nc)
+# sinthetai0 = np.zeros(Nc)  # (campCyto0*2-Amax-Abas)/(-Amax+Abas)
+# thetai0 = np.zeros(Nc) # np.arcsin(sinthetai0)
+# campExt0 = 0 # Vc*St/Sc*rho/K*c_sec*1/Nc*np.sum(campCyto0);
 
 Gregor_pop=Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam)
 
@@ -433,11 +442,11 @@ for i in range(nSteps - 1):
 #Traces
 # gregor_thetai_trace= np.array(gregor_thetai_trace) 
 # gregor_campExt_trace = np.array(gregor_campExt_trace)
-later_portion = 0.25
+later_portion = 0
 gregor_campCyto_trace_norm = np.array(gregor_campCyto_trace)/Nh_Gregor
 gregor_campCyto_trace_norm_later=gregor_campCyto_trace_norm[:,math.floor(nSteps * later_portion):] # the later part of trace
 gregor_campCyto_trace_norm_mean = np.mean(gregor_campCyto_trace_norm,axis=0)
-gregor_campCyto_trace_norm_mean_later=gregor_campCyto_trace_norm_mean_noise0[math.floor(nSteps * later_portion):]
+gregor_campCyto_trace_norm_mean_later=gregor_campCyto_trace_norm_mean[math.floor(nSteps * later_portion):]
 
 t_plot_Gregor = np.array(t)/Nt_Gregor
 t_plot_Gregor_short = t_plot_Gregor[0:math.floor(nSteps * (1-later_portion))] 

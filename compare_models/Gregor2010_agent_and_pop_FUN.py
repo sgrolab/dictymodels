@@ -68,7 +68,7 @@ class Gregor2010_pop:
         self.campExt_now=campExt 
         
     
-    def update(self,dt,eta,rho,k,Vt,time_separation,campExt_influx):
+    def update(self,dt,eta,rho,k,Vt,time_separation,campExt_influx,r =np.array([])):
         Amax=self.PopParam['Amax']   
         Abas=self.PopParam['Abas']   
         w=self.PopParam['w']   # min-1
@@ -81,8 +81,9 @@ class Gregor2010_pop:
         Nc=self.PopParam['Nc']
         
         
-        
-        r=  math.sqrt(dt)*np.random.normal(0,1,Nc)
+        # don't fix random seed when r is empty array, fix random seed if r isn't a random array
+        if r.size == 0: 
+            r=  math.sqrt(dt)*np.random.normal(0,1,Nc)
         
         thetai_next=self.thetai_now + dt*(w*(1-K/(self.campExt_now+K)*c_excite*np.sin(self.thetai_now))) + eta*r
         

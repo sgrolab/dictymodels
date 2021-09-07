@@ -12,22 +12,31 @@ import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
-# set matplotlib default font
-import matplotlib
-font = {'family' : 'Arial'}
-matplotlib.rc('font', **font)
-
 from scipy import signal
 from scipy.signal import find_peaks
 from time import perf_counter 
 import scipy.io
 
+# set up plotting font
+import matplotlib
+font = {'family' : 'Arial'}
+matplotlib.rc('font', **font)
+
 # Normalization parameters
 from NormParam import *
+
+from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var_SCnoise
+from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_pop_SCnoise
+from Kamino2017_agent_and_pop_FUN import Kamino2017_pop_SCnoise
+from Sgro2015_agent_and_pop_FUN import Sgro2015_pop
+from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
+
+from NB_pop_functions import * 
 #%% Experimental data
 my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
 
-Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure6')
+Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',
+                                     sheet_name='Figure6')
 
 mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
           '#f781bf', '#a65628', '#984ea3',
@@ -391,9 +400,8 @@ plt.show()
 #    ax.set_xlim([0,30])
 #    ax.set_ylim([-2,27])
 
-
 #%% Golbeter 1987, Table II/ Fig 3 parameters
-from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var
+from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var_SCnoise
 
 k1 = 0.036     # per min
 k2 = 0.666    # per min
@@ -408,34 +416,53 @@ ki=1.7 # 0.958 # compared to 1.7
 kt=0.9
 
 kc=5.4 # 3.58 # compared to 5.4
-h=5 # ratio of intracellular to extracellular volume, rho 
-Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
+h=5 # ratio of intracellular to extracellular volume, ~density
+
+sigma = 10 # noise strength
+N = 100 # number of cells in the population
+
+Goldbeter3PopParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'theta':theta, 'e':e, 'q':q,'sig':sig, 'v':v, 'k':k, \
-            'ki':ki,'kt':kt, 'kc':kc,'h':h}
+            'ki':ki,'kt':kt, 'kc':kc,'h':h,'sigma':sigma, 'N':N}
 
-dt=0.0005; t_tot=30*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
-camp_input_Goldbeter_arr = np.array([0.01,0.02,0.1]) #np.logspace(-2, -1, num=5)  #
-b_traces = np.zeros((len(camp_input_Goldbeter_arr),len(t)))
+dt=0.0005; t_tot=30; t=list(np.arange(0,t_tot*Nt_Goldbeter,dt))
+nSteps = len(t)
 
+camp_input_Goldbeter_arr = np.array([0.01,0.02,0.1]) #np.logspace(-2, -1, num=5)
+
+b_traces_norm = np.zeros((len(camp_input_Goldbeter_arr),N,int(len(t))))
+b_traces_norm_mean = np.zeros((len(camp_input_Goldbeter_arr),int(len(t))))
+
+stim_time= 0.5 # cAMPext_influx happens at half the total time
 count = 0
+
+# fix random seed
+np.random.seed(1)
+r = math.sqrt(dt)*np.random.normal(0,1,size = (len(t),N))
+
 for camp_input in camp_input_Goldbeter_arr:
-    stim_time_step=int(round(0.5*t_tot/dt)) # at this time step input is applied
+    stim_time_step=int(round(stim_time*t_tot*Nt_Goldbeter/dt)) # at this time step input is applied
     camp_input_trace=np.zeros(len(t))
     camp_input_trace[stim_time_step:] = camp_input
     # initializations
-    p0=0.8; a0=3; b0=0.9; g0=0
-    p_trace=[p0]; b_trace=[b0]; g_trace=[g0]
-    Goldbeter3_pop = Goldbeter1987_pop_3var([1,1],[p0,a0,b0,g0],Goldbeter3AgentParam)
+    p_trace=np.zeros((N,nSteps))
+    b_trace=np.zeros((N,nSteps))
+    g_trace=np.zeros((nSteps,1)) 
+    p0=0.8*np.ones(N); a0=3; b0=0.9*np.ones(N); g0=0
+    p_trace[:,0] = p0; b_trace[:,0] = b0; g_trace[0] = g0
+    
+    Goldbeter3_pop= Goldbeter1987_pop_3var_SCnoise(0,p0,b0,g0,Goldbeter3PopParam)
+    
     for i in range(len(t)-1):
-        p_next,b_next,g_next= Goldbeter3_pop.update(dt,a0,camp_input_trace[i])
-        p_trace.append(p_next)
-        b_trace.append(b_next)
-        g_trace.append(g_next)
+        p_next,b_next,g_next= Goldbeter3_pop.update(dt,a0,camp_input_trace[i], r[i,:])
+        p_trace[:,i+1]= p_next
+        b_trace[:,i+1]= b_next
+        g_trace[i+1] = g_next
     # Convert into np array
-    b_trace = np.array(b_trace);  b_trace = b_trace/Nh_Goldbeter
-    p_trace = np.array(p_trace); 
+    b_trace_norm = b_trace/Nh_Goldbeter
     t_plot_Goldbeter = np.array(t)/Nt_Goldbeter
-    b_traces[count,:] = b_trace
+    b_traces_norm[count,:,:] = b_trace_norm
+    b_traces_norm_mean[count,:] = np.mean(b_trace_norm,axis = 0)
     count = count+1
     
 #    #  check simulation traces
@@ -451,88 +478,129 @@ for camp_input in camp_input_Goldbeter_arr:
 #    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 #    plt.show()
 
-#%%  Plot  3 traces: low, medium and high [cAMP]ext 
+
+#%Plot 3 traces: low, medium and high [cAMP]ext 
+
 fig = plt.figure(figsize=(11, 10))
 grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
 
 ax1= fig.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Goldbeter,b_traces[0,:], color=mycolors[0],linewidth=trace_width)
+for count in range(5):
+    ax1.plot(t_plot_Goldbeter,b_traces_norm[0,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax1.plot(t_plot_Goldbeter,b_traces_norm_mean[0,:], color=mycolors[0],linewidth=trace_width)
 ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax1.axvspan(15, 30, alpha=0.2, color='g')
-ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.5])
+ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.75])
 
 ax2= fig.add_subplot(grid[1, 0])
-ax2.plot(t_plot_Goldbeter,b_traces[1,:], color=mycolors[0],linewidth=trace_width)
-ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='center',verticalalignment='center',
+for count in range(5):
+    ax2.plot(t_plot_Goldbeter, b_traces_norm[1,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax2.plot(t_plot_Goldbeter, b_traces_norm_mean[1,:], color=mycolors[0],linewidth=trace_width)
+    
+
+ax2.text(0.7,0.9,r'Intermediate $cAMP_{e}$'+' input', horizontalalignment='center',verticalalignment='center',
      transform = ax2.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.axvspan(15, 30, alpha=0.2, color='g')
-ax2.set_xlim([0,30]); ax2.set_ylim([-0.25,1.5])
+ax2.set_xlim([0,30]); ax2.set_ylim([-0.25,1.75])
 
 ax3= fig.add_subplot(grid[2, 0])
-ax3.plot(t_plot_Goldbeter,b_traces[2,:], color=mycolors[0],linewidth=trace_width)
-ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
+for count in range(5):
+    ax3.plot(t_plot_Goldbeter, b_traces_norm[2,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax3.plot(t_plot_Goldbeter, b_traces_norm_mean[2,:], color=mycolors[0],linewidth=trace_width)
+ax3.text(0.7,0.9,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
      transform = ax3.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax3.axvspan(15, 30, alpha=0.2, color='g')
-ax3.set_xlim([0,30]); ax3.set_ylim([-0.25,1.5])
+ax3.set_xlim([0,30]); ax3.set_ylim([-0.25,1.75])
 
-fig.text(0.02, 0.9, 'B', color='g', fontsize=abcd_font_size, ha='center')
+fig.text(0.02, 0.9, 'E', color='g', fontsize=abcd_font_size, ha='center')
 fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
 fig.text(0.02, 0.5, r'$cAMP_{i}$',fontsize=label_font_size, va='center', rotation='vertical')
-fig.text(0.5, 0.9, 'Martiel 1987',color = mycolors[0],fontsize=label_font_size, ha='center')
+fig.text(0.5, 0.9, 'Martiel 1987',color = mycolors[0],fontsize=title_font_size, ha='center')
 plt.show()
 
-#ax2= fig.add_subplot(grid[1, 0])
-#line1=ax2.plot(t_plot_Sgro,A_traces[0,:], color='g',linewidth=trace_width)
-##ax2.set_ylabel('Activator',fontsize=label_font_size)
-##ax2.yaxis.label.set_color('g')
-#ax2.set_title(r'$\alpha_f$= '+str(alphafval_arr[0]))
-
 #%% Maeda & Loomis 2004
-from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_pop
+from MaedaLoomis2004_agent_and_pop_FUN import MaedaLoomis2004_pop_SCnoise
 # parameters from Maeda & Loomis 2004 paper
 k1=2.0; k2=0.9; k3=2.5; k4=1.5; k5=0.6
 k6=0.8; k7=1.0; k8=1.3; k9=0.3; k10=0.8
 k11=0.7; k12=4.9; k13=23; k14=4.5
-MaedaAgentParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
-            'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
-            'k13':k13,'k14':k14}
-## parameters from Laub & Loomis 1998 paper
-#k1=1.4; k2=0.9; k3=2.5; k4=1.5; k5=0.6
-#k6=0.8; k7=2.0; k8=1.3; k9=0.7; k10=1.0
-#k11=0.3; k12=3.1; k13=1.8; k14=1.5
-#LaubAgentParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
-#            'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
-#            'k13':k13,'k14':k14}
 
-dt=0.001; t_tot = (30+30)*Nt_Maeda; t=list(np.arange(0,t_tot,dt))
+gamma = 0# [cAMP]e flow rate 
+rho = 1 # cell density
+
+N = 100 # number of cells in a population
+sigma = 0.1 # noise strength
+
+MaedaPopParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
+            'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
+            'k13':k13,'k14':k14, 'N':N, 'sigma':sigma}
+
+
+dt=0.001; t_tot = (30+30); t=list(np.arange(0,t_tot*Nt_Maeda,dt))
+nSteps = len(t)
 camp_input_Maeda_arr = np.array([0.005, 0.05, 0.5])   # np.logspace(-1, 2, num=6) # 
-cAMPi_traces = np.zeros((len(camp_input_Maeda_arr),int(len(t)/2)))
+
+cAMPi_traces_norm = np.zeros((len(camp_input_Maeda_arr),N,int(len(t)/2)))
+cAMPi_traces_norm_mean = np.zeros((len(camp_input_Maeda_arr),int(len(t)/2)))
+
 count = 0
+
+# fix random seed
+np.random.seed(1)
+r = math.sqrt(dt)*np.random.normal(0,1,size = (len(t),N))
+
 for camp_input in camp_input_Maeda_arr:
-    stim_time_step=int(round(0.75*t_tot/dt)) # at this time step input is applied
-    camp_input_trace=np.zeros(len(t))
+    stim_time_step=int(round(0.75*t_tot*Nt_Maeda/dt)) # at this time step input is applied
+    camp_input_trace=np.zeros(nSteps)
     camp_input_trace[stim_time_step:] = camp_input
     
-    ACA0=0.1; PKA0=0.1; ERK20=0.1; RegA0=0.1; cAMPi0=0.01; 
-    cAMPe0=0.1; CAR10=0.1
-    cAMPi_trace = [cAMPi0]
-    state0= [ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10]
-    MaedaLoomis_pop=MaedaLoomis2004_pop([1,1],state0,MaedaAgentParam)
+    # Initializations
     
+    ACA0=0.1*np.ones(N); PKA0=0.1*np.ones(N); ERK20=0.1*np.ones(N); 
+    RegA0=0.1*np.ones(N); cAMPi0=0.01*np.ones(N); cAMPe0=0.1; CAR10=0.1*np.ones(N)
+    ACA_trace=np.zeros((N,nSteps)); ACA_trace[:,0] = ACA0
+    PKA_trace=np.zeros((N,nSteps)); PKA_trace[:,0] = PKA0
+    ERK2_trace=np.zeros((N,nSteps)); ERK2_trace[:,0] = ERK20
+    RegA_trace= np.zeros((N,nSteps)); RegA_trace[:,0] = RegA0
+    cAMPi_trace= np.zeros((N,nSteps)); cAMPi_trace[:,0] = cAMPi0
+    cAMPe_trace=np.zeros((nSteps,1));cAMPe_trace[0] = cAMPe0;
+    CAR1_trace= np.zeros((N,nSteps)); CAR1_trace[:,0] = CAR10
+    
+    MaedaLoomis_pop=MaedaLoomis2004_pop_SCnoise([1,1],ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10, 
+                                                MaedaPopParam)
+
     for i in range(len(t)-1):
         ACA_next,PKA_next,ERK2_next,RegA_next,\
-        cAMPi_next,cAMPe_next,CAR1_next=MaedaLoomis_pop.update(dt,camp_input_trace[i])
-        cAMPi_trace.append(cAMPi_next)
-    cAMPi_trace_later = np.array(cAMPi_trace[int(len(t)/2):]); 
-    t_plot_Maeda = np.arange(0,t_tot/2,dt)/Nt_Maeda
-    cAMPi_traces[count,:] = cAMPi_trace_later/Nh_Maeda
+        cAMPi_next,cAMPe_next,CAR1_next=MaedaLoomis_pop.update(dt, camp_input_trace[i],rho,gamma, r[i,:])
+        ACA_trace[:,i+1]= ACA_next
+        PKA_trace[:,i+1]= PKA_next
+        ERK2_trace[:,i+1]= ERK2_next
+        RegA_trace[:,i+1]= RegA_next
+        cAMPi_trace[:,i+1]= cAMPi_next
+        cAMPe_trace[i+1]= cAMPe_next
+        CAR1_trace[:,i+1]= CAR1_next
+        
+    cAMPi_trace_norm = cAMPi_trace/Nh_Maeda   
+    cAMPi_trace_norm_mean = np.mean(cAMPi_trace_norm,axis = 0) # population mean
+    
+    later_portion = 0.5 # start count peaks after this X total simulation time
+    cAMPi_trace_norm_later = cAMPi_trace_norm[:,math.floor(nSteps * later_portion):]
+    cAMPi_traces_norm[count,:,:] = cAMPi_trace_norm_later
+    cAMPi_trace_norm_mean_later=cAMPi_trace_norm_mean[math.floor(nSteps * later_portion):] # the later part of trace
+    cAMPi_traces_norm_mean[count,:] = cAMPi_trace_norm_mean_later
+    
+    t_plot_Maeda = np.array(t)/Nt_Maeda
+    t_plot_Maeda_short = t_plot_Maeda[0:math.floor(nSteps * (1-later_portion))]
     count = count + 1
 #    #  check simulation traces
 #    label_font_size=25; trace_width=3; tick_font_size=18
@@ -546,13 +614,16 @@ for camp_input in camp_input_Maeda_arr:
 #    leg = ax.legend()
 #    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 #    plt.show()
-
+         
 #%% Plot  3 traces: low, medium and high [cAMP]ext 
 fig = plt.figure(figsize=(11, 10))
 grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
 
 ax1= fig.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Maeda,cAMPi_traces[0,:], color=mycolors[1],linewidth=trace_width)
+for count in range(5):
+    ax1.plot(t_plot_Maeda_short,cAMPi_traces_norm[0,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax1.plot(t_plot_Maeda_short, cAMPi_traces_norm_mean[0,:], color=mycolors[1],linewidth=trace_width)
 ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
@@ -561,22 +632,28 @@ ax1.axvspan(15, 30, alpha=0.2, color='g')
 ax1.set_xlim([0,30]); ax1.set_ylim([0.1,0.9])
 
 ax2= fig.add_subplot(grid[1, 0])
-ax2.plot(t_plot_Maeda, cAMPi_traces[1,:], color=mycolors[1],linewidth=trace_width)
-ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='center',verticalalignment='center',
+for count in range(5):
+    ax2.plot(t_plot_Maeda_short,cAMPi_traces_norm[1,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax2.plot(t_plot_Maeda_short, cAMPi_traces_norm_mean[1,:], color=mycolors[1],linewidth=trace_width)
+ax2.text(0.7,0.9,r'Intermediate $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
      transform = ax2.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.axvspan(15, 30, alpha=0.2, color='g')
-ax2.set_xlim([0,30]); ax2.set_ylim([0.1,0.9])
+ax2.set_xlim([0,30]); ax1.set_ylim([0.1,0.9])
 
 ax3= fig.add_subplot(grid[2, 0])
-ax3.plot(t_plot_Maeda, cAMPi_traces[2,:], color=mycolors[1],linewidth=trace_width)
-ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
+for count in range(5):
+    ax3.plot(t_plot_Maeda_short,cAMPi_traces_norm[2,count,:],
+             color= 'darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax3.plot(t_plot_Maeda_short, cAMPi_traces_norm_mean[2,:], color=mycolors[1],linewidth=trace_width)
+ax3.text(0.7,0.9,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
      transform = ax3.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax3.axvspan(15, 30, alpha=0.2, color='g')
-ax3.set_xlim([0,30]); ax3.set_ylim([0.1,0.9])
+ax3.set_xlim([0,30]); ax1.set_ylim([0.1,0.9])
 
 fig.text(0.02, 0.9, 'C', color='g', fontsize=abcd_font_size, ha='center')
 fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
@@ -594,33 +671,58 @@ plt.show()
 
 
 #%% Kamino 2017, fig 5D group oscillations
-from Kamino2017_agent_and_pop_FUN import Kamino2017_pop
+from Kamino2017_agent_and_pop_FUN import Kamino2017_pop_SCnoise
    
-tau=1.5; n=2; K=4; kt=2; delta=0.01
-gamma = 3; rho = 1 # cell density
-Param={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,\
-       'gamma':gamma,'rho':rho}
-dt=0.001; t_tot=30 *Nt_Kamino; t=np.arange(0,t_tot,dt)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+tau=1.5; n=2; K=4; kt=2; delta=0
+gamma = 3 # dilution rate
+rho = 1 # cell density
+
+sigma = 0.01# noise strength
+N=100 # number of cells in a population
+
+KaminoPopParam={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,
+                'sigma':sigma, 'N':N,'rho':rho,'gamma':gamma}
+
+dt=0.001; t_tot = 30; t=list(np.arange(0,t_tot*Nt_Kamino,dt))
+nSteps = len(t)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 
 camp_input_Kamino_arr = np.array([0.001,0.002,0.1])# np.logspace(-3, -1, num=5) # 
-y_traces = np.zeros((len(camp_input_Kamino_arr),int(len(t))))
+y_traces_norm = np.zeros((len(camp_input_Kamino_arr),N,int(len(t))))
+y_traces_norm_mean = np.zeros((len(camp_input_Kamino_arr),int(len(t))))
 
 count = 0
+
+# fix random seed
+np.random.seed(1)
+r = math.sqrt(dt)*np.random.normal(0,1,size = (len(t),N))
+
 for camp_input in camp_input_Kamino_arr:
-    stim_time_step=int(round(0.5*t_tot/dt)) # at this time step input is applied
-    camp_input_trace=np.zeros(len(t))
+    stim_time_step=int(round(0.5*t_tot*Nt_Kamino/dt)) # at this time step input is applied
+    camp_input_trace=np.zeros(nSteps)
     camp_input_trace[stim_time_step:] = camp_input
-    # initializations
-    x0=0.01; y0=0.08; z0=0.01
-    y_trace=[y0]; # x_trace=[x0];  z_trace=[z0]
-    Kamino_pop=Kamino2017_pop([x0,y0,z0],Param)
-    for i in range(len(t)-1):
-        x_next,y_next,z_next=Kamino_pop.update(camp_input_trace[i],dt)
-        y_trace.append(y_next)
+    # Initializations
+    x0=0.01*np.ones(N)
+    y0=0.08*np.ones(N)
+    z0=0
+    x_trace=np.zeros((N,nSteps)); x_trace[:,0] = x0
+    y_trace=np.zeros((N,nSteps)); y_trace[:,0] = y0
+    z_trace=np.zeros((nSteps,1)); z_trace[0] = z0
+    Kamino_pop = Kamino2017_pop_SCnoise(x0,y0,z0,KaminoPopParam)
+    
+    for i in range(nSteps-1):
+        x_next,y_next,z_next=Kamino_pop.update(camp_input_trace[i],dt, None, r[i,:])
+        x_trace[:,i+1] = x_next
+        y_trace[:,i+1] = y_next
+        z_trace[i+1] = z_next
         
-    y_trace = np.array(y_trace);  y_trace = y_trace/Nh_Kamino
-    t_plot_Kamino = np.array(t)/Nt_Kamino
-    y_traces[count,:] = y_trace
+    # Rescale time
+    t_plot_Kamino = np.array(t)/(Nt_Kamino)
+    # Normalize height 
+    y_trace_norm =  (y_trace-Nh_Kamino_offset)/Nh_Kamino
+    y_traces_norm[count,:,:] = y_trace_norm
+    y_trace_norm_mean = np.mean(y_trace_norm,axis=0)
+    y_traces_norm_mean[count,:] = y_trace_norm_mean
+    
     count = count+1
 #    #  check simulation traces
 #    label_font_size=25; trace_width=3; tick_font_size=18
@@ -634,49 +736,61 @@ for camp_input in camp_input_Kamino_arr:
 #    plt.show()
 # Plot  3 traces: low, medium and high [cAMP]ext 
 
+#
 fig = plt.figure(figsize=(11, 10))
 grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
 
 ax1= fig.add_subplot(grid[0, 0])
-ax1.plot(t_plot_Kamino, y_traces[0,:], color=mycolors[7],linewidth=trace_width)
+for count in range(5):
+    ax1.plot(t_plot_Kamino,y_traces_norm[0,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax1.plot(t_plot_Kamino,y_traces_norm_mean[0,:], color=mycolors[7],linewidth=trace_width)
 ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax1.axvspan(15, 30, alpha=0.2, color='g')
-ax1.set_xlim([0,30]); ax1.set_ylim([-0.2,1.2])
-
+ax1.set_xlim([0,30]); ax1.set_ylim([-0.4,1.6])
 ax2= fig.add_subplot(grid[1, 0])
-ax2.plot(t_plot_Kamino, y_traces[1,:], color=mycolors[7],linewidth=trace_width)
+for count in range(5):
+    ax2.plot(t_plot_Kamino,y_traces_norm[1,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax2.plot(t_plot_Kamino,y_traces_norm_mean[1,:], color=mycolors[7],linewidth=trace_width)
 ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='center',verticalalignment='center',
      transform = ax2.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.axvspan(15, 30, alpha=0.2, color='g')
-ax2.set_xlim([0,30]); ax2.set_ylim([-0.2,1.2])
+ax2.set_xlim([0,30]); ax2.set_ylim([-0.4,1.6])
 
 ax3= fig.add_subplot(grid[2, 0])
-ax3.plot(t_plot_Kamino, y_traces[2,:], color=mycolors[7],linewidth=trace_width)
+for count in range(5):
+    ax3.plot(t_plot_Kamino,y_traces_norm[2,count,:],
+             color='darkgrey',alpha=0.5, linewidth=trace_width-1)
+ax3.plot(t_plot_Kamino,y_traces_norm_mean[2,:], color=mycolors[7],linewidth=trace_width)
 ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
      transform = ax3.transAxes, color = 'k', fontsize=tick_font_size)
 #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
 ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax3.axvspan(15, 30, alpha=0.2, color='g')
-ax3.set_xlim([0,30]); ax3.set_ylim([-0.2,1.2])
+ax3.set_xlim([0,30]); ax3.set_ylim([-0.4,1.6])
 
 fig.text(0.02, 0.9, 'F', color='g', fontsize=abcd_font_size, ha='center')
 fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
 fig.text(0.02, 0.5, r'$cAMP_{i}$',fontsize=label_font_size, va='center', rotation='vertical')
 fig.text(0.5, 0.9, 'Kamino 2017',color = mycolors[7],fontsize=label_font_size, ha='center')
 plt.show()
-    
-#%%save npz
-np.savez('pop_addcAMP_Gregorcorrect_ts0_fixrseed_210901.npz', 
-         t_plot_Gregor=t_plot_Gregor, 
-         campCyto_traces_single_cell = campCyto_traces_single_cell,
-         campCyto_traces=campCyto_traces,
-         t_plot_Sgro=t_plot_Sgro,
-         A_traces=A_traces,
-         A_traces_single_cell=A_traces_single_cell,
-         
-         )
+
+#%% save all outputs
+np.savez('Fig8_pop_add_cAMP_gregorTS0_fixrseed_210901.npz', 
+     t_plot_Sgro =  t_plot_Sgro, 
+     A_traces_single_cell = A_traces_single_cell, A_traces = A_traces,
+     t_plot_Gregor = t_plot_Gregor,
+     campCyto_traces = campCyto_traces, campCyto_traces_single_cell = campCyto_traces_single_cell,
+     t_plot_Goldbeter = t_plot_Goldbeter,
+     b_traces_norm = b_traces_norm, b_traces_norm_mean = b_traces_norm_mean,
+     t_plot_Maeda_short = t_plot_Maeda_short,
+     cAMPi_traces_norm = cAMPi_traces_norm, cAMPi_traces_norm_mean = cAMPi_traces_norm_mean,
+     t_plot_Kamino = t_plot_Kamino,
+     y_traces_norm = y_traces_norm, y_traces_norm_mean = y_traces_norm_mean)
+     

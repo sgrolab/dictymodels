@@ -20,9 +20,9 @@ import math
 
 from Population_parallel_tools import all_indices, get_n_workers
 import matplotlib
-# need to have the following to save images on the cluster
-if 'DISPLAY' not in os.environ:
-	matplotlib.use('Agg')
+## need to have the following to save images on the cluster
+#if 'DISPLAY' not in os.environ:
+#	matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
 # Time scale normalization
@@ -49,15 +49,18 @@ ext_input = 0
 time_separation = 0
 eta=0.002 # noise stength
 
-#create parameter arrays
-rho_arr = np.logspace(-3.5,1,num=21) # np.array([1e-2,1e-1,1,5,10]) #
-k_arr = np.linspace(1,50,num=26) # np.array([25]) #
+##create parameter arrays
+#rho_arr = np.logspace(-3.5,1,num=3) # np.array([1e-2,1e-1,1,5,10]) #
+#k_arr = np.linspace(1,50,num=3) # np.array([25]) #
+
+k_arr=np.array([25]) 
+rho_arr=np.array([1])
 
 # Pack parameters together
 GregorPopParam={'Amax':Amax,'Abas':Abas,'w':w,'Vc':Vc,'St':St,'Sc':Sc,'K':K,\
             'c_sec':c_sec,'c_excite':c_excite,'Nc':Nc}
 
-dt=0.005; t_tot=25*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
+dt=0.005; t_tot=30*Nt_Gregor; t=list(np.arange(0,t_tot,dt))
 nSteps = len(t)
 
 def calc_updates_Gregor(k_arr, rho_arr, GregorPopParam, nSteps, index):
@@ -86,24 +89,44 @@ def calc_updates_Gregor(k_arr, rho_arr, GregorPopParam, nSteps, index):
     gregor_campCyto_trace= np.array(gregor_campCyto_trace) 
     gregor_campCyto_trace_mean= np.mean(gregor_campCyto_trace,axis = 0)
     # gregor_campExt_trace = np.array(gregor_campExt_trace)
-    t_plot_Gregor = np.array(t)/Nt_Gregor
 
     later_portion = 0.2 # start count peaks after this X total simulation time
     gregor_campCyto_trace_mean_later=gregor_campCyto_trace_mean[math.floor(nSteps * later_portion):] # the later part of trace
     
     PkPos, PkProperties = find_peaks(gregor_campCyto_trace_mean_later, prominence=(0.5,30))
-#    # Check find_peaks
-#    fig,ax = plt.subplots()
-#    ax.plot(gregor_campCyto_trace_mean_later)
-#    ax.plot(PkPos, gregor_campCyto_trace_mean_later[PkPos], "x")
-#    ax.set_title('Gregor k='+str(k)+',rho='+str(rho))
-#    plt.show()
+
   
     if len(PkPos) == 0:
         firing_rate = 0; height = 0
     else: 
         firing_rate = len(PkPos)/(t_tot/Nt_Gregor*(1-later_portion))
         height = np.mean(PkProperties["prominences"])
+    
+    SC_traces = gregor_campCyto_trace;
+    t_plot = np.array(t)/Nt_Gregor; cAMPi_mean = gregor_campCyto_trace_mean
+    SC_traces_idx = [1,14,5,16,17,18] 
+    # plot the traces
+    fig = plt.figure(figsize=(6, 4))
+    grid = plt.GridSpec(1, 1, wspace=0.5, hspace=0.3)
+    ax1= fig.add_subplot(grid[0, 0])
+    # plot defined single cell traces
+    if SC_traces_idx != 0:
+        for this_idx in SC_traces_idx:
+            this_trace = SC_traces[this_idx,:]# /np.amax(SC_traces[this_idx,:])
+            ax1.plot(t_plot,this_trace, color='b',alpha=0.6, linewidth=1.5)     
+    # Plot population mean
+    ax1.plot(t_plot, cAMPi_mean, color='g' ,linewidth=2, label = 'cAMPi population mean')
+    ax1.set_title('Dilution rate= '+ '{:#.3n}'.format(np.float64(k)) +
+        ', density= '+'{:#.3n}'.format(np.float64(rho)) +
+            ',\n FR = '+'{:#.3n}'.format(np.float64(firing_rate)), fontdict={'fontsize':18})
+    ax1.set_xlabel('Time, A.U.', fontsize=20); 
+    ax1.set_ylabel('Raw traces',fontsize=20 )
+    ax1.tick_params(grid_linewidth = 15, labelsize = 20)
+    ax1.set_xlim([0, 30])
+    leg = ax1.legend()
+#    ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.25])
+    plt.show()
+    
     return index,firing_rate, height
 
 # To run the simulation get all indices for gamma and rho
@@ -119,15 +142,15 @@ n_workers = get_n_workers()
 tic = perf_counter()
 results = list(map(par_calc_updates_Sgro,indices))
 
-# Run serially or in parallel if possible
-if n_workers == 1:
-    results = list(map(par_calc_updates_Sgro,indices))
-else:
-    with mp.Pool(get_n_workers()) as pool:
-        results = pool.map(par_calc_updates_Sgro,indices)
+## Run serially or in parallel if possible
+#if n_workers == 1:
+#    results = list(map(par_calc_updates_Sgro,indices))
+#else:
+#    with mp.Pool(get_n_workers()) as pool:
+#        results = pool.map(par_calc_updates_Sgro,indices)
 
-## use just 1 worker
-#results = list(map(par_calc_updates_Sgro,indices))
+# use just 1 worker
+results = list(map(par_calc_updates_Sgro,indices))
         
 toc = perf_counter() 
 print('time passed with %s workers: %s' % (get_n_workers(),toc-tic))
@@ -136,13 +159,11 @@ print('time passed with %s workers: %s' % (get_n_workers(),toc-tic))
 pop_rate_Gregor = np.zeros([k_arr.size, rho_arr.size]) # population firing rate
 pop_height_Gregor = np.zeros([k_arr.size, rho_arr.size]) 
 
-
 for i in results:
     idx = i[0]; firing_rate = i[1]; height = i[2]
     pop_rate_Gregor[idx] = firing_rate
     pop_height_Gregor[idx] = height
-savename = 'pop_fire_rate_Gregor_OUT_200414_Tsep'+str(time_separation)+'_dt'+str(dt)+'_noise'+str(eta)
-np.savez(savename + '.npz', k_arr = k_arr, rho_arr = rho_arr,pop_rate_Gregor = pop_rate_Gregor, pop_height_Gregor=pop_height_Gregor)
+np.savez('pop_fire_rate_Gregor_OUT_191026.npz', k_arr = k_arr, rho_arr = rho_arr,pop_rate_Gregor = pop_rate_Gregor, pop_height_Gregor=pop_height_Gregor)
     
 # Plot heat map
 title_font_size = 16
@@ -174,7 +195,7 @@ ax2.set_title('Gregor 2010 pop firing height, TS='+str(time_separation)+', noise
               fontdict={'fontsize': title_font_size, 'fontweight': 'medium'})
 
 # save image and results to the current folder
-plot_name = savename + '.png'
+plot_name = 'pop_fire_rate_Gregor_191026.png'
 plt.savefig(plot_name)
 plt.show()
 
