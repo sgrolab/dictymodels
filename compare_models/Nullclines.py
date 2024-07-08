@@ -15,8 +15,10 @@ from scipy import signal
 from scipy.signal import chirp, find_peaks, peak_widths
 import pandas as pd
 import scipy.io
+import sys
 
 # Normalization parameters
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
 from NormParam import *
 
 # set up new default font
@@ -37,8 +39,8 @@ trace_width=3
 tick_font_size=20
 
 # experimental ramp
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
-Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
+Sgro2015Figure3excel = pd.read_excel(my_dir+'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
 
 #%% Sgro 2015 nullclines, adaptive spike and oscillations
 from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
@@ -254,7 +256,8 @@ for huhu in range(int(len(t_plot_Sgro)/down_sample_frame)):
     # plt.pause(0.05)
     # plt.clf()       
 ani = camera.animate()
-   #%%
+
+#%%
 OutPath = 'C:\\Users\\ellin\\Dropbox\\Prospectus\\Presentation\\nullcline_videos\\'
 ani_name = 'Sgro_bif'
 ani.save(OutPath + ani_name + '.mp4') 
@@ -358,13 +361,13 @@ ax1.plot( A_trace_orig_smalle, R_trace_orig_smalle,'darkgreen',linewidth=trace_w
 ax1.set_ylim([-0.7,3])
 ax1.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
-# A_arr = np.arange(-2.5,3,0.5)
-# R_arr = np.arange(-0.7,3,0.2)
-# makelong = 1
-# A_mesh, R_mesh = np.meshgrid(A_arr , R_arr )
-# dA = A_mesh-(np.power(A_mesh,3))/3-R_mesh+a*np.log(1+signal/Kd); dA=makelong*dA
-# dR = e_small*(A_mesh-g* R_mesh+c0); dR=makelong*dR
-# #ax1.quiver(A_mesh, R_mesh,dA,dR, linewidths=0.1, edgecolors='k')
+A_arr = np.arange(-2.5,3,0.5)
+R_arr = np.arange(-0.7,3,0.2)
+makelong = 1
+A_mesh, R_mesh = np.meshgrid(A_arr , R_arr )
+dA = A_mesh-(np.power(A_mesh,3))/3-R_mesh+a*np.log(1+signal/Kd); dA=makelong*dA
+dR = e_small*(A_mesh-g* R_mesh+c0); dR=makelong*dR
+#ax1.quiver(A_mesh, R_mesh,dA,dR, linewidths=0.1, edgecolors='k')
 ax1.streamplot(A_mesh,R_mesh,dA, dR,density=1,color='forestgreen')
 ax1.plot(A_trace_orig_smalle[0],R_trace_orig_smalle[0],'*',markersize = 12,color='springgreen')
 
@@ -383,14 +386,14 @@ ax2.plot( A_trace_orig_bige, R_trace_orig_bige,'green',linewidth=trace_width)
 ax2.set_ylim([-0.7,3])
 ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
-# ax1.set_aspect('equal')
-# A_arr = np.arange(-2.5,3,0.5)
-# R_arr = np.arange(-0.7,3,0.2)
-# makelong = 1
-# A_mesh, R_mesh = np.meshgrid(A_arr , R_arr )
-# dA = A_mesh-(np.power(A_mesh,3))/3-R_mesh+a*np.log(1+signal/Kd); dA=makelong*dA
-# dR = e_big*(A_mesh-g* R_mesh+c0); dR=makelong*dR
-#ax2.quiver(A_mesh, R_mesh,dA,dR, linewidths=0.1, edgecolors='k')
+ax1.set_aspect('equal')
+A_arr = np.arange(-2.5,3,0.5)
+R_arr = np.arange(-0.7,3,0.2)
+makelong = 1
+A_mesh, R_mesh = np.meshgrid(A_arr , R_arr )
+dA = A_mesh-(np.power(A_mesh,3))/3-R_mesh+a*np.log(1+signal/Kd); dA=makelong*dA
+dR = e_big*(A_mesh-g* R_mesh+c0); dR=makelong*dR
+ax2.quiver(A_mesh, R_mesh,dA,dR, linewidths=0.1, edgecolors='k')
 ax2.streamplot(A_mesh, R_mesh,dA,dR, density=1,color='forestgreen')
 ax2.plot(A_trace_orig_bige[0],R_trace_orig_bige[0],'*',markersize = 12,color='springgreen')
 

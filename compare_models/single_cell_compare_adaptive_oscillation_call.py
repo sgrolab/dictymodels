@@ -13,11 +13,11 @@ from scipy import signal
 from scipy.signal import chirp, find_peaks, peak_widths
 import pandas as pd
 import scipy.io
+import sys
 
 # Normalization parameters
-from Params import NormParams
-for key,val in NormParams.items():
-        exec(key + '=val')
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
+from NormParam import *
 
 # set up new default font
 import matplotlib

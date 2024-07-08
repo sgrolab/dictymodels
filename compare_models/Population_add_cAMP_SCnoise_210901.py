@@ -33,7 +33,7 @@ from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
 
 from NB_pop_functions import * 
 #%% Experimental data
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 
 Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',
                                      sheet_name='Figure6')
@@ -158,7 +158,9 @@ for alphafval in alphafval_arr:
     A_traces_single_cell[count,:,:] = A_trace_plot
     A_traces[count,:] = A_trace_mean_plot
     count = count+1
-    
+
+
+
 #    #  check simulation traces
 #    label_font_size=25; trace_width=3; tick_font_size=18
 #    fig,ax = plt.subplots()
@@ -171,7 +173,8 @@ for alphafval in alphafval_arr:
 #    leg = ax.legend()
 #    ax.legend( frameon=False,loc='upper center',ncol=2,prop={'size': 15})
 #    plt.show()
-    
+
+#%%    
 #% Plot  3 traces: low, medium and high [cAMP]ext 
 
 fig = plt.figure(figsize=(11, 10))

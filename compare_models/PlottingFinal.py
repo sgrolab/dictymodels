@@ -71,7 +71,7 @@ simcolor = 'darkgrey'
 
 #%% Figure 2- single cell adaptive spiking and oscillations
 # experimental data
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 Sgro2015Figure1excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure1')
 
 # load saved npz output file- adaptive spiking
@@ -1511,7 +1511,7 @@ h_arr_Gold =  Gold_OUT['h_arr']
 oneoverh_arr_Gold = 1/h_arr_Gold
 pop_rate_Gold = Gold_OUT['pop_rate_Goldbeter']
 
-Gold_OUT_noise10 = np.load(OUT_path + 'pop_FR_Goldbeter_200311_hnorm_dt0.001_noise10ParamLen40.npz')
+Gold_OUT_noise10 = np.load(OUT_path + '    ')
 kc_arr_Gold_noise10 =  Gold_OUT_noise10['kc_arr']
 h_arr_Gold_noise10 =  Gold_OUT_noise10['h_arr']
 oneoverh_arr_Gold_noise10 = 1/h_arr_Gold_noise10

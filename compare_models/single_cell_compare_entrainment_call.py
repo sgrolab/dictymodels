@@ -10,6 +10,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 import scipy.io
+import sys 
 
 from scipy.signal import find_peaks, correlate 
 
@@ -20,6 +21,7 @@ font = {'family' : 'Arial'}
 matplotlib.rc('font', **font)
 
 # Normalization parameters
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
 from NormParam import *
 #%% Sgro 2015 with noise
 from Sgro2015_agent_and_pop_FUN import Sgro2015_agent
@@ -94,7 +96,7 @@ for j in range(len(period_space_Sgro)): # j_test: #
                     FollowPk=A_trace_plot[int((1+(m+1)*period)*Nt_Sgro/dt) : (int((1+(m+1)*period)*Nt_Sgro/dt)+len(InitPk))]
                     R = np.corrcoef(InitPk,FollowPk)
                     r[m]=R[1,0]
-                    r_new[m]=r[m]*(1-(sqrt(np.var(InitPk))-sqrt(np.var(FollowPk)))/sqrt(np.var(InitPk)))
+                    r_new[m]=r[m]*(1-(np.sqrt(np.var(InitPk))-np.sqrt(np.var(FollowPk)))/np.sqrt(np.var(InitPk)))
             MeanR_Sgro[k,j] = np.mean(r)
             MeanRnew_Sgro[k,j] = np.mean(r_new)
             
@@ -199,7 +201,7 @@ for j in range(len(period_space_Kamino)): # j_test: #
                 FollowPk=y_trace[int((1+(m+1)*period)*Nt_Kamino/dt) : (int((1+(m+1)*period)*Nt_Kamino/dt)+len(InitPk))]
                 R = np.corrcoef(InitPk,FollowPk)
                 r[m]=R[1,0]
-                r_new[m]=r[m]*(1-(sqrt(np.var(InitPk))-sqrt(np.var(FollowPk)))/sqrt(np.var(InitPk)))
+                r_new[m]=r[m]*(1-(np.sqrt(np.var(InitPk))-np.sqrt(np.var(FollowPk)))/np.sqrt(np.var(InitPk)))
 #                # check InitPk vs.FollowPk
 #                fig3 = plt.figure(figsize=(3,3)); grid = plt.GridSpec(1, 1, wspace=0.3, hspace=0.2)
 #                ax1= fig3.add_subplot(grid[0, 0])
@@ -452,7 +454,7 @@ for j in range(len(period_space_Maeda)):# j_test:#
                 FollowPk=cAMPi_trace[int((1+(m+1)*period)*Nt_Maeda/dt) : (int((1+(m+1)*period)*Nt_Maeda/dt)+len(InitPk))]
                 R = np.corrcoef(InitPk,FollowPk)
                 r[m]=R[1,0]
-                r_new[m]=r[m]*(1-(sqrt(np.var(InitPk))-sqrt(np.var(FollowPk)))/sqrt(np.var(InitPk)))
+                r_new[m]=r[m]*(1-(np.sqrt(np.var(InitPk))-np.sqrt(np.var(FollowPk)))/np.sqrt(np.var(InitPk)))
 #                # check InitPk vs.FollowPk
 #                fig3 = plt.figure(figsize=(3,3)); grid = plt.GridSpec(1, 1, wspace=0.3, hspace=0.2)
 #                ax1= fig3.add_subplot(grid[0, 0])
@@ -502,8 +504,11 @@ np.savez('single_cell_entrainment_200320.npz',
          period_space_Kamino=period_space_Kamino, PkWdth_space_Kamino=PkWdth_space_Kamino,
          MeanRnew_Kamino=MeanRnew_Kamino, MeanR_Kamino=MeanR_Kamino)
 #%% experimental data
-Sgro2015Figure4 = scipy.io.loadmat('C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/Figure4Data.mat')
-Sgro2015Figure4excel = pd.read_excel(r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4')
+# Sgro2015Figure4 = scipy.io.loadmat('C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/Figure4Data.mat')
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
+Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
+
+Sgro2015Figure4excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4traces')
 fig3 = plt.figure(figsize=(12,13))
 grid = plt.GridSpec(3, 1, wspace=0.2, hspace=0.2)
 ax1= fig3.add_subplot(grid[0, 0])
@@ -591,13 +596,15 @@ ax0l.text(0.5, -0.6, 'Time(min)',ha='center',va='center',
      transform = ax0l.transAxes, color = 'k', fontsize=sublabel_font_size)
 
 #ax00= fig3.add_subplot(grid[0:2, 1])
-ax00 = fig3.add_axes([0.59, 0.7, 0.31,0.18])
-PeriodExp = np.linspace(3, 6, num=4); PkWdthExp = np.linspace(1,5,5)
-entrainmentRs = Sgro2015Figure4["entrainmentRs"][:,0:4]; entrainmentRs[entrainmentRs == 0] = 'nan'
-heatmap = ax00.pcolor(PeriodExp, PkWdthExp,np.flip(entrainmentRs,0), cmap='jet') 
-heatmap.set_clim(0,1)
-ax00.set_xlabel('Period(min)', size=sublabel_font_size)
-ax00.set_ylabel('Peak Width(min)', size=sublabel_font_size)
+# ax00 = fig3.add_axes([0.59, 0.7, 0.31,0.18])
+# PeriodExp = np.linspace(3, 6, num=4); PkWdthExp = np.linspace(1,5,5)
+# # entrainmentRs = Sgro2015Figure4["entrainmentRs"][:,0:4]; entrainmentRs[entrainmentRs == 0] = 'nan'
+# entrainmentRs = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4heatmap')
+# entrainmentRs = entrainmentRs.to_numpy()
+# heatmap = ax00.pcolor(PeriodExp, PkWdthExp,np.flip(entrainmentRs,0), cmap='jet') 
+# heatmap.set_clim(0,1)
+# ax00.set_xlabel('Period(min)', size=sublabel_font_size)
+# ax00.set_ylabel('Peak Width(min)', size=sublabel_font_size)
 
 cbar=fig3.colorbar(heatmap, ax=ax00,ticks=[0,0.2, 0.4,0.6,0.8,1]);
 cbar.ax.tick_params(labelsize = tick_font_size) 

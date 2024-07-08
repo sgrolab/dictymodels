@@ -22,7 +22,7 @@ from NormParam import *
 #RampInput_Exp = RampInput_Exp[~np.isnan(RampInput_Exp)]
 
 # experimental data
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
 
 

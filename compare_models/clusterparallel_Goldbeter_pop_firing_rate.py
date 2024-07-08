@@ -5,30 +5,22 @@ Created on Mon Sep 16 18:05:24 2019
 @author: Chuqiao
 """
 import os
+import pickle
 import numpy as np
 from time import perf_counter 
 import functools
 import multiprocessing as mp
 from scipy.signal import find_peaks
 import math
-
 from Population_parallel_tools import all_indices, get_n_workers
-import matplotlib
-#if 'DISPLAY' not in os.environ:
-#	matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-## Time scale normalization parameter
-#Nt_Gregor = 6
-#Nt_Sgro = 27
-#Nt_Goldbeter = 7
-#Nt_Maeda = 3.57
-#Nt_Kamino = 6
+with open('normParams.pickle','rb') as f:
+    Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
-# Normalization parameters
-from NormParam import *
 #%% Golbeter 1987
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var
+
 # set parameters
 k1 = 0.036     # per min
 k2 = 0.666    # per min
@@ -57,6 +49,7 @@ kc_arr = np.linspace(40.5,44.5,num = 4)
 one_over_h_arr = np.array([1])# cell density array
 h_arr = 1/one_over_h_arr 
 
+# define dictionary for model parameters 
 Goldbeter3PopParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'theta':theta, 'e':e, 'q':q,'sig':sig, 'v':v, 'k':k, \
             'ki':ki,'kt':kt, 'kc':0,'h':0}
@@ -64,7 +57,7 @@ Goldbeter3PopParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
 #update function
 dt=0.001; t_tot=20*Nt_Goldbeter; t=list(np.arange(0,t_tot,dt))
 nSteps = len(t)
-t_plot_Goldbeter = np.array(t); t_plot_Goldbeter = t_plot_Goldbeter/Nt_Goldbeter
+t_plot_Goldbeter = np.array(t)/Nt_Goldbeter
 signal_input = 0
 
 def calc_updates_Goldbeter(kc_arr, h_arr, Goldbeter3PopParam, nSteps, index):

@@ -15,8 +15,10 @@ from scipy import signal
 from scipy.signal import chirp, find_peaks, peak_widths
 import pandas as pd
 import scipy.io
+import sys 
 
 # Normalization parameters
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
 from NormParam import *
 
 # set up new default font
@@ -167,7 +169,7 @@ plt.show()
 
 #%%
 # experimental ramp
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
 
 #%% Sgro 2015 nullclines, adaptive spike and oscillations

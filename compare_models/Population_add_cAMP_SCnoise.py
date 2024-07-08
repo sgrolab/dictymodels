@@ -16,6 +16,7 @@ from scipy import signal
 from scipy.signal import find_peaks
 from time import perf_counter 
 import scipy.io
+import sys
 
 # set up plotting font
 import matplotlib
@@ -23,6 +24,7 @@ font = {'family' : 'Arial'}
 matplotlib.rc('font', **font)
 
 # Normalization parameters
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
 from NormParam import *
 
 from Goldbeter1987_agent_and_pop_FUN import Goldbeter1987_pop_3var_SCnoise
@@ -33,7 +35,7 @@ from Gregor2010_agent_and_pop_FUN import Gregor2010_pop
 
 from NB_pop_functions import * 
 #%% Experimental data
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 
 Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',
                                      sheet_name='Figure6')

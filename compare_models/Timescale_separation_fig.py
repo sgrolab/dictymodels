@@ -78,9 +78,9 @@ dAdt_null_no_stim=A_null-1/3*(A_null**3)
 dRdt_null=1/g*(A_null+c0)
 
 #%%
-# A_trace_orig_smalle = A_trace_orig
-# R_trace_orig_smalle = R_trace_orig
-# A_trace_plot_smalle= A_trace_plot
+A_trace_orig_smalle = A_trace_orig
+R_trace_orig_smalle = R_trace_orig
+A_trace_plot_smalle= A_trace_plot
 
 A_trace_orig_bige = A_trace_orig
 R_trace_orig_bige = R_trace_orig
@@ -91,7 +91,7 @@ R_arr = np.arange(-1.2,3,0.3)
 makelong = 1
 A_mesh, R_mesh = np.meshgrid(A_arr , R_arr )
 dA = A_mesh-(np.power(A_mesh,3))/3-R_mesh+a*np.log(1+signal_1/Kd); dA=makelong*dA
-# dR_smalle = e*(A_mesh-g* R_mesh+c0); dR_smalle =makelong*dR_smalle
+dR_smalle = e*(A_mesh-g* R_mesh+c0); dR_smalle =makelong*dR_smalle
 
 dR_bige = e*(A_mesh-g* R_mesh+c0); dR_bige =makelong*dR_bige
 
@@ -142,9 +142,9 @@ dydt_null_no_stim_short = (0+delta)**n/((0+delta)**n+(np.power(K*x_null_short,n)
 dydt_null_no_stim_long = (0+delta)**n/((0+delta)**n+(np.power(K*x_null_long,n)))
 dydt_null_1 = (signal_1+delta)**n/((signal_1+delta)**n+(np.power(K*x_null_short,n)))
 #%%
-# x_trace_smalle = x_trace 
-# y_trace_smalle = y_trace
-# y_trace_hnorm_smalle = y_trace_hnorm
+x_trace_smalle = x_trace 
+y_trace_smalle = y_trace
+y_trace_hnorm_smalle = y_trace_hnorm
 
 x_trace_bige = x_trace 
 y_trace_bige = y_trace
@@ -158,7 +158,7 @@ x_mesh, y_mesh = np.meshgrid(x_arr , y_arr )
 makelong = 1
 dy = (signal_1+delta)**n/((signal_1+delta)**n+(np.power(K*x_mesh,n))) - y_mesh;  dy = makelong*dy
 
-# dx_smalle = 1/tau*(signal_1+delta-x_mesh); dx_smalle = makelong*dx_smalle
+dx_smalle = 1/tau*(signal_1+delta-x_mesh); dx_smalle = makelong*dx_smalle
 dx_bige = 1/tau*(signal_1+delta-x_mesh); dx_bige = makelong*dx_bige
 
 #%% plot excitability/ time scale separation
@@ -346,7 +346,7 @@ ax2.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 # vector field for cAMPe input = 1
 # ax2.streamplot(x_mesh,y_mesh,dx, dy,color='forestgreen')
-q = ax2.quiver(x_mesh,y_mesh,dx, dy,scale=3, scale_units='inches',width=0.005,color='grey')
+# q = ax2.quiver(x_mesh,y_mesh,dx, dy,scale=3, scale_units='inches',width=0.005,color='grey')
 ax2.set_xticks([]); ax2.set_yticks([]);
 ax2.set_xlabel( 'I' ,fontsize=label_font_size)
 ax2.set_ylabel( 'A' ,fontsize=label_font_size)
@@ -365,7 +365,7 @@ ax3.set_xlim([-2.5,2.5])
 ax3.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
 
-ax3.quiver(A_mesh,R_mesh,dA, dR,scale=9, scale_units='inches',width=0.005,color='grey')
+# ax3.quiver(A_mesh,R_mesh,dA, dR,scale=9, scale_units='inches',width=0.005,color='grey')
 ax3.set_xticks([]); ax3.set_yticks([]);
 ax3.set_xlabel( 'A' ,fontsize=label_font_size)
 ax3.set_ylabel( 'I' ,fontsize=label_font_size)

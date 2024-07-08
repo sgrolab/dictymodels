@@ -5,6 +5,7 @@ Created on Thu Jul 18 11:23:10 2019
 @author: Chuqiao
 """
 # Fold change detection
+import sys
 import pandas as pd
 import numpy as np
 import random
@@ -20,7 +21,9 @@ from scipy import signal
 from scipy.signal import find_peaks
 import scipy.io
 
+
 # Normalization parameters
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
 from NormParam import *
 #%% Kamino 2017
 from Kamino2017_agent_and_pop_FUN import Kamino2017_agent 
@@ -312,13 +315,13 @@ for j in range(len(z0First_space_Sgro_noise)):
                 PkPrm_Sgro_noise_norm[j,k,test]=0 
     
     print('j='+str(j)+'is done')
-    
+#%%
 PkPrm_Sgro_mean_noise=np.mean(PkPrm_Sgro_noise,axis=2)
-PkPrm_Sgro_se_noise = np.std(PkPrm_Sgro_noise,axis=2)/sqrt(num_of_runs)
+PkPrm_Sgro_se_noise = np.std(PkPrm_Sgro_noise,axis=2)/np.sqrt(num_of_runs)
 PkPrm_Sgro_std_noise = np.std(PkPrm_Sgro_noise,axis=2)
 
 PkPrm_Sgro_mean_noise_norm=np.mean(PkPrm_Sgro_noise_norm,axis=2)
-PkPrm_Sgro_se_noise_norm = np.std(PkPrm_Sgro_noise_norm,axis=2)/sqrt(num_of_runs)
+PkPrm_Sgro_se_noise_norm = np.std(PkPrm_Sgro_noise_norm,axis=2)/np.sqrt(num_of_runs)
 PkPrm_Sgro_std_noise_norm = np.std(PkPrm_Sgro_noise_norm,axis=2)
 
 # plot FC vs. second response amplitude

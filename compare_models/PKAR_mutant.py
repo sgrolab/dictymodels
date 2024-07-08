@@ -7,6 +7,7 @@ Created on Sun Aug  9 20:45:13 2020
 PKAR mutant modeling
 
 """
+import os
 import numpy as np
 import random
 import math
@@ -15,12 +16,12 @@ from scipy import signal
 from scipy.signal import chirp, find_peaks, peak_widths
 import pandas as pd
 import scipy.io
+import sys
 
 # Normalization parameters
-from Params import NormParams
-for key,val in NormParams.items():
-        exec(key + '=val')
-import os
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
+from NormParam import *
+
 
 mycwd = os.getcwd()
 os.chdir('C:\\Users\\ellin\\Documents\\GitHub\\labscripts\\Plotting Scripts')
@@ -100,7 +101,7 @@ A_PKAR_1 = npzfile['A_PKAR_1'] ; A_PKAR_10k = npzfile['A_PKAR_10k']
 
 #%% Experimental data
 # WT
-my_dir = r'C:/Users/ellin/Dropbox/AACP Science/Dicty model review drafts/figures/'
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 Sgro2015Figure1excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure1')
 #%% Plot results
 abcd_font_size = 26

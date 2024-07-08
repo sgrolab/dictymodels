@@ -12,6 +12,7 @@ import numpy as np
 import random
 import math
 import matplotlib.pyplot as plt
+import sys
 # set matplotlib default font
 import matplotlib
 font = {'family' : 'Roboto'}
@@ -24,9 +25,8 @@ from time import perf_counter
 from NB_pop_functions import plot_POP_oscillation
 
 # Normalization parameters
-from Params import NormParams
-for key,val in NormParams.items():
-        exec(key + '=val')
+sys.path.append("//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models")
+from NormParam import *
 
 #%% change back to default
 import matplotlib.style
