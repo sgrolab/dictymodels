@@ -63,8 +63,8 @@ for i in range(len(t)-1):
     
 #Traces
 gregor_thetai_trace= np.array(gregor_thetai_trace) 
-gregor_campCyto_trace= np.array(gregor_campCyto_trace) /Nh_Gregor
-t_plot_Gregor = np.array(t)/Nt_Gregor
+gregor_campCyto_trace= np.array(gregor_campCyto_trace)
+t_plot_Gregor = np.array(t)
 #t_plot_Gregor = np.array(t)*6/(Nt_Gregor)
 
 ## Use find peaks to get time and height narmalization factor
@@ -123,6 +123,7 @@ from Params import SgroAgentParam
 #             'a':0.058,'alpha0':800,'alpha_pde':1000,'Kd':1e-5,'S':1e6,\
 #             'Nt':27,'Na':3.5,'offset_A':1.5,'flux_thrs':0}
 
+tick_font_size=10
 
 A0=-1.5; R0=-0.5
 Sgro_agent=Sgro2015_agent([1,1],[A0,R0],SgroAgentParam)

@@ -13,14 +13,44 @@ import matplotlib.pyplot as plt
 # remove all variables in the work space
 # sys.modules[__name__].__dict__.clear() 
 
-class Gregor2010_agent:
-    def __init__(self,pos,state,AgentParam):
+class Cell:
+    def __init__(self,pos,state,AgentParam,t):
         self.pos=pos
-        self.state=state
         self.AgentParam=AgentParam
-        self.campCyto_now=state[0]
-        self.thetai_now = state[1]
-        self.campExt_now=state[2] # initial state input as a list variable [A0,R0]
+        self.t = t
+        
+        # initialize variable arrays 
+        self.cAMPi = np.zeros(len(t))
+        self.thetai = np.zeros(len(t))
+        self.cAMPe = np.zeros(len(t))
+        
+        # set initial values 
+        self.cAMPi[0] = state[0]
+        self.thetai[0] = state[1]
+        self.cAMPe[0] = state[2]
+        
+    def run(self,dt,r,cAMPe_in):
+        
+        # pull parameters 
+        Amax=self.AgentParam['Amax']   
+        Abas=self.AgentParam['Abas']   
+        w=self.AgentParam['w']   # min-1
+        K=self.AgentParam['K']   
+        c_excite=self.AgentParam['c_excite']
+        
+        # run simulation 
+        for i in range(1,len(self.t)):
+            
+            # get values from pervious timestep
+            thetai = self.thetai[i-1]
+            
+            # compute change in theta
+            dthetai = w*(1-K/(cAMPe_in[i]+K)*c_excite*math.sin(thetai))
+            
+            # compute next time step 
+            self.thetai[i] = thetai + dt*dthetai + r[i]
+            self.cAMPi[i] = ((-Amax+Abas)*np.sin(self.thetai[i])+Amax+Abas)/2
+        
         
     
     def update(self,dt,eta, campExt ):

@@ -14,14 +14,46 @@ from scipy.signal import find_peaks
 # remove all variables in the work space
 # sys.modules[__name__].__dict__.clear()
 
-class Kamino2017_agent:
-    def __init__(self,state,Param):
-        self.state=state
+class Cell:
+    def __init__(self,initialVals,Param,t):
+        self.t = t
         self.Param=Param
-        self.x_now=state[0]
-        self.y_now=state[1] 
-        self.z_now=state[2] # initial state input as a list variable [x0,y0,z0]
         
+        # preallocate variable arrays 
+        self.x = np.zeros(len(t))
+        self.y = np.zeros(len(t))
+        self.z = np.zeros(len(t))
+        
+        # set initial values 
+        self.x[0] = initialVals[0]
+        self.y[0] = initialVals[1]
+        self.z[0] = initialVals[2]
+    
+    def run(self,dt,cAMPe_in):
+        
+        # pull parameter values 
+        tau=self.Param['tau']   
+        n=self.Param['n'] 
+        K=self.Param['K'] 
+        delta=self.Param['delta'] 
+        
+        # run simulation 
+        for i in range(1,len(self.t)):
+            
+            # get variable values from previous timestep 
+            x = self.x[i-1]
+            y = self.y[i-1]
+            z = self.z[i-1]
+            
+            # compute variable change 
+            dx = (z+delta-x)/tau
+            dy = (z+delta)**n/((z+delta)**n+(K*x)**n)-y
+            
+            # compute next variable values 
+            self.x[i] = x + dx*dt
+            self.y[i] = y + dy*dt
+            self.z[i] = cAMPe_in[i]
+            
     
     def update(self, dt, signal):
         tau=self.Param['tau']   
@@ -132,15 +164,52 @@ class Population:
         print('past y:'+str(self.y_now)) 
         print('past z:'+str(self.z_now)) 
 
-class Kamino2017_pop_SCnoise: # population with noisy single cells 
-    def __init__(self,x0,y0,z0,Param):
-        self.Param=Param
-        self.x_now=x0
-        self.y_now=y0 
-        self.z_now=z0 # initial state input as a list variable [x0,y0,z0]
+class Population_scNoise: # population with noisy single cells 
+    def __init__(self,initialVals,params,t):
+        self.Param=params
+        self.t = t
+        N = self.Param['N']
         
+        # preallocate variable arrays 
+        self.x = np.zeros([N,len(t)])
+        self.y = np.zeros([N,len(t)])
+        self.z = np.zeros([N,len(t)])
+        
+        # set initial values 
+        self.x[:,0] = initialVals[0]
+        self.y[:,0] = initialVals[1]
+        self.z[:,0] = initialVals[2]
     
-    def update(self, z0_influx, dt, overriding_sig=None, r=np.array([])): 
+    def run(self,z0_influx, dt, r, overriding_sig='none'):
+        
+        # get parameter values
+        tau=self.Param['tau']   
+        n=self.Param['n'] 
+        K=self.Param['K'] 
+        delta=self.Param['delta'] 
+        kt=self.Param['kt'] 
+        gamma=self.Param['gamma'] 
+        rho=self.Param['rho'] 
+        
+        # run simulation 
+        for i in range(1,len(self.t)):
+            
+            # parameter values from last time step 
+            x = self.x[:,i-1]
+            y = self.y[:,i-1]
+            z = self.z[:,i-1]
+            
+            # calculate next values 
+            dx = (z + delta - x)/tau
+            dy = (z + delta)**n/((z + delta)**n + (K*x)**n) - y
+            dz = rho*kt*y - gamma*(z-z0_influx[i])
+        
+            # apply time step
+            self.x[:,i] = x + dx*dt
+            self.y[:,i] = y + dy*dt + r[i]
+            self.z[:,i] = z + dz*dt
+    
+    def update(self, z0_influx, dt,r,overriding_sig=None): 
         tau=self.Param['tau']   
         n=self.Param['n'] 
         K=self.Param['K'] 
