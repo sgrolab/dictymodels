@@ -5,14 +5,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
 
 mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
           '#f781bf', '#a65628', '#984ea3',
           '#999999', '#e41a1c', '#dede00']     
 
 abcd_font_size = 28
-label_font_size=18
-title_font_size = 20
+label_font_size=16
+title_font_size = 18
 sublabel_font_size = 22
 trace_width=3
 tick_font_size=16
@@ -456,3 +457,134 @@ plt.show()
 # fig.text(0.02, 0.5, r'$cAMP_{i}$',fontsize=label_font_size, va='center', rotation='vertical')
 # fig.text(0.5, 0.9, 'Kamino 2017',color = mycolors[7],fontsize=label_font_size, ha='center')
 # plt.show()
+
+#%% Figure 5 (Adaptive Spiking and Bifurcation Dynamics): pull data 
+
+# experimental data
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
+Sgro2015Figure1excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure1')
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Gregor.pickle','rb') as f:
+   t_adapt_Gregor,cAMPi_adapt_Gregor = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Sgro.pickle','rb') as f:
+   t_adapt_Sgro,cAMPi_adapt_Sgro = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Goldbeter.pickle','rb') as f:
+   t_adapt_Goldbeter,cAMPi_adapt_Goldbeter = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_MaedaLoomis.pickle','rb') as f:
+   t_adapt_Maeda,cAMPi_adapt_Maeda = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Kamino.pickle','rb') as f:
+   t_adapt_Kamino,cAMPi_adapt_Kamino = pickle.load(f)
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Gregor.pickle','rb') as f:
+    t_bifur_Gregor, cAMPi_bifur_Gregor = pickle.load(f) 
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Sgro.pickle','rb') as f:
+    t_bifur_Sgro, cAMPi_bifur_Sgro = pickle.load(f) 
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Goldbeter.pickle','rb') as f:
+    t_bifur_Goldbeter, cAMPi_bifur_Goldbeter = pickle.load(f) 
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_MaedaLoomis.pickle','rb') as f:
+    t_bifur_Maeda, cAMPi_bifur_Maeda = pickle.load(f) 
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Kamino.pickle','rb') as f:
+    t_bifur_Kamino, cAMPi_bifur_Kamino = pickle.load(f) 
+
+#%% Figure 5 (Adaptive Spiking and Bifurcation Dynamics): plot 
+
+f = plt.figure(figsize=(8,8.5))
+
+f.text(0.01,0.95,'A',fontsize=letterLabelSize)
+ax = f.add_subplot([.12,.74,.35,.18])
+ax.set_title('Experiment:\nAdaptive Spiking',fontsize=title_font_size)
+ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 1 FRET Trace (1nM)"],
+                              linewidth=trace_width,color='k')
+ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 2 FRET Trace (1nM)"],
+                               linewidth=trace_width,color='dimgrey')
+ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET Trace (1nM)"],
+                               linewidth=trace_width,color='darkgrey')
+ax.text(17,0.5,'1$nm$ cAMP',fontsize=tick_font_size)
+ax.vlines(5,-1,1,color='k',linestyle='dashed')
+ax.set_xlabel('Time (min)',fontsize=label_font_size)
+ax.set_xlim([0,30])
+ax.set_ylabel('FRET (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.1,.6])
+ax.set_yticks(np.linspace(0,.5,2))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.49,0.95,'B',fontsize=letterLabelSize)
+ax = f.add_subplot([.55,.74,.35,.18])
+ax.set_title('Experiment:\nBifurcation Dynamics',fontsize=title_font_size)
+ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 1 FRET Trace (10uM)"],
+                              linewidth=trace_width,color='k')
+ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 2 FRET Trace (10uM)"],
+                               linewidth=trace_width,color='dimgrey')
+ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET Trace (10uM)"],
+                               linewidth=trace_width,color='darkgrey')
+ax.text(15,0.5,'10$\mu m$ cAMP',fontsize=tick_font_size)
+ax.vlines(5,-1,1,color='k',linestyle='dashed')
+ax.set_xlabel('Time (min)',fontsize=label_font_size)
+ax.set_xlim([0,30])
+ax.set_ylim([-0.1,.6])
+ax.set_yticks(np.linspace(0,.5,2))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.69),0.935,0.275,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1))
+
+f.text(0.01,0.61,'C',fontsize=letterLabelSize)
+ax = f.add_subplot([.12,.4,.35,.18])
+ax.set_title('Models:\nAdaptive Spiking',fontsize=title_font_size)
+ax.plot(t_adapt_Goldbeter,cAMPi_adapt_Goldbeter,linewidth=2,color=mycolors[7])
+ax.plot(t_adapt_Kamino,cAMPi_adapt_Kamino,linewidth=2,linestyle='dashed',color=mycolors[0])
+ax.plot(t_adapt_Sgro,cAMPi_adapt_Sgro,linewidth=2,color=mycolors[5])
+ax.vlines(1,-1,10,color='k',linestyle='dashed')
+ax.set_xlim([0,6])
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.2,1.2])
+ax.set_yticks(np.linspace(0,1,3))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot([.12,.17,.35,.18])
+ax.plot(t_adapt_Maeda,cAMPi_adapt_Maeda,linewidth=2,color=mycolors[8])
+ax.plot(t_adapt_Gregor,cAMPi_adapt_Gregor,linewidth=2,color=mycolors[2])
+ax.vlines(1,-1,10,color='k',linestyle='dashed')
+xlabel = ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+xlabel.set_position((1.15,0))
+ax.set_xlim([0,6])
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.2,1.2])
+ax.set_yticks(np.linspace(0,1,3))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.49,.61,'D',fontsize=letterLabelSize)
+ax = f.add_subplot([.55,.4,.35,.18])
+ax.set_title('Models:\nBifurcation Dynamics',fontsize=title_font_size)
+ax.plot(t_bifur_Sgro,cAMPi_bifur_Sgro,linewidth=2,color=mycolors[5])
+ax.vlines(1,-1,10,color='k',linestyle='dashed')
+ax.set_xlim([0,6])
+ax.set_ylim([-.2,1.8])
+ax.set_yticks(np.linspace(0,1.5,4))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot([.55,.17,.35,.18])
+ax.plot(t_bifur_Goldbeter,cAMPi_bifur_Goldbeter,linewidth=2,color=mycolors[7])
+ax.plot(t_bifur_Kamino,cAMPi_bifur_Kamino,linewidth=2,color=mycolors[0],linestyle='dashed')
+ax.plot(t_bifur_Gregor,cAMPi_bifur_Gregor,linewidth=2,color=mycolors[2])
+ax2 = ax.twinx()
+ax2.plot(t_bifur_Maeda,cAMPi_bifur_Maeda,linewidth=2,color=mycolors[8])
+ax.set_xlim([0,6])
+ax.set_ylim([-.2,1.8])
+ax2.set_ylim([-40,360])
+ax2.set_ylabel('CDINFB $cAMP_i$ (A.U.)',fontsize=12,rotation=-90,labelpad=15)
+ax.set_yticks(np.linspace(0,1.5,4))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.39),0.935,0.235,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1))
+
+f.add_artist(mlines.Line2D([0.05,0.15],[0.07,0.07],color=mycolors[7],linewidth=2))
+f.text(0.17,.065,'Receptor Desensitization',fontsize=12)
+f.add_artist(mlines.Line2D([0.05,0.15],[0.03,0.03],color=mycolors[5],linewidth=2))
+f.text(0.17,.025,'IPNFB',fontsize=12)
+f.add_artist(mlines.Line2D([0.45,0.55],[0.07,0.07],color=mycolors[0],linewidth=2,linestyle='dashed'))
+f.text(0.57,.065,'IFFL',fontsize=12)
+f.add_artist(mlines.Line2D([0.45,0.55],[0.03,0.03],color=mycolors[8],linewidth=2))
+f.text(0.57,.025,'CDINFB',fontsize=12)
+f.add_artist(mlines.Line2D([0.67,0.77],[0.07,0.07],color=mycolors[2],linewidth=2))
+f.text(0.79,.065,'Phase Oscillator',fontsize=12)

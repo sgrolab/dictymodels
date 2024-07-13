@@ -1,4 +1,4 @@
-# Single Adaptive Spike 
+# Single Cell, Adaptive Spike 
 
 import os, sys, pickle 
 import numpy as np 
@@ -40,7 +40,7 @@ thetai0 = np.arcsin((cAMPi0*2-Amax-Abas)/(-Amax+Abas))
 cAMPe0 = 0
 
 # define cAMPe_in trace
-constant_signal=1
+constant_signal=0
 signal_trace=np.zeros(len(t))
 signal_trace[int(len(t)/6):] = constant_signal
 
@@ -55,7 +55,12 @@ cell = gf.Cell([1,1],[cAMPi0,thetai0,cAMPe0],GregorAgentParam,t)
 # run simulation 
 cell.run(dt,r,signal_trace) 
 
-plt.plot(cell.t,cell.cAMPi)
+plt.plot(cell.t/Nt_Gregor,cell.cAMPi/Nh_Gregor)
+plt.ylim([-0.5,1.2])
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Gregor.pickle','wb') as f:
+    pickle.dump([cell.t/Nt_Gregor,cell.cAMPi/Nh_Gregor],f,pickle.HIGHEST_PROTOCOL)
+
 
 #%% Sgro 
 
@@ -68,7 +73,7 @@ SgroAgentParam={'e':0.1,'tauA':0.09,'tauR':0.9,'g':0.5,'c0':1.2,'sigma':0.15,'N'
 
 # set time parameters
 dt=0.005
-t_tot=3*Nt_Sgro
+t_tot=6*Nt_Sgro
 t=np.arange(0,t_tot,dt)
 
 # set initial values 
@@ -78,7 +83,7 @@ R0=-0.5
 # define cAMPe_in trace 
 constant_signal= 1
 signal_trace=np.zeros(len(t))
-signal_trace[int(len(t)/3):] = constant_signal
+signal_trace[int(len(t)/6):] = constant_signal
 
 # set noise amount 
 rng = np.random.default_rng(seed=1)
@@ -90,7 +95,13 @@ cell = sf.Cell([1,1],[A0,R0],SgroAgentParam,t)
 # run simulation 
 cell.run(dt,signal_trace,r)
 
-plt.plot(cell.t,cell.A)
+plt.plot(cell.t/Nt_Sgro,(cell.A-Nh_Sgro_offset)/Nh_Sgro)
+plt.ylim([-0.5,1.2])
+plt.xlim([0,6])
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Sgro.pickle','wb') as f:
+    pickle.dump([cell.t/Nt_Sgro,(cell.A-Nh_Sgro_offset)/Nh_Sgro],f,pickle.HIGHEST_PROTOCOL)
+
 
 #%% Goldbeter 
 
@@ -136,7 +147,13 @@ cell = gbf.Cell(Goldbeter3AgentParam,[p0,b0,g0],t)
 # run cell 
 cell.run(dt,a0,signal_trace)
 
-plt.plot(cell.t,cell.b)
+plt.plot(cell.t/Nt_Goldbeter,cell.b/Nh_Goldbeter)
+plt.ylim([-0.5,1.2])
+plt.xlim([0,6])
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Goldbeter.pickle','wb') as f:
+    pickle.dump([cell.t/Nt_Goldbeter,cell.b/Nh_Goldbeter],f,pickle.HIGHEST_PROTOCOL)
+
 
 #%% Maeda Loomis
 
@@ -175,7 +192,13 @@ cell = mlf.Cell([0,0],[ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10],MaedaAgentPara
 # run cell
 cell.run(dt,signal_trace)
 
-plt.plot(cell.t,cell.cAMPi)
+plt.plot(cell.t/Nt_Maeda,cell.cAMPi/Nh_Maeda)
+plt.xlim([0,6])
+plt.ylim([-0.5,1.2])
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_MaedaLoomis.pickle','wb') as f:
+    pickle.dump([cell.t/Nt_Maeda,cell.cAMPi/Nh_Maeda],f,pickle.HIGHEST_PROTOCOL)
+
 
 #%% Kamino 
 
@@ -213,5 +236,10 @@ cell = kf.Cell([x0,y0,z0],KaminoAgentParam,t)
 # run cell
 cell.run(dt,signal_trace)
 
-plt.plot(cell.t,cell.y)
+plt.plot(cell.t/Nt_Kamino,(cell.y-Nh_Kamino_offset)/Nh_Kamino)
+plt.xlim([0,6])
+plt.ylim([-0.5,1.2])
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Kamino.pickle','wb') as f:
+    pickle.dump([cell.t/Nt_Kamino,(cell.y-Nh_Kamino_offset)/Nh_Kamino],f,pickle.HIGHEST_PROTOCOL)
 
