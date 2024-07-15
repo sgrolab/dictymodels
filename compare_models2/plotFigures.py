@@ -50,6 +50,7 @@ ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 2 FRET Tra
                                linewidth=trace_width,color='dimgrey')
 ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET Trace (1nM)"],
                                linewidth=trace_width,color='darkgrey')
+ax.text(17,0.5,'1$nm$ cAMP',fontsize=tick_font_size)
 ax.vlines(5,-1,1,color='k',linestyle='dashed')
 ax.set_xlabel('Time (min)',fontsize=label_font_size)
 ax.set_xlim([0,30])
@@ -588,3 +589,107 @@ f.add_artist(mlines.Line2D([0.45,0.55],[0.03,0.03],color=mycolors[8],linewidth=2
 f.text(0.57,.025,'CDINFB',fontsize=12)
 f.add_artist(mlines.Line2D([0.67,0.77],[0.07,0.07],color=mycolors[2],linewidth=2))
 f.text(0.79,.065,'Phase Oscillator',fontsize=12)
+
+#%% Figure 6 (Fold Change Detection): pull data 
+
+# experimental data
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
+Kamino_FCD = pd.read_excel(my_dir+r'Kamino_FCD_exp_data.xlsx',sheet_name='Sheet1')
+
+# simulation data
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_sample.pickle','rb') as f:
+    sample_t,sample_cAMPi = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Kamino.pickle','rb') as f:
+    normPeakProm_Kamino = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
+    normPeakProm_Sgro = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Goldbeter.pickle','rb') as f:
+    normPeakProm_Goldbeter = pickle.load(f)
+
+FCvals = np.logspace(0,2,8)
+FCvals_GB = np.logspace(0,2,12)
+FCcolors = plt.cm.Greys(np.array((1,2,3,4))/4)
+primingLabels = ['Priming Conc.: 0.1','Priming Conc.: 1.0','Priming Conc.: 3.0','Priming Conc.: 10.0']
+#%% Figure 6 (Fold Change Detection): plot 
+
+f = plt.figure(figsize=(8,10))
+gs = plt.GridSpec(3,2,wspace=0.5,hspace=0.5)
+
+f.text(0.01,0.96,'A',fontsize=letterLabelSize)
+f.text(0.17,0.965,'Experiment: Fold-Change Detection (FCD)',fontsize=title_font_size)
+ax = f.add_subplot([0.14,.86,.35,.09])
+ax.plot(np.array((0,10,10,20,20,30)),np.array((0,0,1,1,2,2)),color='k',linewidth=trace_width)
+ax.arrow(11,0,0,0.9,color='k',linewidth=2,length_includes_head=True,head_width=.5,head_length=.1)
+ax.arrow(11,0.9,0,-0.9,color='k',linewidth=2,length_includes_head=True,head_width=.5,head_length=.1)
+ax.text(12,0.1,'Priming\nConc.',fontsize=12)
+ax.arrow(21,1,0,0.9,color='k',linewidth=2,length_includes_head=True,head_width=.5,head_length=.1)
+ax.arrow(21,1.9,0,-0.9,color='k',linewidth=2,length_includes_head=True,head_width=.5,head_length=.1)
+ax.text(22,1.1,'Fold\nChange',fontsize=12)
+ax.set_xlim([0,30])
+ax.set_ylabel('$cAMP_e$\nInput',fontsize=label_font_size)
+ax.tick_params(axis='both', which='major', labelsize=tick_font_size)
+ax = f.add_subplot([0.14,.73,.35,.09])
+ax.plot(30*sample_t/sample_t[-1],sample_cAMPi,color='k',linewidth=trace_width)
+ax.arrow(22,0.08,0,.12,color='k',linewidth=2,length_includes_head=True,head_width=.5,head_length=.02)
+ax.arrow(22,0.2,0,-0.12,color='k',linewidth=2,length_includes_head=True,head_width=.5,head_length=.02)
+ax.text(22,0.25,'Second Peak\nProminence',fontsize=12,horizontalalignment='center')
+ax.set_xlim([0,30])
+ax.set_ylim([0,.4])
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_ylabel('$cAMP_i$\nResponse',fontsize=label_font_size)
+ax.tick_params(axis='both', which='major', labelsize=tick_font_size)
+
+ax = f.add_subplot(gs[0,1])
+ax.errorbar(Kamino_FCD["FC_100pM"], Kamino_FCD["100pM mean"], yerr=Kamino_FCD["100pM SD"], xerr=None, color=FCcolors[0], linewidth=trace_width, label='0.1nM', ecolor=FCcolors[0], elinewidth=trace_width,capsize=5,capthick=2)
+ax.errorbar(Kamino_FCD["FC_1nM"], Kamino_FCD["1nM mean"], yerr=Kamino_FCD["1nM SD"], xerr=None, color=FCcolors[1], linewidth=trace_width, label='1nM', ecolor=FCcolors[1], elinewidth=trace_width,capsize=5,capthick=2)
+ax.errorbar(Kamino_FCD["FC_3nM"], Kamino_FCD["3nM mean"], yerr=Kamino_FCD["3nM SD"], xerr=None, color=FCcolors[2], linewidth=trace_width, label='3nM', ecolor=FCcolors[2], elinewidth=trace_width,capsize=5,capthick=2)
+ax.errorbar(Kamino_FCD["FC_10nM"], Kamino_FCD["10nM mean"], yerr=Kamino_FCD["10nM SD"], xerr=None, color=FCcolors[3], linewidth=trace_width, label='10nM', ecolor=FCcolors[3], elinewidth=trace_width,capsize=5,capthick=2)
+ax.legend(frameon=0,ncol=2,fontsize=12)
+ax.set_ylim([1.5,2.6])
+ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
+ax.set_xlabel(r'$cAMP_{e}$'+' fold change',fontsize=label_font_size)
+ax.set_xscale('log')
+ax.tick_params(axis='both', which='major', labelsize=tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.69),0.935,0.277,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1))
+
+f.text(0.01,0.61,'B',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[1,0])
+ax.set_title('IFFL',color=mycolors[0],fontsize=title_font_size)
+for i in range(len(normPeakProm_Kamino)):
+    ax.plot(FCvals,normPeakProm_Kamino[i],color=plt.cm.Greys(i/len(normPeakProm_Kamino)),linewidth=trace_width)
+ax.set_xscale('log')
+ax.set_xlabel('$cAMP_e$ Fold Change',fontsize=label_font_size)
+ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.1,1.1])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.51,0.61,'C',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[1,1])
+ax.set_title('IPNFB',color=mycolors[5],fontsize=title_font_size)
+for i in range(len(normPeakProm_Sgro)):
+    ax.plot(FCvals,np.mean(normPeakProm_Sgro[i],axis=1),color=plt.cm.Greys(i/len(normPeakProm_Kamino)),linewidth=trace_width)
+    ax.errorbar(FCvals,np.mean(normPeakProm_Sgro[i],axis=1),np.std(normPeakProm_Sgro[i],axis=1)/np.sqrt(np.shape(normPeakProm_Sgro)[2]),capsize=5,capthick=2,color=plt.cm.Greys(i/len(normPeakProm_Kamino)),linewidth=trace_width)
+ax.set_xscale('log')
+ax.set_xlabel('$cAMP_e$ Fold Change',fontsize=label_font_size)
+ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.1,1.1])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.36),0.935,0.265,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1))
+
+
+f.text(0.01,0.29,'D',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[2,0])
+ax.set_title('Receptor Desensitization',color=mycolors[7],fontsize=title_font_size)
+for i in range(len(normPeakProm_Goldbeter)):
+    ax.plot(FCvals_GB,normPeakProm_Goldbeter[i],color=plt.cm.Greys((i+1)/(len(normPeakProm_Goldbeter)+1)),linewidth=trace_width,label=primingLabels[i])
+ax.set_xscale('log')
+ax.set_xlabel('$cAMP_e$ Fold Change',fontsize=label_font_size)
+ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-1,51.1])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+ax.legend(frameon=0,fontsize=tick_font_size,loc='upper left',bbox_to_anchor=[1.3,.4,.5,.5])
+
+plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.97, left = 0.15)
+plt.show()
