@@ -693,3 +693,30 @@ ax.legend(frameon=0,fontsize=tick_font_size,loc='upper left',bbox_to_anchor=[1.3
 
 plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.97, left = 0.15)
 plt.show()
+
+#%% Figure S2 (Sgro Model, FCD): pull data 
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
+    normPeakProm_Sgro = pickle.load(f)
+    
+#%% Figure S2 (Sgro Model, FCD): plot 
+
+f = plt.figure(figsize=(16,4))
+gs = plt.GridSpec(1,4,wspace=0.3,hspace=0.5)
+
+f.text(0.49,0.9,'IPNFB',color=mycolors[5],fontsize=letterLabelSize)
+f.text(0.46,0.02,'$cAMP_e$ Fold Change',fontsize=label_font_size)
+
+for i in range(len(normPeakProm_Sgro)):
+    ax = f.add_subplot(gs[0,i])
+    ax.set_title('Priming Conc.: 0.01',fontsize=title_font_size)
+    parts = ax.violinplot(np.transpose(normPeakProm_Sgro[i]),showmeans=True,showextrema=False)
+    for pc in parts['bodies']:
+        pc.set_facecolor(FCcolors[i])
+    ax.set_xticks(np.linspace(1,8,8),np.round(FCvals).astype('int'))
+    ax.set_ylim([0,1.1])
+    if i==0: ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
+    ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+plt.subplots_adjust(top = 0.8, bottom = 0.16, right = 0.99, left = 0.08)
+plt.show()

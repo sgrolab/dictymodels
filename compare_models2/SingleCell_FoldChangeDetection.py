@@ -100,7 +100,7 @@ cAMPe_in_priming = np.array((1,2,4,8))
 cAMPe_in_foldChange = np.logspace(0,2,8)
 
 # set number of reptitions 
-nCells = 20
+nCells = 50
 
 # preallocate array 
 normPeakProm = np.zeros([len(cAMPe_in_priming),len(cAMPe_in_foldChange),nCells])
