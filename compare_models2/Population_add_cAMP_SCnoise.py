@@ -208,12 +208,12 @@ gs = np.zeros_like(ps)
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
 sigma = 10      # noise strength
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N)) * sigma
+r = math.sqrt(dt) * rng.normal(0,1,size=(len(t),N)) * sigma
 
 # run model for each cAMPe amount 
 for i in range(len(cAMPe_amounts)):
     
-    # define cAMPe trace 
+    # define cAMPe trace with cAMP added halfway through 
     cAMPe_trace = np.zeros(len(t))
     cAMPe_trace[int(len(t)/2):] = cAMPe_amounts[i]
     
@@ -229,7 +229,7 @@ for i in range(len(cAMPe_amounts)):
     gs[i] = pop.g
 
 bs = bs/Nh_Goldbeter
-ts = t//Nt_Goldbeter
+ts = t/Nt_Goldbeter
 
 # export to pickle file
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Goldbeter.pickle','wb') as f:
@@ -243,10 +243,10 @@ k1=2.0; k2=0.9; k3=2.5; k4=1.5; k5=0.6
 k6=0.8; k7=1.0; k8=1.3; k9=0.3; k10=0.8
 k11=0.7; k12=4.9; k13=23; k14=4.5
 N = 100 # number of cells in a population
-sigma = 0.1 # noise strength
+
 MaedaPopParam={'k1':k1,'k2':k2,'k3':k3,'k4':k4,'k5':k5,'k6':k6,\
             'k7':k7,'k8':k8,'k9':k9,'k10':k10,'k11':k11,'k12':k12,\
-            'k13':k13,'k14':k14, 'N':N, 'sigma':sigma}
+            'k13':k13,'k14':k14, 'N':N}
 
 # set initial values 
 ACA0=0.1
@@ -259,17 +259,17 @@ CAR10=0.1
 initialVals = [ACA0,PKA0,ERK20,RegA0,cAMPi0,cAMPe0,CAR10]
 
 # set simulation time parameters
-dt=0.001
-t_tot = (30+30)*Nt_Maeda
-t=np.arange(0,t_tot,dt)
+dt = 0.001
+t_tot = 60*Nt_Maeda
+t = np.arange(0,t_tot,dt)
 
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
-sigma = 10      # noise strength
+sigma = 0.1      # noise strength
 r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N)) * sigma
 
 # define extracellular cAMP input amounts 
-cAMPe_in = np.array([0.005, 0.05, 0.5])   # np.logspace(-1, 2, num=6) # 
+cAMPe_in = np.array([0.005, 0.05, 0.5])
 
 # preallocate trace arrays
 cAMPi_traces = np.zeros([len(cAMPe_in),N,int(len(t)/2)])
@@ -279,7 +279,7 @@ for i in range(len(cAMPe_in)):
     
     # define cAMPe input
     camp_input_trace=np.zeros(len(t))
-    camp_input_trace[int(round(0.75*t_tot/dt)):] = cAMPe_in[i]
+    camp_input_trace[int(0.75*len(t)):] = cAMPe_in[i]
     
     # initialize population 
     pop = mlf.Population_scNoise([1,1],initialVals,MaedaPopParam,t)
@@ -290,8 +290,6 @@ for i in range(len(cAMPe_in)):
     # store cAMPi trace value
     cAMPi_traces[i] = pop.cAMPi[:,int(len(t)/2):]/Nh_Maeda
 
-# save adjusted time trace 
-t = np.arange(0,t_tot/2,dt)/Nt_Maeda
 
 # export time and cAMPi data
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Maeda.pickle','wb') as f:
@@ -306,7 +304,7 @@ tau=1.5
 n=2
 K=4
 kt=2
-delta=0.01
+delta = 0
 gamma = 3   # dilution rate 
 rho = 1     # cell density
 N = 100     # number of cells in the population 
@@ -316,7 +314,7 @@ params={'tau':tau,'n':n,'K':K,'kt':kt,'delta':delta,\
 # set initial values
 x0=0.01
 y0=0.08
-z0=0.01
+z0=0
 
 # set simulation time parameters
 dt=0.001
@@ -351,7 +349,7 @@ for i in range(len(cAMPe_in)):
 
     # save traces
     x_traces[i] = pop.x
-    y_traces[i] = pop.y/Nh_Kamino # normalize y trace 
+    y_traces[i] = (pop.y-Nh_Kamino_offset)/Nh_Kamino # normalize y trace 
     z_traces[i] = pop.z
 
 # save adjusted t trace 

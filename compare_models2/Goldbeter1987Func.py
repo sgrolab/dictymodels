@@ -282,18 +282,18 @@ class Population_scNoise():
             # get variable values from previous timestep
             p = self.p[:,i-1]
             b = self.b[:,i-1]
-            g = self.g[:,-1]
+            g = self.g[:,i-1]
             
             # calculate model equations
-            f1 = (k1+k2*g)/(1+g)
-            f2 = (k1*L1+k2*L2*c*g)/(1+c*g)
+            f1 = (k1 + k2*g)/(1+g)
+            f2 = (k1*L1 + k2*L2*c*g)/(1+c*g)
             Ysq = (p*g/(1+g))**2
             PI = a*(lamda*theta + e*Ysq)/(1 + theta*a + (1 + a)*e*Ysq)
         
             # update variable values
-            self.p[:,i] = p + dt*(-f1*p+f2*(1-p))
-            self.b[:,i] = b + dt*(q*sig*PI-(ki+kt)*b) + r[i]
-            self.g[:,i] = g + dt*(kt/h*b-kc*(g-cAMPe_in[i])) # campExt_influx: contant cAMP input to the system
+            self.p[:,i] = p + dt*(-f1*p + f2*(1-p))
+            self.b[:,i] = b + dt*(q*sig*PI - (ki+kt)*b) + r[i]
+            self.g[:,i] = g + dt*(kt/h*np.mean(b)-kc*(g-cAMPe_in[i])) # campExt_influx: contant cAMP input to the system
         
     def update(self,dt, a, campExt_influx,noise):
         k1=self.param['k1']   

@@ -202,7 +202,7 @@ class Population_scNoise: # population with noisy single cells
             # calculate next values 
             dx = (z + delta - x)/tau
             dy = (z + delta)**n/((z + delta)**n + (K*x)**n) - y
-            dz = rho*kt*y - gamma*(z-z0_influx[i])
+            dz = rho*kt*np.mean(y) - gamma*(z-z0_influx[i])
         
             # apply time step
             self.x[:,i] = x + dx*dt

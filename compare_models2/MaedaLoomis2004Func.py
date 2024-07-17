@@ -267,7 +267,7 @@ class Population_scNoise:
         self.cAMPe[0] = initialVals[5]
         self.CAR1[:,0] = initialVals[6] 
     
-    def run(self,dt,cAMPe_in,r,rho=0,gamma=0):
+    def run(self,dt,cAMPe_in,r,rho=1,gamma=0):
         
         # get parameter values from dictionary
         k1=self.AgentParam['k1']   

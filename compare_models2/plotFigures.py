@@ -1,6 +1,6 @@
 # plot figures for Chuqiao's paper 
 
-import pickle 
+import os, pickle 
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt 
@@ -158,41 +158,40 @@ plt.show()
 my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure6')
 
-# # Sgro 
-# with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMP_data/popAddcAMP_Sgro.pickle','rb') as f:
-#     ts_Sgro,As_Sgro,As_sc_Sgro = pickle.load(f)
+# Gregor
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Gregor.pickle','rb') as f:
+    ts_Gregor,thetais_Gregor,cAMPes_Gregor,cAMPis_sc_Gregor,cAMPis_Gregor = pickle.load(f)
 
-# # Gregor
-# with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMP_data/popAddcAMP_Gregor.pickle','rb') as f:
-#     ts_Gregor,thetais_Gregor,cAMPes_Gregor,cAMPis_sc_Gregor,cAMPis_Gregor = pickle.load(f)
+# Sgro 
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Sgro.pickle','rb') as f:
+    ts_Sgro,As_Sgro,As_sc_Sgro = pickle.load(f)
 
-# # Goldbeter
-# with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMP_data/popAddcAMP_Goldbeter.pickle','rb') as f:
-#     ts_Gb,ps_Gb,bs_Gb,gs_Gb = pickle.load(f)
+# Goldbeter
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Goldbeter.pickle','rb') as f:
+    ts_Gb,ps_Gb,bs_Gb,gs_Gb = pickle.load(f)
     
-# # Maeda
-# with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMP_data/popAddcAMP_Maeda.pickle','rb') as f:
-#     t_ML,cAMPis_ML = pickle.load(f)
+# Maeda
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Maeda.pickle','rb') as f:
+    t_ML,cAMPis_ML = pickle.load(f)
 
 # Kamino
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMP_data/popAddcAMP_Kamino.pickle','rb') as f:
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Kamino.pickle','rb') as f:
     t_Kamino,xs_Kamino,ys_Kamino,zs_Kamino = pickle.load(f)
 
 
-#%% plot 
+#%% Figure 3 (Population add cAMP): plot
 
+fig = plt.figure(figsize=(16,12))
+grid = plt.GridSpec(7, 3, wspace=0.25, hspace=0.4)
 
-
-fig = plt.figure(figsize=(16, 8.5))
-grid = plt.GridSpec(7, 3, wspace=0.5, hspace=0.5)
-
-fig.text(0.001,0.96,'A',fontsize=letterLabelSize)
+fig.text(0.01,0.96,'A',fontsize=letterLabelSize)
 ax= fig.add_subplot(grid[0, 0])
 ax.set_title('Experiment',size=title_font_size)
+ax.vlines(60,-1,1,color='k',linestyle='dashed')
 ax.plot(Sgro2015Figure6excel["Times (min)"],
           Sgro2015Figure6excel["Low External cAMP Mean Trace"],
           color = 'k', linewidth=trace_width)
-ax.axvspan(60, 120, alpha=0.2, color='b')
+ax.text(85,0.35,'Low $cAMP_e$ Input\n5-10nM',fontsize=12,horizontalalignment='center')
 ax.set_ylim([-0.1,0.6]);
 ax.set_xlim([0,120])
 ax.set_xticks(np.linspace(0,120,7))
@@ -200,12 +199,12 @@ ax.set_xticks(np.linspace(0,120,13),[],minor=1)
 ax.set_yticks(np.linspace(0,.5,2))
 ax.set_yticks(np.linspace(0,.5,6),[],minor=1)
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax.text(0.1,0.1,' Low External cAMP, \n 5-10nM', horizontalalignment='center',verticalalignment='center', color = 'k', fontsize=tick_font_size)
 
 ax= fig.add_subplot(grid[1,0])
 ax.plot(Sgro2015Figure6excel["Times (min)"],Sgro2015Figure6excel["Intermediate External cAMP Mean Trace"],
                                 color = 'k', linewidth=trace_width)
-ax.axvspan(60, 120, alpha=0.2, color='b')
+ax.vlines(60,-1,1,color='k',linestyle='dashed')
+ax.text(90,0.35,'Moderate $cAMP_e$\nInput 10-20nM',fontsize=12,horizontalalignment='center')
 ax.set_ylim([-0.1,0.6])
 ax.set_xlim([0,120])
 ax.set_ylabel('FRET (A.U.)',fontsize=label_font_size)
@@ -214,11 +213,11 @@ ax.set_xticks(np.linspace(0,120,13),[],minor=1)
 ax.set_yticks(np.linspace(0,.5,2))
 ax.set_yticks(np.linspace(0,.5,6),[],minor=1)
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax.text(0.7,0.75,' Intermediate External \n cAMP, 10-20nM', horizontalalignment='center',verticalalignment='center',transform = ax03.transAxes, color = 'k', fontsize=tick_font_size)
 
 ax= fig.add_subplot(grid[2, 0])
 ax.plot(Sgro2015Figure6excel["Times (min)"],Sgro2015Figure6excel["High External cAMP Mean Trace"],color = 'k', linewidth=trace_width)
-ax.axvspan(60, 120, alpha=0.2, color='b')
+ax.vlines(60,-1,1,color='k',linestyle='dashed')
+ax.text(90,0.35,'High $cAMP_e$ Input\n100nM',fontsize=12,horizontalalignment='center')
 ax.set_ylim([-0.1,0.6])
 ax.set_xlim([0,120])
 ax.set_xlabel('Time (min)',fontsize=label_font_size)
@@ -227,237 +226,214 @@ ax.set_xticks(np.linspace(0,120,13),[],minor=1)
 ax.set_yticks(np.linspace(0,.5,2))
 ax.set_yticks(np.linspace(0,.5,6),[],minor=1)
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax04.text(0.7,0.75,' High External cAMP, \n 100nM', horizontalalignment='center',verticalalignment='center',
-#          transform = ax04.transAxes, color = 'k', fontsize=tick_font_size)
 
+fig.add_artist(mpatches.FancyBboxPatch((0.033,0.57),0.28,0.395,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1))
 
-
-
-
-ax= fig.add_subplot(grid[0, 2])
-ax.set_title('IPNFB',size=title_font_size,color=mycolors[5])
-for count in range(5):
-    ax.plot(ts_Sgro,As_sc_Sgro[0,count,:], color='darkgrey', alpha=0.5, linewidth=trace_width-1)
-ax.plot(ts_Sgro,As_Sgro[0,:], color=mycolors[5],linewidth=trace_width)
-# ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-ax.axvspan(15, 30, alpha=0.2, color='g')
+fig.text(0.35,0.96,'B',fontsize=letterLabelSize)
+ax = fig.add_subplot(grid[0,1])
+ax.set_title('Phase Oscillator',color=mycolors[2],fontsize=title_font_size)
+for i in range(10):
+    ax.plot(ts_Gregor,cAMPis_sc_Gregor[0,i], alpha=0.8, color='grey',linewidth=2)  
+ax.plot(ts_Gregor, cAMPis_Gregor[0], alpha=0.8, color=mycolors[2],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
 ax.set_xlim([0,30])
-ax.set_ylim([-0.25,1.25])
-
-ax= fig.add_subplot(grid[1,2])
-for count in range(5):
-    ax.plot(ts_Sgro,As_sc_Sgro[1,count,:], color='darkgrey', alpha=0.5, linewidth=trace_width-1)
-ax.plot(ts_Sgro,As_Sgro[1,:], color=mycolors[5],linewidth=trace_width)
-# ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.1,1.5])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-ax.axvspan(15, 30, alpha=0.2, color='g')
-ax.set_xlim([0,30])
-ax.set_ylabel('$cAMP_i$, (A.U.)',fontsize=label_font_size)
-ax.set_ylim([-0.25,1.25])
 
-ax= fig.add_subplot(grid[2,2])
-for count in range(5):
-    ax.plot(ts_Sgro,As_sc_Sgro[2,count,:], color='darkgrey', alpha=0.5, linewidth=trace_width-1)
-ax.plot(ts_Sgro,As_Sgro[2,:], color=mycolors[5],linewidth=trace_width)
-# ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-ax.axvspan(15, 30, alpha=0.2, color='g')
+ax = fig.add_subplot(grid[1,1])
+for i in range(10):
+    ax.plot(ts_Gregor,cAMPis_sc_Gregor[1,i], alpha=0.8, color='grey',linewidth=2)  
+ax.plot(ts_Gregor, cAMPis_Gregor[1], alpha=0.8, color=mycolors[2],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.1,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = fig.add_subplot(grid[2,1])
+for i in range(10):
+    ax.plot(ts_Gregor,cAMPis_sc_Gregor[2,i], alpha=0.8, color='grey',linewidth=2)  
+ax.plot(ts_Gregor, cAMPis_Gregor[2], alpha=0.8, color=mycolors[2],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
 ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
 ax.set_xlim([0,30])
-ax.set_ylim([-0.25,1.25])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.1,1.5])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-# KAMINO
-ax = fig.add_subplot(grid[4,2])
-ax.plot(t_Kamino, ys_Kamino[0,:], color=mycolors[7],linewidth=trace_width)
-# ax.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-ax.axvspan(15, 30, alpha=0.2, color='g')
+fig.text(0.68,0.96,'C',fontsize=letterLabelSize)
+ax = fig.add_subplot(grid[0,2])
+ax.set_title('IPNFB',color=mycolors[5],fontsize=title_font_size)
+for i in range(10):
+    ax.plot(ts_Sgro,As_sc_Sgro[0,i], alpha=0.2, color='grey',linewidth=2)  
+ax.plot(ts_Sgro, As_Sgro[0], alpha=0.8, color=mycolors[5],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
 ax.set_xlim([0,30])
-ax.set_ylim([-0.2,1.2])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = fig.add_subplot(grid[1,2])
+for i in range(10):
+    ax.plot(ts_Sgro,As_sc_Sgro[1,i], alpha=0.2, color='grey',linewidth=2)  
+ax.plot(ts_Sgro, As_Sgro[1], alpha=0.8, color=mycolors[5],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = fig.add_subplot(grid[2,2])
+for i in range(10):
+    ax.plot(ts_Sgro,As_sc_Sgro[2,i], alpha=0.2, color='grey',linewidth=2)  
+ax.plot(ts_Sgro, As_Sgro[2], alpha=0.8, color=mycolors[5],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+fig.add_artist(mpatches.FancyBboxPatch((0.7,0.57),0.265,0.395,facecolor='palegreen',zorder=0,alpha=1,mutation_scale=0.1))
+
+fig.text(0.01,0.44,'D',fontsize=letterLabelSize)
+ax = fig.add_subplot(grid[4,0])
+ax.set_title('Receptor Desensitization',color=mycolors[7],fontsize=title_font_size)
+for i in range(10):
+    ax.plot(ts_Gb, bs_Gb[0,i], alpha=0.2, color='grey',linewidth=2)  
+ax.plot(ts_Gb, np.mean(bs_Gb[0],axis=0), alpha=0.8, color=mycolors[7],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.1,1.7])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = fig.add_subplot(grid[5,0])
+for i in range(10):
+    ax.plot(ts_Gb, bs_Gb[1,i], alpha=0.2, color='grey',linewidth=2)  
+ax.plot(ts_Gb, np.mean(bs_Gb[1],axis=0), alpha=0.8, color=mycolors[7],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.1,1.7])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = fig.add_subplot(grid[6,0])
+for i in range(10):
+    ax.plot(ts_Gb, bs_Gb[2,i], alpha=0.2, color='grey',linewidth=2)  
+ax.plot(ts_Gb, np.mean(bs_Gb[2],axis=0), alpha=0.8, color=mycolors[7],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.1,1.7])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+fig.text(0.35,0.44,'E',fontsize=letterLabelSize)
+ax = fig.add_subplot(grid[4,1])
+ax.set_title('CDINFB',color=mycolors[8],fontsize=title_font_size)
+for i in range(10):
+    ax.plot(t_ML, cAMPis_ML[0,i], alpha=0.2, color='grey',linewidth=trace_width)  
+ax.plot(t_ML, np.mean(cAMPis_ML[0],axis=0), alpha=0.8, color=mycolors[8],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = fig.add_subplot(grid[5,1])
+for i in range(10):
+    ax.plot(t_ML, cAMPis_ML[1,i], alpha=0.2, color='grey',linewidth=trace_width)  
+ax.plot(t_ML, np.mean(cAMPis_ML[1],axis=0), alpha=0.8, color=mycolors[8],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = fig.add_subplot(grid[6,1])
+for i in range(10):
+    ax.plot(t_ML, cAMPis_ML[2,i], alpha=0.2, color='grey',linewidth=trace_width)  
+ax.plot(t_ML, np.mean(cAMPis_ML[2],axis=0), alpha=0.8, color=mycolors[8],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+fig.text(0.68,0.44,'F',fontsize=letterLabelSize)
+ax = fig.add_subplot(grid[4,2])
+ax.set_title('IFFL',color=mycolors[0],fontsize=title_font_size)
+for i in range(10):
+    ax.plot(t_Kamino,ys_Kamino[0,i],alpha=0.2,color='grey',linewidth=2)
+ax.plot(t_Kamino, np.mean(ys_Kamino[0],axis=0), alpha=0.8, color=mycolors[0],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlim([0,30])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
 ax = fig.add_subplot(grid[5,2])
-ax.plot(t_Kamino, ys_Kamino[0,:], color=mycolors[7],linewidth=trace_width)
-# ax.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-ax.axvspan(15, 30, alpha=0.2, color='g')
+for i in range(10):
+    ax.plot(t_Kamino,ys_Kamino[1,i],alpha=0.2,color='grey',linewidth=2)
+ax.plot(t_Kamino, np.mean(ys_Kamino[1],axis=0), alpha=0.8, color=mycolors[0],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
 ax.set_xlim([0,30])
-ax.set_ylim([-0.2,1.2])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
 ax = fig.add_subplot(grid[6,2])
-ax.plot(t_Kamino, ys_Kamino[0,:], color=mycolors[7],linewidth=trace_width)
-# ax.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-ax.axvspan(15, 30, alpha=0.2, color='g')
+for i in range(10):
+    ax.plot(t_Kamino,ys_Kamino[2,i],alpha=0.2,color='grey',linewidth=2)
+ax.plot(t_Kamino, np.mean(ys_Kamino[2],axis=0), alpha=0.8, color=mycolors[0],linewidth=trace_width)  
+ax.vlines(15,-1,10,color='k',linestyle='dashed')
+ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
 ax.set_xlim([0,30])
-ax.set_ylim([-0.2,1.2])
+ax.set_xticks(np.linspace(0,30,7))
+ax.set_ylim([-0.3,1.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-plt.subplots_adjust(top = 0.95, bottom = 0.12, right = 0.99, left = 0.06)
+fig.add_artist(mpatches.FancyBboxPatch((0.033,0.04),0.93,0.41,facecolor='palegreen',zorder=0,alpha=1,mutation_scale=0.1))
+
+plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.98, left = 0.055)
 plt.show()
 
 
-# # Gregor 
-# #% Plot  3 traces: low, medium and high [cAMP]ext 
-# fig = plt.figure(figsize=(11, 10))
-# grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
+#%% Figure 4 (Population Firing Rate): pull data 
 
-# ax1= fig.add_subplot(grid[0, 0])
-# for count in range(10):
-#     campCyto_traces_single_cell[0,count,:] = campCyto_traces_single_cell[0,count,:]# /np.amax(campCyto_traces_single_cell[0,count,:])
-#     ax1.plot(t_plot_Gregor,campCyto_traces_single_cell[0,count,:],
-#              color='darkgrey',alpha=0.5, linewidth=trace_width-1)
-# ax1.plot(t_plot_Gregor,campCyto_traces[0,:], alpha=0.8, color=mycolors[2],linewidth=trace_width+1)  
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
+    firingRate_Sgro_noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
+    firingRate_Goldbeter_noise = pickle.load(f)
 
-# ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax1.axvspan(15, 30, alpha=0.2, color='g')
-# ax1.set_xlim([t_plot_Gregor[1],30]); ax1.set_ylim([-0.1,1.3])
-
-# ax2= fig.add_subplot(grid[1, 0])
-# for count in range(10):
-#     campCyto_traces_single_cell[1,count,:] = campCyto_traces_single_cell[1,count,:]# /np.amax(campCyto_traces_single_cell[1,count,:])
-#     ax2.plot(t_plot_Gregor,campCyto_traces_single_cell[1,count,:],
-#              color='darkgrey',alpha=0.5, linewidth=trace_width-1)
-# ax2.plot(t_plot_Gregor,campCyto_traces[1,:], alpha=0.8, color=mycolors[2],linewidth=trace_width+1)
-
-# ax2.text(0.7,0.9,r'Intermediate $cAMP_{e}$'+' input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax2.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax2.axvspan(15, 30, alpha=0.2, color='g')
-# ax2.set_xlim([t_plot_Gregor[1],30]); ax2.set_ylim([-0.1,1.3])
-
-# ax3= fig.add_subplot(grid[2, 0])
-# for count in range(10):
-#     campCyto_traces_single_cell[2,count,:] = campCyto_traces_single_cell[2,count,:]# /np.amax(campCyto_traces_single_cell[2,count,:])
-#     ax3.plot(t_plot_Gregor,campCyto_traces_single_cell[2,count,:],
-#              color='darkgrey',alpha=0.5, linewidth=trace_width-1)
-# ax3.plot(t_plot_Gregor,campCyto_traces[2,:], color=mycolors[2],alpha = 0.8, linewidth=trace_width+1)
-
-# ax3.text(0.7,0.9,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax3.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax3.axvspan(15, 30, alpha=0.2, color='g')
-# ax3.set_xlim([t_plot_Gregor[1],30]); ax3.set_ylim([-0.1,1.3])
-
-# fig.text(0.02, 0.9, 'D', color='g', fontsize=abcd_font_size, ha='center')
-# fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
-# fig.text(0.02, 0.5, r'$cAMP_{i}$',fontsize=label_font_size, va='center', rotation='vertical')
-# fig.text(0.5, 0.9, 'Gregor 2010',color = mycolors[2],fontsize=label_font_size, ha='center')
-# plt.show()
-
-# # GOLDBETER
-
-# fig = plt.figure(figsize=(11, 10))
-# grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
-
-# ax1= fig.add_subplot(grid[0, 0])
-# ax1.plot(t_plot_Goldbeter,b_traces[0,:], color=mycolors[0],linewidth=trace_width)
-# ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax1.axvspan(15, 30, alpha=0.2, color='g')
-# ax1.set_xlim([0,30]); ax1.set_ylim([-0.25,1.5])
-
-# ax2= fig.add_subplot(grid[1, 0])
-# ax2.plot(t_plot_Goldbeter,b_traces[1,:], color=mycolors[0],linewidth=trace_width)
-# ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax2.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax2.axvspan(15, 30, alpha=0.2, color='g')
-# ax2.set_xlim([0,30]); ax2.set_ylim([-0.25,1.5])
-
-# ax3= fig.add_subplot(grid[2, 0])
-# ax3.plot(t_plot_Goldbeter,b_traces[2,:], color=mycolors[0],linewidth=trace_width)
-# ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax3.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax3.axvspan(15, 30, alpha=0.2, color='g')
-# ax3.set_xlim([0,30]); ax3.set_ylim([-0.25,1.5])
-
-# fig.text(0.02, 0.9, 'B', color='g', fontsize=abcd_font_size, ha='center')
-# fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
-# fig.text(0.02, 0.5, r'$cAMP_{i}$',fontsize=label_font_size, va='center', rotation='vertical')
-# fig.text(0.5, 0.9, 'Martiel 1987',color = mycolors[0],fontsize=label_font_size, ha='center')
-# plt.show()
-
-
-# # MAEDA
-
-# fig = plt.figure(figsize=(11, 10))
-# grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
-
-# ax1= fig.add_subplot(grid[0, 0])
-# ax1.plot(t_plot_Maeda,cAMPi_traces[0,:], color=mycolors[1],linewidth=trace_width)
-# ax1.text(0.7,0.9,r'Low $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax1.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax1.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax1.axvspan(15, 30, alpha=0.2, color='g')
-# ax1.set_xlim([0,30]); ax1.set_ylim([0.1,0.9])
-
-# ax2= fig.add_subplot(grid[1, 0])
-# ax2.plot(t_plot_Maeda, cAMPi_traces[1,:], color=mycolors[1],linewidth=trace_width)
-# ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax2.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax2.axvspan(15, 30, alpha=0.2, color='g')
-# ax2.set_xlim([0,30]); ax2.set_ylim([0.1,0.9])
-
-# ax3= fig.add_subplot(grid[2, 0])
-# ax3.plot(t_plot_Maeda, cAMPi_traces[2,:], color=mycolors[1],linewidth=trace_width)
-# ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax3.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax3.axvspan(15, 30, alpha=0.2, color='g')
-# ax3.set_xlim([0,30]); ax3.set_ylim([0.1,0.9])
-
-# fig.text(0.02, 0.9, 'C', color='g', fontsize=abcd_font_size, ha='center')
-# fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
-# fig.text(0.02, 0.5, r'$cAMP_{i}$',fontsize=label_font_size, va='center', rotation='vertical')
-# fig.text(0.5, 0.9, 'Maeda 2004',color = mycolors[1],fontsize=label_font_size, ha='center')
-# plt.show()
-
-# # KAMINO
-
-# fig = plt.figure(figsize=(11, 10))
-# grid = plt.GridSpec(3, 1, wspace=0.5, hspace=0.3)
-
-
-# ax2= fig.add_subplot(grid[1, 0])
-# ax2.plot(t_plot_Kamino, y_traces[1,:], color=mycolors[7],linewidth=trace_width)
-# ax2.text(0.7,0.8,r'Intermediate $cAMP_{e}$'+'\n input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax2.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax2.axvspan(15, 30, alpha=0.2, color='g')
-# ax2.set_xlim([0,30]); ax2.set_ylim([-0.2,1.2])
-
-# ax3= fig.add_subplot(grid[2, 0])
-# ax3.plot(t_plot_Kamino, y_traces[2,:], color=mycolors[7],linewidth=trace_width)
-# ax3.text(0.7,0.8,r'High $cAMP_{e}$ input', horizontalalignment='center',verticalalignment='center',
-#      transform = ax3.transAxes, color = 'k', fontsize=tick_font_size)
-# #    ax.set_xlabel(r'$cAMP_{ext}$ input='+str(alphafval_arr[i])+ 'nM', fontsize=label_font_size)
-# ax3.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-# ax3.axvspan(15, 30, alpha=0.2, color='g')
-# ax3.set_xlim([0,30]); ax3.set_ylim([-0.2,1.2])
-
-# fig.text(0.02, 0.9, 'F', color='g', fontsize=abcd_font_size, ha='center')
-# fig.text(0.5, 0.04, 'Time, A.U.',fontsize=label_font_size, ha='center')
-# fig.text(0.02, 0.5, r'$cAMP_{i}$',fontsize=label_font_size, va='center', rotation='vertical')
-# fig.text(0.5, 0.9, 'Kamino 2017',color = mycolors[7],fontsize=label_font_size, ha='center')
-# plt.show()
+plt.figure(figsize=(8,10))
+plt.subplot(3,2,2)
+plt.imshow(firingRate_Goldbeter_noise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+plt.subplot(3,2,5)
+plt.imshow(firingRate_Sgro_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
 
 #%% Figure 5 (Adaptive Spiking and Bifurcation Dynamics): pull data 
 
@@ -610,6 +586,7 @@ FCvals = np.logspace(0,2,8)
 FCvals_GB = np.logspace(0,2,12)
 FCcolors = plt.cm.Greys(np.array((1,2,3,4))/4)
 primingLabels = ['Priming Conc.: 0.1','Priming Conc.: 1.0','Priming Conc.: 3.0','Priming Conc.: 10.0']
+
 #%% Figure 6 (Fold Change Detection): plot 
 
 f = plt.figure(figsize=(8,10))
@@ -693,6 +670,70 @@ ax.legend(frameon=0,fontsize=tick_font_size,loc='upper left',bbox_to_anchor=[1.3
 
 plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.97, left = 0.15)
 plt.show()
+
+#%% Figure S1 (Population Firing Rate, noise and no noise): pull data 
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
+    firingRate_Sgro_noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
+    firingRate_Goldbeter_noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
+    firingRate_Maeda_noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Gregor_Noise.pickle','rb') as f:
+    firingRate_Gregor_Noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise.pickle','rb') as f:
+    firingRate_Kamino_Noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise_log.pickle','rb') as f:
+    firingRate_Kamino_Noise_log = pickle.load(f)
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noNoise.pickle','rb') as f:
+    firingRate_Sgro_noNoise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noNoise.pickle','rb') as f:
+    firingRate_Goldbeter_noNoise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Maeda_noNoise.pickle','rb') as f:
+    firingRate_Maeda_noNoise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Gregor_noNoise.pickle','rb') as f:
+    firingRate_Gregor_noNoise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_noNoise.pickle','rb') as f:
+    firingRate_Kamino_noNoise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_noNoise_log.pickle','rb') as f:
+    firingRate_Kamino_noNoise_log = pickle.load(f)
+
+#%% Figure S1
+
+f = plt.figure(figsize=(16,10))
+gs = plt.GridSpec(3,5,wspace=0.5,hspace=0.5)
+
+ax = f.add_subplot(gs[1,0])
+ax.imshow(firingRate_Goldbeter_noise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+ax = f.add_subplot(gs[2,0])
+ax.imshow(firingRate_Goldbeter_noNoise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+
+ax = f.add_subplot(gs[1,1])
+ax.imshow(firingRate_Maeda_noise,origin='lower',vmin=0,vmax=0.7,cmap='jet')
+ax = f.add_subplot(gs[2,1])
+ax.imshow(firingRate_Maeda_noNoise,origin='lower',vmin=0,vmax=0.7,cmap='jet')
+
+ax = f.add_subplot(gs[1,2])
+ax.imshow(firingRate_Gregor_Noise,origin='lower',vmin=0,vmax=1.2,cmap='jet')
+ax = f.add_subplot(gs[2,2])
+ax.imshow(firingRate_Gregor_noNoise,origin='lower',vmin=0,vmax=1.2,cmap='jet')
+
+ax = f.add_subplot(gs[1,3])
+ax.imshow(firingRate_Sgro_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+ax = f.add_subplot(gs[2,3])
+ax.imshow(firingRate_Sgro_noNoise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+
+ax = f.add_subplot(gs[1,4])
+ax.imshow(firingRate_Kamino_Noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+ax = f.add_subplot(gs[2,4])
+ax.imshow(firingRate_Kamino_noNoise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+
+
+ax = f.add_subplot([.8,.4,.1,.1])
+ax.imshow(firingRate_Kamino_Noise_log,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+ax = f.add_subplot([.8,.1,.1,.1])
+ax.imshow(firingRate_Kamino_noNoise_log,origin='lower',vmin=0,vmax=0.6,cmap='jet')
 
 #%% Figure S2 (Sgro Model, FCD): pull data 
 
