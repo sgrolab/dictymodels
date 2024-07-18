@@ -57,7 +57,7 @@ ax.set_xlim([0,30])
 ax.set_ylabel('FRET (A.U.)',fontsize=label_font_size)
 ax.set_ylim([-0.1,.6])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
-f.add_artist(mpatches.FancyBboxPatch((0.033,0.7),0.43,0.268,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1))
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.7),0.43,0.268,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
 
 f.text(0.52,0.955,'B',fontsize=letterLabelSize)
 ax = f.add_subplot(grid[0,1])
@@ -227,7 +227,7 @@ ax.set_yticks(np.linspace(0,.5,2))
 ax.set_yticks(np.linspace(0,.5,6),[],minor=1)
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-fig.add_artist(mpatches.FancyBboxPatch((0.033,0.57),0.28,0.395,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1))
+fig.add_artist(mpatches.FancyBboxPatch((0.033,0.57),0.28,0.395,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
 
 fig.text(0.35,0.96,'B',fontsize=letterLabelSize)
 ax = fig.add_subplot(grid[0,1])
@@ -303,7 +303,7 @@ ax.set_xticks(np.linspace(0,30,7))
 ax.set_ylim([-0.3,1.5])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-fig.add_artist(mpatches.FancyBboxPatch((0.7,0.57),0.265,0.395,facecolor='palegreen',zorder=0,alpha=1,mutation_scale=0.1))
+fig.add_artist(mpatches.FancyBboxPatch((0.7,0.57),0.265,0.395,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
 
 fig.text(0.01,0.44,'D',fontsize=letterLabelSize)
 ax = fig.add_subplot(grid[4,0])
@@ -416,7 +416,7 @@ ax.set_xticks(np.linspace(0,30,7))
 ax.set_ylim([-0.3,1.5])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-fig.add_artist(mpatches.FancyBboxPatch((0.033,0.04),0.93,0.41,facecolor='palegreen',zorder=0,alpha=1,mutation_scale=0.1))
+fig.add_artist(mpatches.FancyBboxPatch((0.033,0.04),0.93,0.41,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
 
 plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.98, left = 0.055)
 plt.show()
@@ -450,6 +450,8 @@ f.text(0.01,0.95,'A',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[0,0])
 ax.set_title('Experiment',fontsize=title_font_size)
 im = ax.imshow(PopRateExp,cmap='jet',aspect=1.3,vmin=0,vmax=0.18)
+for i in ([2.5,3.5,4.5,5.5,6.5,7.5,8.5]):
+    ax.vlines(i,-0.5,6.5,color='white')
 cbar = plt.colorbar(im,ax=ax,ticks=[0,.06,.12,0.18])
 cbar.set_label('cAMP Pulses/Min',fontsize=14,rotation=-90,labelpad=15)
 cbar.ax.tick_params(labelsize=12)
@@ -457,7 +459,7 @@ ax.set_xlabel('Flow Rate (mL/min)', size=14)
 ax.set_xticks([0,1,2,3,4,5,6,7,8,9],[0,1,2,4,6,8,10,15,16,20])
 ax.set_ylabel('Cell Density (ML)', size=14)
 ax.set_yticks([0,2,4,6],['1/2','1/8','1/32','1/128'],fontsize=tick_font_size)
-ax.tick_params(grid_linewidth = 15, labelsize = 12)
+ax.tick_params(grid_linewidth = 15, labelsize = 10)
 
 f.add_artist(mpatches.FancyBboxPatch((0.035,0.7),0.44,0.265,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
 
@@ -525,6 +527,15 @@ ax.set_xticks([0,15,30],[0,50,100])
 ax.set_ylabel('Cell Density (A.U.)',fontsize=14)
 ax.set_yticks([0,15,30],['$10^{0}$','$10^{1}$','$10^{2}$'])
 ax.tick_params(grid_linewidth = 15, labelsize = 12)
+ax = f.add_subplot([.805,.105,.05,.05])
+ax.imshow(firingRate_Kamino_Noise_log,origin='lower',vmin=0,vmax=0.75,cmap='jet')
+ax.set_xticks([0,30],['$10^{0}$','$10^{2}$'],color='white')
+ax.set_yticks([0,30],['$10^{0}$','$10^{2}$'])
+ax.tick_params(colors='white')
+ax.spines['left'].set_color('white')
+ax.spines['bottom'].set_color('white')
+ax.spines['right'].set_color('white')
+ax.spines['top'].set_color('white')
 
 f.add_artist(mpatches.FancyBboxPatch((0.035,0.035),0.93,0.26,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
 
@@ -598,7 +609,7 @@ ax.set_ylim([-0.1,.6])
 ax.set_yticks(np.linspace(0,.5,2))
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-f.add_artist(mpatches.FancyBboxPatch((0.033,0.69),0.935,0.275,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1))
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.69),0.935,0.275,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
 
 f.text(0.01,0.61,'C',fontsize=letterLabelSize)
 ax = f.add_subplot([.12,.4,.35,.18])
@@ -649,7 +660,7 @@ ax.set_yticks(np.linspace(0,1.5,4))
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-f.add_artist(mpatches.FancyBboxPatch((0.033,0.39),0.935,0.235,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1))
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.39),0.935,0.235,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
 
 f.add_artist(mlines.Line2D([0.05,0.15],[0.07,0.07],color=mycolors[7],linewidth=2))
 f.text(0.17,.065,'Receptor Desensitization',fontsize=12)
@@ -769,6 +780,11 @@ plt.show()
 
 #%% Figure S1 (Population Firing Rate, noise and no noise): pull data 
 
+# experimental data
+npzfile = np.load('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/Gregor2010_pop_firing_rate.npz')
+PopRateExp = npzfile['PopRateExp']
+
+
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
     firingRate_Sgro_noise = pickle.load(f)
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
@@ -797,39 +813,144 @@ with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRat
 
 #%% Figure S1
 
-f = plt.figure(figsize=(16,10))
-gs = plt.GridSpec(3,5,wspace=0.5,hspace=0.5)
+f = plt.figure(figsize=(16,9))
+gs = plt.GridSpec(3,5,wspace=0.5,hspace=0.3)
 
+f.text(0.01,0.95,'A',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0,0:2])
+ax.set_title('Experiment',fontsize=label_font_size)
+im = ax.imshow(PopRateExp,cmap='jet',aspect=0.6,vmin=0,vmax=0.18)
+for i in ([2.5,3.5,4.5,5.5,6.5,7.5,8.5]):
+    ax.vlines(i,-0.5,6.5,color='white')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.06,.12,0.18],shrink=0.75,aspect=10)
+cbar.set_label('cAMP Pulses/Min',fontsize=14,rotation=-90,labelpad=15)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xlabel('Flow Rate (mL/min)', size=14)
+ax.set_xticks([0,1,2,3,4,5,6,7,8,9],[0,1,2,4,6,8,10,15,16,20])
+ax.set_ylabel('Cell Density (ML)', size=14)
+ax.set_yticks([0,2,4,6],['1/2','1/8','1/32','1/128'],fontsize=tick_font_size)
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
+f.add_artist(mpatches.FancyBboxPatch((0.02,0.71),0.37,0.27,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.05,linewidth=0))
+
+f.text(0.01,.65,'B',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[1,0])
-ax.imshow(firingRate_Goldbeter_noise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+ax.set_title('Receptor Desensitization\nwith Noise',fontsize=label_font_size,color=mycolors[7],pad=10)
+im = ax.imshow(firingRate_Goldbeter_noise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12,24],[0,50,100])
+ax.set_yticks([0,8,16,24],['$10^{-2}$','$10^{-1}$','$10^{0}$','$10^1$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
 ax = f.add_subplot(gs[2,0])
-ax.imshow(firingRate_Goldbeter_noNoise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+ax.set_title('Receptor Desensitization\nwithout Noise',fontsize=label_font_size,color=mycolors[7],pad=10)
+im = ax.imshow(firingRate_Goldbeter_noNoise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12,24],[0,50,100])
+ax.set_yticks([0,8,16,24],['$10^{-2}$','$10^{-1}$','$10^{0}$','$10^1$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
 
+f.text(0.23,.65,'C',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[1,1])
-ax.imshow(firingRate_Maeda_noise,origin='lower',vmin=0,vmax=0.7,cmap='jet')
+ax.set_title('CDINFB\nwith Noise',fontsize=label_font_size,color=mycolors[8],pad=10)
+im = ax.imshow(firingRate_Maeda_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12.5,25],[0,50,100])
+ax.set_yticks([1,10,19,25],['$10^{0}$','$10^1$','$10^2$','$10^{2.7}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
 ax = f.add_subplot(gs[2,1])
-ax.imshow(firingRate_Maeda_noNoise,origin='lower',vmin=0,vmax=0.7,cmap='jet')
+ax.set_title('CDINFB\nwithout Noise',fontsize=label_font_size,color=mycolors[8],pad=10)
+im = ax.imshow(firingRate_Maeda_noNoise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12.5,25],[0,50,100])
+ax.set_yticks([1,10,19,25],['$10^{0}$','$10^1$','$10^2$','$10^{2.7}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
 
+f.text(0.42,.65,'D',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[1,2])
-ax.imshow(firingRate_Gregor_Noise,origin='lower',vmin=0,vmax=1.2,cmap='jet')
+ax.set_title('Phase Oscillator\nwith Noise',fontsize=label_font_size,color=mycolors[2],pad=10)
+im = ax.imshow(firingRate_Gregor_Noise,origin='lower',vmin=0,vmax=1.2,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.4,.8,1.2],shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12.5,25],[0,25,50])
+ax.set_yticks([3,9,14,19.5,25],['$10^{-3}$','$10^{-2}$','$10^{-1}$','$10^0$','$10^1$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
 ax = f.add_subplot(gs[2,2])
-ax.imshow(firingRate_Gregor_noNoise,origin='lower',vmin=0,vmax=1.2,cmap='jet')
+ax.set_title('Phase Oscillator\nwithout Noise',fontsize=label_font_size,color=mycolors[2],pad=10)
+im = ax.imshow(firingRate_Gregor_noNoise,origin='lower',vmin=0,vmax=1.2,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.4,.8,1.2],shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12.5,25],[0,25,50])
+ax.set_yticks([3,9,14,19.5,25],['$10^{-3}$','$10^{-2}$','$10^{-1}$','$10^0$','$10^1$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
 
+f.text(0.61,.65,'E',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[1,3])
-ax.imshow(firingRate_Sgro_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+ax.set_title('IPNFB\nwith Noise',fontsize=label_font_size,color=mycolors[5],pad=10)
+im = ax.imshow(firingRate_Sgro_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.2,.4,.6],shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12.5,25],[0,0.5,1])
+ax.set_yticks([0,8,17,25],['$10^{-6}$','$10^{-5}$','$10^{-4}$','$10^{-3}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
 ax = f.add_subplot(gs[2,3])
-ax.imshow(firingRate_Sgro_noNoise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+ax.set_title('IPNFB\nwithout Noise',fontsize=label_font_size,color=mycolors[5],pad=10)
+im = ax.imshow(firingRate_Sgro_noNoise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.2,.4,.6],shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,12.5,25],[0,0.5,1])
+ax.set_yticks([0,8,17,25],['$10^{-6}$','$10^{-5}$','$10^{-4}$','$10^{-3}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
 
+f.text(0.81,0.65,'F',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[1,4])
-ax.imshow(firingRate_Kamino_Noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+ax.set_title('IFFL\nwith Noise',fontsize=title_font_size,color=mycolors[0],pad=10)
+im = ax.imshow(firingRate_Kamino_Noise,origin='lower',vmin=0,vmax=0.75,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.25,.5,.75],shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,15,30],[0,50,100])
+ax.set_yticks([0,15,30],['$10^{0}$','$10^{1}$','$10^{2}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+ax = f.add_subplot([.898,.465,.05,.05])
+ax.imshow(firingRate_Kamino_Noise_log,origin='lower',vmin=0,vmax=0.75,cmap='jet')
+ax.set_xticks([0,30],['$10^{0}$','$10^{2}$'],color='white')
+ax.set_yticks([0,30],['$10^{0}$','$10^{2}$'])
+ax.tick_params(colors='white')
+ax.spines['left'].set_color('white')
+ax.spines['bottom'].set_color('white')
+ax.spines['right'].set_color('white')
+ax.spines['top'].set_color('white')
+
 ax = f.add_subplot(gs[2,4])
-ax.imshow(firingRate_Kamino_noNoise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+ax.set_title('IFFL\nwithout Noise',fontsize=title_font_size,color=mycolors[0],pad=10)
+im = ax.imshow(firingRate_Kamino_noNoise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.25,.5,.75],shrink=0.72,aspect=10)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xticks([0,15,30],[0,50,100])
+ax.set_yticks([0,15,30],['$10^{0}$','$10^{1}$','$10^{2}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+ax = f.add_subplot([.898,.138,.05,.05])
+ax.imshow(firingRate_Kamino_noNoise_log,origin='lower',vmin=0,vmax=0.75,cmap='jet')
+ax.set_xticks([0,30],['$10^{0}$','$10^{2}$'],color='white')
+ax.set_yticks([0,30],['$10^{0}$','$10^{2}$'])
+ax.tick_params(colors='white')
+ax.spines['left'].set_color('white')
+ax.spines['bottom'].set_color('white')
+ax.spines['right'].set_color('white')
+ax.spines['top'].set_color('white')
 
+f.text(0.02,0.2,'Population Density (A.U.)',fontsize=title_font_size,rotation=90)
+f.text(0.46,0.04,'Flow Rate (A.U.)',fontsize=title_font_size)
 
-ax = f.add_subplot([.8,.4,.1,.1])
-ax.imshow(firingRate_Kamino_Noise_log,origin='lower',vmin=0,vmax=0.6,cmap='jet')
-ax = f.add_subplot([.8,.1,.1,.1])
-ax.imshow(firingRate_Kamino_noNoise_log,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+plt.subplots_adjust(top = 0.98, bottom = 0.07, right = 0.97, left = 0.08)
+plt.show()
 
 #%% Figure S2 (Sgro Model, FCD): pull data 
 
@@ -857,3 +978,112 @@ for i in range(len(normPeakProm_Sgro)):
 
 plt.subplots_adjust(top = 0.8, bottom = 0.16, right = 0.99, left = 0.08)
 plt.show()
+
+#%% Figure S3 (Step vs Ramp): pull data
+
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
+Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_Goldbeter.pickle','rb') as f:
+    t_Goldbeter,cAMP_Goldbeter = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_Sgro.pickle','rb') as f:
+    t_Sgro,cAMP_Sgro = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_MaedaLoomis.pickle','rb') as f:
+    t_Maeda,cAMP_Maeda = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_Kamino.pickle','rb') as f:
+    t_Kamino,cAMP_Kamino = pickle.load(f)
+
+
+#%% Figure S3 (Step vs Ramp): plot 
+
+f = plt.figure(figsize=(16,3.6))
+gs = plt.GridSpec(3,5,wspace=0.4,hspace=0.1)
+
+f.text(0.001,0.86,'A',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0, 0])
+ax.plot(Sgro2015Figure3excel["Ramp Input (min Time)"],Sgro2015Figure3excel["Ramp Input (nM cAMP)"],
+                              color='k', linewidth = trace_width)
+ax.set_title('Experiment',color='k', fontsize=title_font_size)
+ax.set_ylabel('$cAMP_e$\n(nM)',fontsize=label_font_size,labelpad=0)
+ax.set_xlim([0,80])
+ax.set_xticks([0,20,40,60,80],[])
+ax.set_ylim([-0.1,1.1])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[1:3,0])
+ax.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 1 FRET Trace"],
+                                color='k', linewidth = trace_width)
+ax.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 2 FRET Trace"],
+                                color='grey', linewidth = trace_width)
+ax.plot(Sgro2015Figure3excel["Cell Trace Time (min)"],Sgro2015Figure3excel["Cell 3 FRET Trace"],
+                                color='lightgrey', linewidth = trace_width)
+ax.axvspan(10,30,facecolor='grey',alpha=0.2)
+ax.axvspan(50,70,facecolor='grey',alpha=0.2)
+ax.set_xlabel('Time (min)',fontsize=label_font_size)
+ax.set_xlim([0,80])
+ax.set_xticks([0,20,40,60,80])
+ax.set_ylabel('FRET (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.1,.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.032,0.032),0.14,0.93,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
+
+f.text(0.2,0.86,'B',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0:3,1])
+ax.set_title('Receptor\nDesensitization',fontsize=title_font_size,color=mycolors[7])
+ax.plot(t_Goldbeter,cAMP_Goldbeter,linewidth=trace_width,color=mycolors[7])
+ax.axvspan(2,6,facecolor='grey',alpha=0.2)
+ax.axvspan(10,14,facecolor='grey',alpha=0.2)
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_xticks([0,4,8,12,16])
+ax.set_xlim([0,16])
+ax.set_ylabel('$cAMP_i$ (A.U.)',fontsize=label_font_size)
+ax.set_ylim([-0.2,1.1])
+ax.set_yticks(np.linspace(0,1,6))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.41,0.86,'C',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0:3,2])
+ax.set_title('IPNFB',fontsize=title_font_size,color=mycolors[5])
+ax.plot(t_Sgro,cAMP_Sgro,linewidth=trace_width,color=mycolors[5])
+ax.axvspan(2,6,facecolor='grey',alpha=0.2)
+ax.axvspan(10,14,facecolor='grey',alpha=0.2)
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_xticks([0,4,8,12,16])
+ax.set_xlim([0,16])
+ax.set_ylim([-0.2,1.1])
+ax.set_yticks(np.linspace(0,1,6))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.435,0.032),0.14,0.93,facecolor='lightgreen',zorder=0,alpha=0.25,mutation_scale=0.1,linewidth=0))
+
+f.text(0.61,0.86,'D',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0:3,3])
+ax.set_title('CDINFB',fontsize=title_font_size,color=mycolors[8])
+ax.plot(t_Maeda,cAMP_Maeda,linewidth=trace_width,color=mycolors[8])
+ax.axvspan(2,6,facecolor='grey',alpha=0.2)
+ax.axvspan(10,14,facecolor='grey',alpha=0.2)
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_xticks([0,4,8,12,16])
+ax.set_xlim([0,16])
+ax.set_ylim([-0.2,1.1])
+ax.set_yticks(np.linspace(0,1,6))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.81,0.86,'E',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0:3,4])
+ax.set_title('IFFL',fontsize=title_font_size,color=mycolors[0])
+ax.plot(t_Maeda,cAMP_Maeda,linewidth=trace_width,color=mycolors[0])
+ax.axvspan(2,6,facecolor='grey',alpha=0.2)
+ax.axvspan(10,14,facecolor='grey',alpha=0.2)
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
+ax.set_xticks([0,4,8,12,16])
+ax.set_xlim([0,16])
+ax.set_ylim([-0.2,1.1])
+ax.set_yticks(np.linspace(0,1,6))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+plt.subplots_adjust(top = 0.84, bottom = 0.2, right = 0.99, left = 0.05)
+plt.show()
+
+
