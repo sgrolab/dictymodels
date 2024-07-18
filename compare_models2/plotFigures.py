@@ -1086,4 +1086,117 @@ ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 plt.subplots_adjust(top = 0.84, bottom = 0.2, right = 0.99, left = 0.05)
 plt.show()
 
+#%% Figure S4 (Entrainment): pull data 
 
+my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
+Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
+Sgro2015Figure4excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4traces')
+entrainmentRs = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4heatmap')
+entrainmentRs = entrainmentRs.to_numpy()
+entrainmentRs[np.where(entrainmentRs==0)] = 'NaN'
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Goldbeter.pickle','rb') as f:
+    Rs_Goldbeter = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Sgro.pickle','rb') as f:
+    Rs_Sgro = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Maeda.pickle','rb') as f:
+    Rs_Maeda = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Kamino.pickle','rb') as f:
+    Rs_Kamino = pickle.load(f)
+
+#%% Figure S4 (Entrainment): plot 
+
+f = plt.figure(figsize=(8,10))
+gs = plt.GridSpec(3,2,wspace=0.4,hspace=0.5)
+
+f.text(0.01,0.95,'A',fontsize=letterLabelSize)
+f.text(0.4,0.97,'Experiment',fontsize=title_font_size)
+ax = f.add_subplot([0.11,.86,.4,.07])
+ax.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 1 FRET Trace (1 min pulse)"],color='k',linewidth=trace_width)
+ax.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 2 FRET Trace (1 min pulse)"],color='grey',linewidth=trace_width)
+ax.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 3 FRET Trace (1 min pulse)"],color='lightgrey',linewidth=trace_width)
+for i in range(3):
+    ax.axvspan(5+i*6, 5+i*6+1, alpha=0.2, color='grey')
+ax.set_xlim([0,23.5])
+ylabel = ax.set_ylabel('FRET (A.U.)',fontsize=label_font_size)
+ylabel.set_position((.1,-.2))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot([0.11,.76,.4,.07])
+ax.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 1 FRET Trace (5 min pulse)"],color='k',linewidth=trace_width)
+ax.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 2 FRET Trace (5 min pulse)"],color='grey',linewidth=trace_width)
+ax.plot(Sgro2015Figure4excel["Time (min)"],Sgro2015Figure4excel["Cell 3 FRET Trace (5 min pulse)"],color='lightgrey',linewidth=trace_width)
+for i in range(3): ax.axvspan(6+i*6, 6+i*6+5, alpha=0.2, color='grey')
+ax.set_xlim([0,23.4])
+ax.set_xlabel('Time (min)',fontsize=label_font_size)
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[0,1])
+im = ax.imshow(entrainmentRs,vmin=0,vmax=1,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.5,1])
+cbar.set_label('Entrainment Quality',size=label_font_size,rotation=-90,labelpad=20)
+cbar.ax.tick_params(labelsize=tick_font_size)
+ax.set_xlabel('Period (min)',fontsize=label_font_size)
+ax.set_xticks([0,1,2,3],[3,4,5,6])
+ax.set_ylabel('Peak Width (min)',fontsize=label_font_size)
+ax.set_yticks([0,1,2,3],[4,3,2,1])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.032,0.69),0.935,0.275,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
+
+f.text(0.01,.61,'B',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[1,0])
+ax.set_title('Receptor Desensitization',fontsize=title_font_size,color=mycolors[7],pad=10)
+im = ax.imshow(Rs_Goldbeter,vmin=0,vmax=1,cmap='jet',origin='lower',aspect=0.8)
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.5,1])
+cbar.ax.tick_params(labelsize=tick_font_size)
+ax.set_xticks([0,7],[0.8,1.8])
+ax.set_xlim([-0.5,7.5])
+ax.set_yticks([0,9],[0.3,1.4])
+ax.set_ylim([-0.5,9.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.07,.3,'C',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[2,0])
+ax.set_title('IPNFB',fontsize=title_font_size,color=mycolors[5])
+im = ax.imshow(Rs_Sgro,vmin=0,vmax=1,cmap='jet',origin='lower',aspect=0.8)
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.5,1])
+cbar.ax.tick_params(labelsize=tick_font_size)
+xlabel = ax.set_xlabel('Period (A.U.)',fontsize=label_font_size)
+xlabel.set_position((1.5,0))
+ylabel = ax.set_ylabel('Peak Width (A.U.)',fontsize=label_font_size)
+ylabel.set_position((0,1.3))
+ax.set_xticks([0,7],[0.8,1.8])
+ax.set_xlim([-0.5,7.5])
+ax.set_yticks([0,9],[0.3,1.4])
+ax.set_ylim([-0.5,9.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.51,.61,'D',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[1,1])
+ax.set_title('CDINFB',fontsize=title_font_size,color=mycolors[8])
+im = ax.imshow(Rs_Maeda,vmin=0,vmax=1,cmap='jet',origin='lower',aspect=0.8)
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.5,1])
+cbar.ax.tick_params(labelsize=tick_font_size)
+ax.set_xticks([0,7],[0.8,1.8])
+ax.set_xlim([-0.5,7.5])
+ax.set_yticks([0,9],[0.3,1.4])
+ax.set_ylim([-0.5,9.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.51,.3,'E',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[2,1])
+ax.set_title('IFFL',fontsize=title_font_size,color=mycolors[0])
+im = ax.imshow(Rs_Kamino,vmin=0,vmax=1,cmap='jet',origin='lower',aspect=0.8)
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.5,1])
+cbar.ax.tick_params(labelsize=tick_font_size)
+ax.set_xticks([0,7],[0.8,1.8])
+ax.set_xlim([-0.5,7.5])
+ax.set_yticks([0,9],[0.3,1.4])
+ax.set_ylim([-0.5,9.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.add_artist(mpatches.FancyBboxPatch((0.032,0.032),0.935,0.595,facecolor='lightgreen',zorder=0,alpha=0.25,mutation_scale=0.1,linewidth=0))
+
+plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.94, left = 0.13)
+plt.show()

@@ -1,4 +1,4 @@
-# Single Cell, Step vs Ramp Input
+#%% Single Cell, Step vs Ramp Input
 
 import os, sys, pickle 
 import numpy as np 
@@ -93,7 +93,7 @@ b0=0.9
 g0=0
 
 # define cAMPe_in trace 
-signal_trace = np.interp(t,Exp_time,RampInput_Exp)
+signal_trace = np.interp(t,Exp_time/5*Nt_Goldbeter,RampInput_Exp)
 
 # initialize cell 
 cell = gbf.Cell(Goldbeter3AgentParam,[p0,b0,g0],t)

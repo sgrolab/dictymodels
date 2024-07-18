@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#%% -*- coding: utf-8 -*-
 """
 Created on Thu Jul 18 11:23:10 2019
 
@@ -595,16 +595,16 @@ for i in range(3):
 ax0l.text(0.5, -0.6, 'Time(min)',ha='center',va='center',
      transform = ax0l.transAxes, color = 'k', fontsize=sublabel_font_size)
 
-#ax00= fig3.add_subplot(grid[0:2, 1])
-# ax00 = fig3.add_axes([0.59, 0.7, 0.31,0.18])
-# PeriodExp = np.linspace(3, 6, num=4); PkWdthExp = np.linspace(1,5,5)
-# # entrainmentRs = Sgro2015Figure4["entrainmentRs"][:,0:4]; entrainmentRs[entrainmentRs == 0] = 'nan'
-# entrainmentRs = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4heatmap')
-# entrainmentRs = entrainmentRs.to_numpy()
-# heatmap = ax00.pcolor(PeriodExp, PkWdthExp,np.flip(entrainmentRs,0), cmap='jet') 
-# heatmap.set_clim(0,1)
-# ax00.set_xlabel('Period(min)', size=sublabel_font_size)
-# ax00.set_ylabel('Peak Width(min)', size=sublabel_font_size)
+ax00= fig3.add_subplot(grid[0:2, 1])
+ax00 = fig3.add_axes([0.59, 0.7, 0.31,0.18])
+PeriodExp = np.linspace(3, 6, num=4); PkWdthExp = np.linspace(1,5,5)
+# entrainmentRs = Sgro2015Figure4["entrainmentRs"][:,0:4]; entrainmentRs[entrainmentRs == 0] = 'nan'
+entrainmentRs = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4heatmap')
+entrainmentRs = entrainmentRs.to_numpy()
+heatmap = ax00.pcolor(PeriodExp, PkWdthExp,np.flip(entrainmentRs,0), cmap='jet') 
+heatmap.set_clim(0,1)
+ax00.set_xlabel('Period(min)', size=sublabel_font_size)
+ax00.set_ylabel('Peak Width(min)', size=sublabel_font_size)
 
 cbar=fig3.colorbar(heatmap, ax=ax00,ticks=[0,0.2, 0.4,0.6,0.8,1]);
 cbar.ax.tick_params(labelsize = tick_font_size) 
