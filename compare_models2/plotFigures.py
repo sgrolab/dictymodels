@@ -424,16 +424,112 @@ plt.show()
 
 #%% Figure 4 (Population Firing Rate): pull data 
 
+# experimental data
+npzfile = np.load('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/Gregor2010_pop_firing_rate.npz')
+PopRateExp = npzfile['PopRateExp']
+
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
     firingRate_Sgro_noise = pickle.load(f)
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
     firingRate_Goldbeter_noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
+    firingRate_Maeda_noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Gregor_Noise.pickle','rb') as f:
+    firingRate_Gregor_Noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise.pickle','rb') as f:
+    firingRate_Kamino_Noise = pickle.load(f)
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise_log.pickle','rb') as f:
+    firingRate_Kamino_Noise_log = pickle.load(f)
 
-plt.figure(figsize=(8,10))
-plt.subplot(3,2,2)
-plt.imshow(firingRate_Goldbeter_noise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
-plt.subplot(3,2,5)
-plt.imshow(firingRate_Sgro_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+#%% Figure 4 (Population Firing Rate): pull data 
+
+f = plt.figure(figsize=(8,8))
+gs = plt.GridSpec(3,2,wspace=0.4,hspace=0.6)
+
+f.text(0.01,0.95,'A',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0,0])
+ax.set_title('Experiment',fontsize=title_font_size)
+im = ax.imshow(PopRateExp,cmap='jet',aspect=1.3,vmin=0,vmax=0.18)
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.06,.12,0.18])
+cbar.set_label('cAMP Pulses/Min',fontsize=14,rotation=-90,labelpad=15)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xlabel('Flow Rate (mL/min)', size=14)
+ax.set_xticks([0,1,2,3,4,5,6,7,8,9],[0,1,2,4,6,8,10,15,16,20])
+ax.set_ylabel('Cell Density (ML)', size=14)
+ax.set_yticks([0,2,4,6],['1/2','1/8','1/32','1/128'],fontsize=tick_font_size)
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
+f.add_artist(mpatches.FancyBboxPatch((0.035,0.7),0.44,0.265,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
+
+f.text(0.52,0.95,'B',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[0,1])
+ax.set_title('Receptor Desensitization',fontsize=title_font_size,color=mycolors[7],pad=10)
+im = ax.imshow(firingRate_Goldbeter_noise,origin='lower',vmin=0,vmax=1.5,cmap='jet')
+cbar = plt.colorbar(im,ax=ax)
+cbar.set_label('Firing Rate (A.U.)',size=14,rotation=-90,labelpad=15)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xlabel('Flow Rate (A.U.)',fontsize=14)
+ax.set_xticks([0,12,24],[0,50,100])
+ax.set_ylabel('Cell Density (A.U.)',fontsize=14)
+ax.set_yticks([0,8,16,24],['$10^{-2}$','$10^{-1}$','$10^{0}$','$10^1$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
+f.text(0.01,0.62,'C',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[1,0])
+ax.set_title('CDINFB',fontsize=title_font_size,color=mycolors[8],pad=10)
+im = ax.imshow(firingRate_Maeda_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+cbar = plt.colorbar(im,ax=ax)
+cbar.set_label('Firing Rate (A.U.)',size=14,rotation=-90,labelpad=15)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xlabel('Flow Rate (A.U.)',fontsize=14)
+ax.set_xticks([0,12.5,25],[0,50,100])
+ax.set_ylabel('Cell Density (A.U.)',fontsize=14)
+ax.set_yticks([1,10,19,25],['$10^{0}$','$10^1$','$10^2$','$10^{2.7}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
+f.text(0.52,0.62,'D',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[1,1])
+ax.set_title('Phase Oscillator',fontsize=title_font_size,color=mycolors[2],pad=10)
+im = ax.imshow(firingRate_Gregor_Noise,origin='lower',vmin=0,vmax=1.2,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.4,.8,1.2])
+cbar.set_label('Firing Rate (A.U.)',size=14,rotation=-90,labelpad=15)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xlabel('Flow Rate (A.U.)',fontsize=14)
+ax.set_xticks([0,12.5,25],[0,25,50])
+ax.set_ylabel('Cell Density (A.U.)',fontsize=14)
+ax.set_yticks([3,9,14,19.5,25],['$10^{-3}$','$10^{-2}$','$10^{-1}$','$10^0$','$10^1$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
+f.text(0.01,0.27,'E',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[2,0])
+ax.set_title('IPNFB',fontsize=title_font_size,color=mycolors[5],pad=10)
+im = ax.imshow(firingRate_Sgro_noise,origin='lower',vmin=0,vmax=0.6,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.2,.4,.6])
+cbar.set_label('Firing Rate (A.U.)',size=14,rotation=-90,labelpad=15)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xlabel('Flow Rate (A.U.)',fontsize=14)
+ax.set_xticks([0,12.5,25],[0,0.5,1])
+ax.set_ylabel('Cell Density (A.U.)',fontsize=14)
+ax.set_yticks([0,8,17,25],['$10^{-6}$','$10^{-5}$','$10^{-4}$','$10^{-3}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
+f.text(0.52,0.27,'F',fontsize=letterLabelSize)
+ax = f.add_subplot(gs[2,1])
+ax.set_title('IFFL',fontsize=title_font_size,color=mycolors[0],pad=10)
+im = ax.imshow(firingRate_Kamino_Noise,origin='lower',vmin=0,vmax=0.75,cmap='jet')
+cbar = plt.colorbar(im,ax=ax,ticks=[0,.25,.5,.75])
+cbar.set_label('Firing Rate (A.U.)',size=14,rotation=-90,labelpad=15)
+cbar.ax.tick_params(labelsize=12)
+ax.set_xlabel('Flow Rate (A.U.)',fontsize=14)
+ax.set_xticks([0,15,30],[0,50,100])
+ax.set_ylabel('Cell Density (A.U.)',fontsize=14)
+ax.set_yticks([0,15,30],['$10^{0}$','$10^{1}$','$10^{2}$'])
+ax.tick_params(grid_linewidth = 15, labelsize = 12)
+
+f.add_artist(mpatches.FancyBboxPatch((0.035,0.035),0.93,0.26,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
+
+plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.94, left = 0.1)
+plt.show()
 
 #%% Figure 5 (Adaptive Spiking and Bifurcation Dynamics): pull data 
 
