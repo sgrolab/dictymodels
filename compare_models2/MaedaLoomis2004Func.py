@@ -7,7 +7,7 @@ Created on Fri Jul 19 10:10:49 2019
 
 import numpy as np
 
-class Cell:
+class Cell():
     def __init__(self,pos,initialVals,AgentParam,t):
         self.pos=pos
         self.AgentParam=AgentParam
@@ -68,7 +68,7 @@ class Cell:
             self.cAMPe[i] = cAMPe_in[i]
             self.CAR1[i] = CAR1 + (k13*cAMPe - k14*CAR1)*dt
             
-class Population:
+class Population():
     def __init__(self,pos,initialVals,params,t):
         self.pos=pos
         self.AgentParam=params
@@ -135,7 +135,7 @@ class Population:
             if self.cAMPe[i] < 0 :
                 self.cAMPe[i] = 0
 
-class Population_scNoise:
+class Population_scNoise():
     def __init__(self,pos,initialVals,params,t):
         self.pos=pos
         self.AgentParam=params

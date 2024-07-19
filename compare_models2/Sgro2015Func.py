@@ -6,7 +6,7 @@ Created on Tue Dec  4 19:23:30 2018
 """
 import numpy as np
 
-class Cell:
+class Cell():
     def __init__(self,pos,state,AgentParam,t):
         self.pos=pos
         self.state=state
@@ -44,7 +44,7 @@ class Cell:
             self.R[i] = R + dR*dt
     
         
-class Sgro2015_pop:
+class Sgro2015_pop():
     def __init__(self,A0,R0,cAMPext0,PopParam,t):
         self.PopParam=PopParam
         N=self.PopParam['N']
