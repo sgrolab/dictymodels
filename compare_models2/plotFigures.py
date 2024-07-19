@@ -1200,3 +1200,128 @@ f.add_artist(mpatches.FancyBboxPatch((0.032,0.032),0.935,0.595,facecolor='lightg
 
 plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.94, left = 0.13)
 plt.show()
+
+#%% Figure S5 (Timescale Separation): pull data 
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_timescaleSeparation_data/timescaleSeparation_Sgro.pickle','rb') as f:
+    timeTraceData,nullclineData,phasePortraitData = pickle.load(f)
+
+t_Sgro_large,cAMP_Sgro_large,t_Sgro_small,cAMP_Sgro_small = timeTraceData
+xs_cell_large,ys_cell_large,xs_cell_small,ys_cell_small,xs_nullclineR,ys_nullclineR,xs_nullclineA_noStim,ys_nullclineA_noStim,xs_nullclineA_stim,ys_nullclineA_stim = nullclineData
+A_mesh,R_mesh,dA,dR_large,dR_small = phasePortraitData
+
+with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_timescaleSeparation_data/timescaleSeparation_Kamino.pickle','rb') as f:
+    timeTraceData,nullclineData,phasePortraitData = pickle.load(f)
+
+t_Kamino_large,y_Kamino_large,t_Kamino_small,y_Kamino_small = timeTraceData 
+xs_Kamino_large,ys_Kamino_large,xs_Kamino_small,ys_Kamino_small,plotXs,nullclineX_noStim,nullclineX_stim,nullclineY_noStim,nullclineY_stim = nullclineData
+x_mesh,y_mesh,dx_small,dx_large,dy = phasePortraitData
+scaleVal = 20
+
+#%%
+
+f = plt.figure(figsize=(8,9))
+gs = plt.GridSpec(6,2,wspace=0.4,hspace=0.9)
+
+f.text(0.001,0.96,'A',fontsize=letterLabelSize)
+f.text(0.01,0.72,'IPNFB',fontsize=24,color=mycolors[5],rotation=90)
+ax = f.add_subplot(gs[0,0])
+ax.set_title('Large Timescale\nSeparation',fontsize=title_font_size)
+ax.plot(t_Sgro_large,cAMP_Sgro_large,color='k')
+ax.vlines(1,-3,3,color='grey',linestyle='dashed')
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size,labelpad=-3)
+ax.set_xlim([0,6])
+ax.set_ylabel('A',fontsize=label_font_size,labelpad=-10)
+ax.set_ylim([-2.5,2.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[1:3,0])
+ax.plot(xs_cell_large,ys_cell_large,color='k')
+ax.plot(xs_nullclineR,ys_nullclineR,color='r')
+ax.plot(xs_nullclineA_noStim,ys_nullclineA_noStim,color='b')
+ax.plot(xs_nullclineA_stim,ys_nullclineA_stim,color='b',linestyle='--')
+ax.scatter(xs_cell_large[0],ys_cell_large[0],color='grey',s=50,zorder=2)
+ax.scatter(xs_cell_large[-1],ys_cell_large[-1],marker='X',color='grey',s=50,zorder=2)
+ax.quiver(R_mesh,A_mesh,dR_large,dA,color='grey')
+ax.set_xlabel('I',fontsize=label_font_size)
+ax.set_xlim([-1,2])
+ax.set_ylabel('A',fontsize=label_font_size)
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[0,1])
+ax.set_title('Small Timescale\nSeparation',fontsize=title_font_size)
+ax.plot(t_Sgro_small,cAMP_Sgro_small,color='k')
+ax.vlines(1,-3,3,color='grey',linestyle='dashed')
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size,labelpad=-3)
+ax.set_xlim([0,6])
+ax.set_ylabel('A',fontsize=label_font_size,labelpad=-10)
+ax.set_ylim([-2.5,2.5])
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[1:3,1])
+ax.plot(xs_cell_small,ys_cell_small,color='k')
+ax.plot(xs_nullclineR,ys_nullclineR,color='r')
+ax.plot(xs_nullclineA_noStim,ys_nullclineA_noStim,color='b')
+ax.plot(xs_nullclineA_stim,ys_nullclineA_stim,color='b',linestyle='--')
+ax.scatter(xs_cell_small[0],ys_cell_small[0],color='grey',s=50,zorder=2)
+ax.scatter(xs_cell_small[-1],ys_cell_small[-1],marker='X',color='grey',s=50,zorder=2)
+ax.quiver(R_mesh,A_mesh,dR_small,dA,color='grey')
+ax.set_xlabel('I',fontsize=label_font_size)
+ax.set_xlim([-1,2])
+ax.set_ylabel('A',fontsize=label_font_size)
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+f.text(0.001,0.43,'B',fontsize=letterLabelSize)
+f.text(0.01,0.3,'IFFL',fontsize=24,color=mycolors[0],rotation=90)
+ax = f.add_subplot(gs[3,0])
+ax.plot(t_Kamino_large,y_Kamino_large,color='k')
+ax.vlines(1,-1,1,color='grey',linestyle='dashed')
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size,labelpad=-2)
+ax.set_xlim([0,6])
+ax.set_ylabel('A',fontsize=label_font_size)
+ax.set_ylim([0,.4])
+ax.set_yticks(np.linspace(0,.4,3))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[4:6,0])
+ax.plot(xs_Kamino_large,ys_Kamino_large,color='k')
+ax.scatter(xs_Kamino_large[0],ys_Kamino_large[0],color='grey',s=50,zorder=5)
+ax.scatter(xs_Kamino_large[-1],ys_Kamino_large[-1],marker='X',color='grey',s=50,zorder=5)
+ax.vlines(nullclineX_noStim,-1,5,color='r')
+ax.vlines(nullclineX_stim,-1,5,color='r',linestyle='--')
+ax.plot(plotXs,nullclineY_noStim,color='b')
+ax.plot(plotXs,nullclineY_stim,color='b',linestyle='--')
+ax.quiver(x_mesh,y_mesh,dx_large,dy,scale=scaleVal,color='grey')
+ax.set_xlim([-0.1,1.1])
+ax.set_ylim([-0.1,1.1])
+ax.set_xlabel('I',fontsize=label_font_size)
+ax.set_ylabel('A',fontsize=label_font_size)
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[3,1])
+ax.plot(t_Kamino_small,y_Kamino_small,color='k')
+ax.vlines(1,-1,1,color='grey',linestyle='dashed')
+ax.set_xlabel('Time (A.U.)',fontsize=label_font_size,labelpad=-2)
+ax.set_xlim([0,6])
+ax.set_ylabel('A',fontsize=label_font_size)
+ax.set_ylim([0,.4])
+ax.set_yticks(np.linspace(0,.4,3))
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+ax = f.add_subplot(gs[4:6,1])
+ax.plot(xs_Kamino_small,ys_Kamino_small,color='k')
+ax.scatter(xs_Kamino_small[0],ys_Kamino_small[0],color='grey',s=50,zorder=5)
+ax.scatter(xs_Kamino_small[-1],ys_Kamino_small[-1],marker='X',color='grey',s=50,zorder=5)
+ax.vlines(nullclineX_noStim,-1,5,color='r')
+ax.vlines(nullclineX_stim,-1,5,color='r',linestyle='--')
+ax.plot(plotXs,nullclineY_noStim,color='b')
+ax.plot(plotXs,nullclineY_stim,color='b',linestyle='--')
+ax.quiver(x_mesh,y_mesh,dx_small,dy,scale=scaleVal,color='grey')
+ax.set_xlim([-0.1,1.1])
+ax.set_ylim([-0.1,1.1])
+ax.set_xlabel('I',fontsize=label_font_size)
+ax.set_ylabel('A',fontsize=label_font_size)
+ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
+
+plt.subplots_adjust(top = 0.93, bottom = 0.07, right = 0.97, left = 0.15)
+plt.show()
