@@ -42,7 +42,7 @@ cAMPe_in_priming = np.array((1,2,4,8))
 cAMPe_in_foldChange = np.logspace(0,2,8)
 
 # preallocate second peak prominence array 
-normPeakProm = np.zeros([len(cAMPe_in_priming),len(cAMPe_in_foldChange)])
+peak2Prom = np.zeros([len(cAMPe_in_priming),len(cAMPe_in_foldChange)])
 
 # iterate through each priming concentration and fold change 
 for i in range(len(cAMPe_in_priming)):
@@ -60,8 +60,8 @@ for i in range(len(cAMPe_in_priming)):
         cell.run(dt,cAMPe_in)
 
         # get cAMPi traces during cAMPe exposures
-        cAMPi_1 = cell.y[int(len(t)/3):int(2*len(t)/3)]
-        cAMPi_2 = cell.y[int(2*len(t)/3):] 
+        cAMPi_1 = (cell.y[int(len(t)/3):int(2*len(t)/3)]-Nh_Kamino_offset)/Nh_Kamino
+        cAMPi_2 = (cell.y[int(2*len(t)/3):]-Nh_Kamino_offset)/Nh_Kamino
         
         # detect peaks 
         Pk1Pos, Pk1Props = find_peaks(cAMPi_1, prominence=(0,50/Nh_Kamino))
@@ -69,10 +69,10 @@ for i in range(len(cAMPe_in_priming)):
         
         # if second spike is present, save values 
         if Pk2Pos.size > 0:
-            normPeakProm[i,j]=Pk2Props["prominences"][0]/Pk1Props["prominences"][0]
+            peak2Prom[i,j]=Pk2Props["prominences"][0]
 
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Kamino.pickle','wb') as f:
-    pickle.dump(normPeakProm,f,pickle.HIGHEST_PROTOCOL)
+    pickle.dump(peak2Prom,f,pickle.HIGHEST_PROTOCOL)
 
 #%% Sgro 2015 (IPNFB) 
 
@@ -103,7 +103,7 @@ cAMPe_in_foldChange = np.logspace(0,2,8)
 nCells = 50
 
 # preallocate array 
-normPeakProm = np.zeros([len(cAMPe_in_priming),len(cAMPe_in_foldChange),nCells])
+peak2Prom = np.zeros([len(cAMPe_in_priming),len(cAMPe_in_foldChange),nCells])
 
 # iterate through each priming concentration and fold change 
 for i in range(len(cAMPe_in_priming)):
@@ -134,10 +134,10 @@ for i in range(len(cAMPe_in_priming)):
             
             # if second spike is present, save values 
             if Pk2Pos.size > 0:
-                normPeakProm[i,j,k]=Pk2Props["prominences"][0]/Pk1Props["prominences"][0]
+                peak2Prom[i,j,k]=Pk2Props["prominences"][0]
 
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','wb') as f:
-    pickle.dump(normPeakProm,f,pickle.HIGHEST_PROTOCOL)
+    pickle.dump(peak2Prom,f,pickle.HIGHEST_PROTOCOL)
 
 #%% Goldbeter (Receptor Desensitization) 
 
@@ -162,10 +162,10 @@ Goldbeter3AgentParam={'k1':k1,'k2':k2,'L1':L1,'L2':L2, 'c':c, 'lamda':lamda,\
             'ki':ki,'kt':kt, 'kc':kc,'h':h}   
 
 # set time parameters
-dt=0.001
+dt=0.0005
 t_tot=30*Nt_Goldbeter
 t=np.arange(0,t_tot,dt)
-    
+
 # set initial values 
 p0=0.8
 a0=3
@@ -173,11 +173,11 @@ b0=0.9
 g0=0
 
 # define cAMPe amounts 
-cAMPe_in_priming = np.array((0.1,0.2,0.4,0.8))
+cAMPe_in_priming = np.array((0.1,1,3,10))
 cAMPe_in_foldChange = np.logspace(0,2,12)
 
 # preallocate second peak prominence array 
-normPeakProm = np.zeros([len(cAMPe_in_priming),len(cAMPe_in_foldChange)])
+peak2Prom = np.zeros([len(cAMPe_in_priming),len(cAMPe_in_foldChange)])
 
 # iterate through each priming concentration and fold change 
 for i in range(len(cAMPe_in_priming)):
@@ -195,19 +195,19 @@ for i in range(len(cAMPe_in_priming)):
         cell.run(dt,a0,cAMPe_in)
         
         # get cAMPi traces after cAMPe changes
-        cAMPi_1 = cell.b[int(len(t)/3):int(2*len(t)/3)]
-        cAMPi_2 = cell.b[int(2*len(t)/3):]
+        cAMPi_1 = cell.b[int(len(t)/3):int(2*len(t)/3)]/Nh_Goldbeter
+        cAMPi_2 = cell.b[int(2*len(t)/3):]/Nh_Goldbeter
         
         # detect peaks 
-        Pk1Pos, Pk1Props = find_peaks(cAMPi_1, prominence=(0,300))
-        Pk2Pos, Pk2Props = find_peaks(cAMPi_2, prominence=(0,300))
+        Pk1Pos, Pk1Props = find_peaks(cAMPi_1, prominence=(0,3000/Nh_Goldbeter))
+        Pk2Pos, Pk2Props = find_peaks(cAMPi_2, prominence=(0,3000/Nh_Goldbeter))
         
         # if second spike is present, save values 
         if Pk2Pos.size > 0:
-            normPeakProm[i,j]=Pk2Props["prominences"][0]/Pk1Props["prominences"][0]
+            peak2Prom[i,j]=Pk2Props["prominences"][0]
 
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Goldbeter.pickle','wb') as f:
-    pickle.dump(normPeakProm,f,pickle.HIGHEST_PROTOCOL)
+    pickle.dump(peak2Prom,f,pickle.HIGHEST_PROTOCOL)
 
 #%% sample for Fig 6A
 
@@ -250,7 +250,6 @@ cell = kf.Cell([x0,y0,z0],KaminoAgentParam,t)
 # run simulation 
 cell.run(dt,cAMPe_in)
 
-plt.plot(cell.t,cell.y)
-#%%
+# save trace 
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_sample.pickle','wb') as f:
     pickle.dump([cell.t,cell.y],f,pickle.HIGHEST_PROTOCOL)

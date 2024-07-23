@@ -1,6 +1,6 @@
 # plot figures for Chuqiao's paper 
 
-import os, pickle 
+import pickle 
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt 
@@ -158,23 +158,14 @@ plt.show()
 my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
 Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure6')
 
-# Gregor
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Gregor.pickle','rb') as f:
     ts_Gregor,thetais_Gregor,cAMPes_Gregor,cAMPis_sc_Gregor,cAMPis_Gregor = pickle.load(f)
-
-# Sgro 
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Sgro.pickle','rb') as f:
     ts_Sgro,As_Sgro,As_sc_Sgro = pickle.load(f)
-
-# Goldbeter
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Goldbeter.pickle','rb') as f:
     ts_Gb,ps_Gb,bs_Gb,gs_Gb = pickle.load(f)
-    
-# Maeda
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Maeda.pickle','rb') as f:
     t_ML,cAMPis_ML = pickle.load(f)
-
-# Kamino
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Kamino.pickle','rb') as f:
     t_Kamino,xs_Kamino,ys_Kamino,zs_Kamino = pickle.load(f)
 
@@ -303,7 +294,7 @@ ax.set_xticks(np.linspace(0,30,7))
 ax.set_ylim([-0.3,1.5])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-fig.add_artist(mpatches.FancyBboxPatch((0.7,0.57),0.265,0.395,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
+fig.add_artist(mpatches.FancyBboxPatch((0.7,0.57),0.265,0.395,facecolor='lightgreen',zorder=0,alpha=0.25,mutation_scale=0.1,linewidth=0))
 
 fig.text(0.01,0.44,'D',fontsize=letterLabelSize)
 ax = fig.add_subplot(grid[4,0])
@@ -416,7 +407,7 @@ ax.set_xticks(np.linspace(0,30,7))
 ax.set_ylim([-0.3,1.5])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-fig.add_artist(mpatches.FancyBboxPatch((0.033,0.04),0.93,0.41,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
+fig.add_artist(mpatches.FancyBboxPatch((0.033,0.04),0.93,0.41,facecolor='lightgreen',zorder=0,alpha=0.25,mutation_scale=0.1,linewidth=0))
 
 plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.98, left = 0.055)
 plt.show()
@@ -537,7 +528,7 @@ ax.spines['bottom'].set_color('white')
 ax.spines['right'].set_color('white')
 ax.spines['top'].set_color('white')
 
-f.add_artist(mpatches.FancyBboxPatch((0.035,0.035),0.93,0.26,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
+f.add_artist(mpatches.FancyBboxPatch((0.035,0.035),0.93,0.26,facecolor='lightgreen',zorder=0,alpha=0.25,mutation_scale=0.1,linewidth=0))
 
 plt.subplots_adjust(top = 0.95, bottom = 0.07, right = 0.94, left = 0.1)
 plt.show()
@@ -660,7 +651,7 @@ ax.set_yticks(np.linspace(0,1.5,4))
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax2.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-f.add_artist(mpatches.FancyBboxPatch((0.033,0.39),0.935,0.235,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1,linewidth=0))
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.39),0.935,0.235,facecolor='lightgreen',zorder=0,alpha=0.25,mutation_scale=0.1,linewidth=0))
 
 f.add_artist(mlines.Line2D([0.05,0.15],[0.07,0.07],color=mycolors[7],linewidth=2))
 f.text(0.17,.065,'Receptor Desensitization',fontsize=12)
@@ -683,11 +674,11 @@ Kamino_FCD = pd.read_excel(my_dir+r'Kamino_FCD_exp_data.xlsx',sheet_name='Sheet1
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_sample.pickle','rb') as f:
     sample_t,sample_cAMPi = pickle.load(f)
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Kamino.pickle','rb') as f:
-    normPeakProm_Kamino = pickle.load(f)
+    peak2Prom_Kamino = pickle.load(f)
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
-    normPeakProm_Sgro = pickle.load(f)
+    peak2Prom_Sgro = pickle.load(f)
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Goldbeter.pickle','rb') as f:
-    normPeakProm_Goldbeter = pickle.load(f)
+    peak2Prom_Goldbeter = pickle.load(f)
 
 FCvals = np.logspace(0,2,8)
 FCvals_GB = np.logspace(0,2,12)
@@ -735,43 +726,43 @@ ax.set_xlabel(r'$cAMP_{e}$'+' fold change',fontsize=label_font_size)
 ax.set_xscale('log')
 ax.tick_params(axis='both', which='major', labelsize=tick_font_size)
 
-f.add_artist(mpatches.FancyBboxPatch((0.033,0.69),0.935,0.277,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1))
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.69),0.935,0.277,facecolor='lightgrey',zorder=0,alpha=1,mutation_scale=0.1,linewidth=0))
 
 f.text(0.01,0.61,'B',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[1,0])
 ax.set_title('IFFL',color=mycolors[0],fontsize=title_font_size)
-for i in range(len(normPeakProm_Kamino)):
-    ax.plot(FCvals,normPeakProm_Kamino[i],color=plt.cm.Greys(i/len(normPeakProm_Kamino)),linewidth=trace_width)
+for i in range(len(peak2Prom_Kamino)):
+    ax.plot(FCvals,peak2Prom_Kamino[i],color=FCcolors[i],linewidth=trace_width)
 ax.set_xscale('log')
 ax.set_xlabel('$cAMP_e$ Fold Change',fontsize=label_font_size)
 ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
-ax.set_ylim([-0.1,1.1])
+ax.set_ylim([-0.05,1.3])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
 f.text(0.51,0.61,'C',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[1,1])
 ax.set_title('IPNFB',color=mycolors[5],fontsize=title_font_size)
-for i in range(len(normPeakProm_Sgro)):
-    ax.plot(FCvals,np.mean(normPeakProm_Sgro[i],axis=1),color=plt.cm.Greys(i/len(normPeakProm_Kamino)),linewidth=trace_width)
-    ax.errorbar(FCvals,np.mean(normPeakProm_Sgro[i],axis=1),np.std(normPeakProm_Sgro[i],axis=1)/np.sqrt(np.shape(normPeakProm_Sgro)[2]),capsize=5,capthick=2,color=plt.cm.Greys(i/len(normPeakProm_Kamino)),linewidth=trace_width)
+for i in range(len(peak2Prom_Sgro)):
+    ax.plot(FCvals,np.mean(peak2Prom_Sgro[i],axis=1),color=FCcolors[i],linewidth=trace_width)
+    ax.errorbar(FCvals,np.mean(peak2Prom_Sgro[i],axis=1),np.std(peak2Prom_Sgro[i],axis=1)/np.sqrt(np.shape(peak2Prom_Sgro)[2]),capsize=5,capthick=2,color=FCcolors[i],linewidth=trace_width)
 ax.set_xscale('log')
 ax.set_xlabel('$cAMP_e$ Fold Change',fontsize=label_font_size)
 ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
-ax.set_ylim([-0.1,1.1])
+ax.set_ylim([-0.05,1.3])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 
-f.add_artist(mpatches.FancyBboxPatch((0.033,0.36),0.935,0.265,facecolor='palegreen',zorder=0,alpha=0.5,mutation_scale=0.1))
+f.add_artist(mpatches.FancyBboxPatch((0.033,0.36),0.935,0.265,facecolor='lightgreen',zorder=0,alpha=0.25,mutation_scale=0.1,linewidth=0))
 
 
 f.text(0.01,0.29,'D',fontsize=letterLabelSize)
 ax = f.add_subplot(gs[2,0])
 ax.set_title('Receptor Desensitization',color=mycolors[7],fontsize=title_font_size)
-for i in range(len(normPeakProm_Goldbeter)):
-    ax.plot(FCvals_GB,normPeakProm_Goldbeter[i],color=plt.cm.Greys((i+1)/(len(normPeakProm_Goldbeter)+1)),linewidth=trace_width,label=primingLabels[i])
+for i in range(len(peak2Prom_Goldbeter)):
+    ax.plot(FCvals_GB,peak2Prom_Goldbeter[i],color=FCcolors[i],linewidth=trace_width,label=primingLabels[i])
 ax.set_xscale('log')
 ax.set_xlabel('$cAMP_e$ Fold Change',fontsize=label_font_size)
 ax.set_ylabel('Second Peak\nProminence (A.U.)',fontsize=label_font_size)
-ax.set_ylim([-1,51.1])
+ax.set_ylim([-0.05,1.3])
 ax.tick_params(grid_linewidth = 15, labelsize = tick_font_size)
 ax.legend(frameon=0,fontsize=tick_font_size,loc='upper left',bbox_to_anchor=[1.3,.4,.5,.5])
 
@@ -956,7 +947,11 @@ plt.show()
 
 with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
     normPeakProm_Sgro = pickle.load(f)
-    
+
+FCvals = np.logspace(0,2,8)
+FCcolors = plt.cm.Greys(np.array((1,2,3,4))/4)
+primingLabels = ['Priming Conc.: 0.1','Priming Conc.: 1.0','Priming Conc.: 3.0','Priming Conc.: 10.0']
+
 #%% Figure S2 (Sgro Model, FCD): plot 
 
 f = plt.figure(figsize=(16,4))
@@ -967,7 +962,7 @@ f.text(0.46,0.02,'$cAMP_e$ Fold Change',fontsize=label_font_size)
 
 for i in range(len(normPeakProm_Sgro)):
     ax = f.add_subplot(gs[0,i])
-    ax.set_title('Priming Conc.: 0.01',fontsize=title_font_size)
+    ax.set_title(primingLabels[i],fontsize=title_font_size)
     parts = ax.violinplot(np.transpose(normPeakProm_Sgro[i]),showmeans=True,showextrema=False)
     for pc in parts['bodies']:
         pc.set_facecolor(FCcolors[i])
@@ -1218,7 +1213,7 @@ xs_Kamino_large,ys_Kamino_large,xs_Kamino_small,ys_Kamino_small,plotXs,nullcline
 x_mesh,y_mesh,dx_small,dx_large,dy = phasePortraitData
 scaleVal = 20
 
-#%%
+#%% Figure S5 (Timescale Separation): plot data 
 
 f = plt.figure(figsize=(8,9))
 gs = plt.GridSpec(6,2,wspace=0.4,hspace=0.9)
