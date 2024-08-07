@@ -38,7 +38,7 @@ y0=0.06
 z0=0.005
 
 # define cAMPe amounts 
-cAMPe_in_priming = np.array((1,2,4,8))
+cAMPe_in_priming = np.array((0.1,1,3,10))
 cAMPe_in_foldChange = np.logspace(0,2,8)
 
 # preallocate second peak prominence array 
@@ -96,7 +96,7 @@ R0=-0.5
 rng = np.random.default_rng(seed=1)
 
 # define cAMPe amounts 
-cAMPe_in_priming = np.array((1,2,4,8))
+cAMPe_in_priming = np.array((0.1,1,3,10))
 cAMPe_in_foldChange = np.logspace(0,2,8)
 
 # set number of reptitions 
