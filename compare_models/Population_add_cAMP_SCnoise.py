@@ -290,6 +290,8 @@ for i in range(len(cAMPe_in)):
     # store cAMPi trace value
     cAMPi_traces[i] = pop.cAMPi[:,int(len(t)/2):]/Nh_Maeda
 
+# save adjusted time trace
+t = np.arange(0,t_tot/2,dt)/Nt_Maeda
 
 # export time and cAMPi data
 with open(output_dir('popAddcAMPscNoise_data') / 'popAddcAMPscNoise_Maeda.pickle','wb') as f:
