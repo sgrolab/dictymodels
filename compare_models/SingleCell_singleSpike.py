@@ -4,12 +4,11 @@ import os, pickle
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-# import code and data locations
-from config import CODE_DIR, output_dir
+# import data locations
+from config import output_dir
 
 # import normalization parameters
-with open(CODE_DIR / 'normParams.pickle','rb') as f:
-    Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
+from normParams import Nt_Gregor, Nt_Sgro, Nt_Goldbeter, Nt_Maeda, Nt_Kamino
 
 
 #%% Gregor 
