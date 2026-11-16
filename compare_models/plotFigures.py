@@ -422,7 +422,7 @@ PopRateExp = npzfile['PopRateExp']
 
 with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
     firingRate_Sgro_noise = pickle.load(f)
-with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Goldbeter_Noise.pickle','rb') as f:
     firingRate_Goldbeter_noise = pickle.load(f)
 with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
     firingRate_Maeda_noise = pickle.load(f)
@@ -783,7 +783,7 @@ PopRateExp = npzfile['PopRateExp']
 
 with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
     firingRate_Sgro_noise = pickle.load(f)
-with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Goldbeter_Noise.pickle','rb') as f:
     firingRate_Goldbeter_noise = pickle.load(f)
 with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
     firingRate_Maeda_noise = pickle.load(f)
