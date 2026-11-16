@@ -640,7 +640,7 @@ def figure_05():
                                    linewidth=trace_width,color='dimgrey')
     ax.plot(Sgro2015Figure1excel["Time (min)"],Sgro2015Figure1excel["Cell 3 FRET Trace (10uM)"],
                                    linewidth=trace_width,color='darkgrey')
-    ax.text(15,0.5,'10$\mu m$ cAMP',fontsize=tick_font_size)
+    ax.text(15,0.5,r'10$\mu m$ cAMP',fontsize=tick_font_size)
     ax.vlines(5,-1,1,color='k',linestyle='dashed')
     ax.set_xlabel('Time (min)',fontsize=label_font_size)
     ax.set_xlim([0,30])
