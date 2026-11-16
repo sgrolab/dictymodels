@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
+from config import EXP_DATA_DIR, PROJECT_DIR
 
 mycolors = ['#377eb8', '#ff7f00', '#4daf4a',
           '#f781bf', '#a65628', '#984ea3',
@@ -22,18 +23,18 @@ letterLabelSize = 32
 #%% Figure 2 (Normalizing single spike): pull data 
 
 # experimental data
-my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
-Sgro2015Figure1excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure1')
+Sgro2015Figure1excel = pd.read_excel(EXP_DATA_DIR / 'Sgro2015DataFormattedforPython.xlsx',
+                                     sheet_name='Figure1')
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_singleSpike_data/singleSpike_Gregor.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_singleSpike_data/singleSpike_Gregor.pickle','rb') as f:
     t_Gregor,cAMP_Gregor = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_singleSpike_data/singleSpike_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_singleSpike_data/singleSpike_Sgro.pickle','rb') as f:
     t_Sgro,cAMP_Sgro = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_singleSpike_data/singleSpike_Goldbeter.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_singleSpike_data/singleSpike_Goldbeter.pickle','rb') as f:
     t_Goldbeter,cAMP_Goldbeter = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_singleSpike_data/singleSpike_MaedaLoomis.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_singleSpike_data/singleSpike_MaedaLoomis.pickle','rb') as f:
     t_ML,cAMP_ML = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_singleSpike_data/singleSpike_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_singleSpike_data/singleSpike_Kamino.pickle','rb') as f:
     t_Kamino,cAMP_Kamino = pickle.load(f)
 
 #%% Figure 2 (Normalizing single spike): plot 
@@ -155,18 +156,18 @@ plt.show()
 #%% Figure 3 (population add cAMP): pull data
 
 # experimental data
-my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
-Sgro2015Figure6excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure6')
+Sgro2015Figure6excel = pd.read_excel(EXP_DATA_DIR / 'Sgro2015DataFormattedforPython.xlsx',
+                                     sheet_name='Figure6')
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Gregor.pickle','rb') as f:
+with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Gregor.pickle','rb') as f:
     ts_Gregor,thetais_Gregor,cAMPes_Gregor,cAMPis_sc_Gregor,cAMPis_Gregor = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Sgro.pickle','rb') as f:
     ts_Sgro,As_Sgro,As_sc_Sgro = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Goldbeter.pickle','rb') as f:
+with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Goldbeter.pickle','rb') as f:
     ts_Gb,ps_Gb,bs_Gb,gs_Gb = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Maeda.pickle','rb') as f:
+with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Maeda.pickle','rb') as f:
     t_ML,cAMPis_ML = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/popAddcAMPscNoise_data/popAddcAMPscNoise_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Kamino.pickle','rb') as f:
     t_Kamino,xs_Kamino,ys_Kamino,zs_Kamino = pickle.load(f)
 
 
@@ -416,20 +417,20 @@ plt.show()
 #%% Figure 4 (Population Firing Rate): pull data 
 
 # experimental data
-npzfile = np.load('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/Gregor2010_pop_firing_rate.npz')
+npzfile = np.load(EXP_DATA_DIR / 'Gregor2010_pop_firing_rate.npz')
 PopRateExp = npzfile['PopRateExp']
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
     firingRate_Sgro_noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
     firingRate_Goldbeter_noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
     firingRate_Maeda_noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Gregor_Noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Gregor_Noise.pickle','rb') as f:
     firingRate_Gregor_Noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Kamino_Noise.pickle','rb') as f:
     firingRate_Kamino_Noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise_log.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Kamino_Noise_log.pickle','rb') as f:
     firingRate_Kamino_Noise_log = pickle.load(f)
 
 #%% Figure 4 (Population Firing Rate): pull data 
@@ -536,29 +537,34 @@ plt.show()
 #%% Figure 5 (Adaptive Spiking and Bifurcation Dynamics): pull data 
 
 # experimental data
-my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
-Sgro2015Figure1excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure1')
+Sgro2015Figure1excel = pd.read_excel(EXP_DATA_DIR / 'Sgro2015DataFormattedforPython.xlsx',
+                                     sheet_name='Figure1')
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Gregor.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_adaptiveSpike_data/adaptiveSpike_Gregor.pickle','rb') as f:
    t_adapt_Gregor,cAMPi_adapt_Gregor = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_adaptiveSpike_data/adaptiveSpike_Sgro.pickle','rb') as f:
    t_adapt_Sgro,cAMPi_adapt_Sgro = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Goldbeter.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_adaptiveSpike_data/adaptiveSpike_Goldbeter.pickle','rb') as f:
    t_adapt_Goldbeter,cAMPi_adapt_Goldbeter = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_MaedaLoomis.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_adaptiveSpike_data/adaptiveSpike_MaedaLoomis.pickle','rb') as f:
    t_adapt_Maeda,cAMPi_adapt_Maeda = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_adaptiveSpike_data/adaptiveSpike_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_adaptiveSpike_data/adaptiveSpike_Kamino.pickle','rb') as f:
    t_adapt_Kamino,cAMPi_adapt_Kamino = pickle.load(f)
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Gregor.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_bifurcationDynamics_data/bifurcationDynamics_Gregor.pickle',
+          'rb') as f:
     t_bifur_Gregor, cAMPi_bifur_Gregor = pickle.load(f) 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_bifurcationDynamics_data/bifurcationDynamics_Sgro.pickle',
+          'rb') as f:
     t_bifur_Sgro, cAMPi_bifur_Sgro = pickle.load(f) 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Goldbeter.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_bifurcationDynamics_data/bifurcationDynamics_Goldbeter.pickle',
+          'rb') as f:
     t_bifur_Goldbeter, cAMPi_bifur_Goldbeter = pickle.load(f) 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_MaedaLoomis.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_bifurcationDynamics_data/bifurcationDynamics_MaedaLoomis.pickle',
+          'rb') as f:
     t_bifur_Maeda, cAMPi_bifur_Maeda = pickle.load(f) 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_bifurcationDynamics_data/bifurcationDynamics_Kamino.pickle',
+          'rb') as f:
     t_bifur_Kamino, cAMPi_bifur_Kamino = pickle.load(f) 
 
 #%% Figure 5 (Adaptive Spiking and Bifurcation Dynamics): plot 
@@ -667,17 +673,16 @@ f.text(0.79,.065,'Phase Oscillator',fontsize=12)
 #%% Figure 6 (Fold Change Detection): pull data 
 
 # experimental data
-my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
-Kamino_FCD = pd.read_excel(my_dir+r'Kamino_FCD_exp_data.xlsx',sheet_name='Sheet1')
+Kamino_FCD = pd.read_excel(EXP_DATA_DIR / 'Kamino_FCD_exp_data.xlsx',sheet_name='Sheet1')
 
 # simulation data
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_sample.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_foldChange_data/FCD_sample.pickle','rb') as f:
     sample_t,sample_cAMPi = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_foldChange_data/FCD_Kamino.pickle','rb') as f:
     peak2Prom_Kamino = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
     peak2Prom_Sgro = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Goldbeter.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_foldChange_data/FCD_Goldbeter.pickle','rb') as f:
     peak2Prom_Goldbeter = pickle.load(f)
 
 FCvals = np.logspace(0,2,8)
@@ -772,34 +777,34 @@ plt.show()
 #%% Figure S1 (Population Firing Rate, noise and no noise): pull data 
 
 # experimental data
-npzfile = np.load('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/Gregor2010_pop_firing_rate.npz')
+npzfile = np.load(EXP_DATA_DIR / 'Gregor2010_pop_firing_rate.npz')
 PopRateExp = npzfile['PopRateExp']
 
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Sgro_noise.pickle','rb') as f:
     firingRate_Sgro_noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Goldbeter_noise.pickle','rb') as f:
     firingRate_Goldbeter_noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Maeda_Noise.pickle','rb') as f:
     firingRate_Maeda_noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Gregor_Noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Gregor_Noise.pickle','rb') as f:
     firingRate_Gregor_Noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Kamino_Noise.pickle','rb') as f:
     firingRate_Kamino_Noise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_Noise_log.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Kamino_Noise_log.pickle','rb') as f:
     firingRate_Kamino_Noise_log = pickle.load(f)
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Sgro_noNoise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Sgro_noNoise.pickle','rb') as f:
     firingRate_Sgro_noNoise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Goldbeter_noNoise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Goldbeter_noNoise.pickle','rb') as f:
     firingRate_Goldbeter_noNoise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Maeda_noNoise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Maeda_noNoise.pickle','rb') as f:
     firingRate_Maeda_noNoise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Gregor_noNoise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Gregor_noNoise.pickle','rb') as f:
     firingRate_Gregor_noNoise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_noNoise.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Kamino_noNoise.pickle','rb') as f:
     firingRate_Kamino_noNoise = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/pop_firingRate_data/firingRates_Kamino_noNoise_log.pickle','rb') as f:
+with open(PROJECT_DIR / 'pop_firingRate_data/firingRates_Kamino_noNoise_log.pickle','rb') as f:
     firingRate_Kamino_noNoise_log = pickle.load(f)
 
 #%% Figure S1
@@ -945,7 +950,7 @@ plt.show()
 
 #%% Figure S2 (Sgro Model, FCD): pull data 
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_foldChange_data/FCD_Sgro.pickle','rb') as f:
     normPeakProm_Sgro = pickle.load(f)
 
 FCvals = np.logspace(0,2,8)
@@ -976,16 +981,16 @@ plt.show()
 
 #%% Figure S3 (Step vs Ramp): pull data
 
-my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
-Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
+Sgro2015Figure3excel = pd.read_excel(EXP_DATA_DIR / 'Sgro2015DataFormattedforPython.xlsx',
+                                     sheet_name='Figure3')
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_Goldbeter.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_stepVsRamp_data/stepVsRamp_Goldbeter.pickle','rb') as f:
     t_Goldbeter,cAMP_Goldbeter = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_stepVsRamp_data/stepVsRamp_Sgro.pickle','rb') as f:
     t_Sgro,cAMP_Sgro = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_MaedaLoomis.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_stepVsRamp_data/stepVsRamp_MaedaLoomis.pickle','rb') as f:
     t_Maeda,cAMP_Maeda = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_stepVsRamp_data/stepVsRamp_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_stepVsRamp_data/stepVsRamp_Kamino.pickle','rb') as f:
     t_Kamino,cAMP_Kamino = pickle.load(f)
 
 
@@ -1083,20 +1088,22 @@ plt.show()
 
 #%% Figure S4 (Entrainment): pull data 
 
-my_dir = '//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/exp_data/'
-Sgro2015Figure3excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure3')
-Sgro2015Figure4excel = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4traces')
-entrainmentRs = pd.read_excel(my_dir+r'Sgro2015DataFormattedforPython.xlsx',sheet_name='Figure4heatmap')
+Sgro2015Figure3excel = pd.read_excel(EXP_DATA_DIR / 'Sgro2015DataFormattedforPython.xlsx',
+                                     sheet_name='Figure3')
+Sgro2015Figure4excel = pd.read_excel(EXP_DATA_DIR / 'Sgro2015DataFormattedforPython.xlsx',
+                                     sheet_name='Figure4traces')
+entrainmentRs = pd.read_excel(EXP_DATA_DIR / 'Sgro2015DataFormattedforPython.xlsx',
+                              sheet_name='Figure4heatmap')
 entrainmentRs = entrainmentRs.to_numpy()
 entrainmentRs[np.where(entrainmentRs==0)] = 'NaN'
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Goldbeter.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_Entrainment_data/entrainment_Goldbeter.pickle','rb') as f:
     Rs_Goldbeter = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_Entrainment_data/entrainment_Sgro.pickle','rb') as f:
     Rs_Sgro = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Maeda.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_Entrainment_data/entrainment_Maeda.pickle','rb') as f:
     Rs_Maeda = pickle.load(f)
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_Entrainment_data/entrainment_Kamino.pickle','rb') as f:
     Rs_Kamino = pickle.load(f)
 
 #%% Figure S4 (Entrainment): plot 
@@ -1198,14 +1205,16 @@ plt.show()
 
 #%% Figure S5 (Timescale Separation): pull data 
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_timescaleSeparation_data/timescaleSeparation_Sgro.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_timescaleSeparation_data/timescaleSeparation_Sgro.pickle',
+          'rb') as f:
     timeTraceData,nullclineData,phasePortraitData = pickle.load(f)
 
 t_Sgro_large,cAMP_Sgro_large,t_Sgro_small,cAMP_Sgro_small = timeTraceData
 xs_cell_large,ys_cell_large,xs_cell_small,ys_cell_small,xs_nullclineR,ys_nullclineR,xs_nullclineA_noStim,ys_nullclineA_noStim,xs_nullclineA_stim,ys_nullclineA_stim = nullclineData
 A_mesh,R_mesh,dA,dR_large,dR_small = phasePortraitData
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_timescaleSeparation_data/timescaleSeparation_Kamino.pickle','rb') as f:
+with open(PROJECT_DIR / 'sc_timescaleSeparation_data/timescaleSeparation_Kamino.pickle',
+          'rb') as f:
     timeTraceData,nullclineData,phasePortraitData = pickle.load(f)
 
 t_Kamino_large,y_Kamino_large,t_Kamino_small,y_Kamino_small = timeTraceData 

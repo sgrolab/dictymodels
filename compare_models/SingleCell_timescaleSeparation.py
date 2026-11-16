@@ -1,14 +1,14 @@
 # Single Cell, Timescale Separation 
 
-import sys, pickle 
+import pickle
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-# add path for function files
-sys.path.insert(0,'//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+# import code and data locations
+from config import CODE_DIR, output_dir
 
 # import normalization parameters
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/normParams.pickle','rb') as f:
+with open(CODE_DIR / 'normParams.pickle','rb') as f:
     Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
 
@@ -104,7 +104,8 @@ dR_small = Params_small['e']*(A_mesh-g* R_mesh+c0)
 
 phasePortraitData = [A_mesh,R_mesh,dA,dR_large,dR_small]
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_timescaleSeparation_data/timescaleSeparation_Sgro.pickle','wb') as f:
+with open(output_dir('sc_timescaleSeparation_data') / 'timescaleSeparation_Sgro.pickle',
+          'wb') as f:
     pickle.dump([timeTraceData,nullclineData,phasePortraitData],f,pickle.HIGHEST_PROTOCOL)
 
 #%% Kamino 
@@ -171,6 +172,7 @@ scaleVal = 20
 phasePortraitData = [x_mesh,y_mesh,dx_small,dx_large,dy]
 
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_timescaleSeparation_data/timescaleSeparation_Kamino.pickle','wb') as f:
+with open(output_dir('sc_timescaleSeparation_data') / 'timescaleSeparation_Kamino.pickle',
+          'wb') as f:
     pickle.dump([timeTraceData,nullclineData,phasePortraitData],f,pickle.HIGHEST_PROTOCOL)
 

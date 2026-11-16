@@ -13,12 +13,12 @@ import numpy as np
 import math
 from scipy.signal import find_peaks
 
-# add path for function files
-sys.path.insert(0,'//groups/sgro/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+# import code and data locations
+from config import CODE_DIR, output_dir
 import MaedaLoomis2004Func as mlf
 
 # import normalization parameters
-with open('//groups/sgro/sgrolab/mark/dicty_proj/dictymodels/compare_models2/normParams.pickle','rb') as f:
+with open(CODE_DIR / 'normParams.pickle','rb') as f:
     Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
 # define variable arrays 
@@ -85,5 +85,6 @@ if len(PkPos) != 0:
 ts = t[int(len(t)*traceStart):]/Nt_Maeda
 
 # export time and cAMPi data
-with open('//groups/sgro/sgrolab/mark/dicty_proj/pop_firingRate_data/no_noise/Maeda/g_%.2i_rho_%.2i.pickle' % (gammaIndex,rhoIndex),'wb') as f:
+with open(output_dir('pop_firingRate_data/no_noise/Maeda') /
+          ('g_%.2i_rho_%.2i.pickle' % (gammaIndex,rhoIndex)),'wb') as f:
     pickle.dump([ts,cAMPi,firingRate,peakHeight],f,pickle.HIGHEST_PROTOCOL)

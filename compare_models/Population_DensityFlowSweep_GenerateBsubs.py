@@ -1,8 +1,9 @@
 #%% Sgro - noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Sgro_noise.txt', 'a') as file:
     for i in range(26):
@@ -13,8 +14,9 @@ with open('pop_firingRate_Sgro_noise.txt', 'a') as file:
 #%% Sgro - no noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Sgro_noNoise.txt', 'a') as file:
     for i in range(26):
@@ -25,8 +27,9 @@ with open('pop_firingRate_Sgro_noNoise.txt', 'a') as file:
 #%% Goldbeter: noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Goldbeter_noise.txt', 'a') as file:
     for i in range(25):
@@ -37,8 +40,9 @@ with open('pop_firingRate_Goldbeter_noise.txt', 'a') as file:
 #%% Goldbeter: no noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Goldbeter_noNoise.txt', 'a') as file:
     for i in range(25):
@@ -49,8 +53,9 @@ with open('pop_firingRate_Goldbeter_noNoise.txt', 'a') as file:
 #%% Maeda: no noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Maeda_noNoise.txt', 'a') as file:
     for i in range(26):
@@ -61,8 +66,9 @@ with open('pop_firingRate_Maeda_noNoise.txt', 'a') as file:
 #%% Maeda: noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Maeda_Noise.txt', 'a') as file:
     for i in range(26):
@@ -73,8 +79,9 @@ with open('pop_firingRate_Maeda_Noise.txt', 'a') as file:
 #%% Gregor: no noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Gregor_noNoise.txt', 'a') as file:
     for i in range(26):
@@ -85,8 +92,9 @@ with open('pop_firingRate_Gregor_noNoise.txt', 'a') as file:
 #%% Gregor: noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Gregor_Noise.txt', 'a') as file:
     for i in range(26):
@@ -97,8 +105,9 @@ with open('pop_firingRate_Gregor_Noise.txt', 'a') as file:
 #%% Kamino: no noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Kamino_noNoise.txt', 'a') as file:
     for i in range(31):
@@ -109,8 +118,9 @@ with open('pop_firingRate_Kamino_noNoise.txt', 'a') as file:
 #%% Kamino: no noise - log
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Kamino_noNoise_log.txt', 'a') as file:
     for i in range(31):
@@ -121,8 +131,9 @@ with open('pop_firingRate_Kamino_noNoise_log.txt', 'a') as file:
 #%% Kamino: noise 
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Kamino_Noise.txt', 'a') as file:
     for i in range(31):
@@ -133,8 +144,9 @@ with open('pop_firingRate_Kamino_Noise.txt', 'a') as file:
 #%% Kamino: noise - log
 
 import os
+from config import CODE_DIR
 
-os.chdir('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+os.chdir(CODE_DIR)
 
 with open('pop_firingRate_Kamino_Noise_log.txt', 'a') as file:
     for i in range(31):
