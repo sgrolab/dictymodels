@@ -6,7 +6,8 @@ Created on Tue Dec  4 19:23:30 2018
 """
 import numpy as np
 from numba import njit
-from popHistory import CellPopulation, History, noise_generator, np_heaviside, put, stimulus
+from popHistory import (CellPopulation, History, noise_generator, np_heaviside, np_sum, put,
+                        stimulus)
 
 class Cell():
     def __init__(self,pos,state,AgentParam,t):
@@ -118,10 +119,10 @@ class Sgro2015_pop(CellPopulation):
             # calculate next external cAMP step with/without time separation
             alphaf = extracellularA_trace[i]
             if time_separation == 0:
-                fcAMPext = alphaf + rho*alpha0 + rho*S/N*np.sum(np_heaviside(A,0.5))-(j+alpha_pde*rho) * cAMPe
+                fcAMPext = alphaf + rho*alpha0 + rho*S/N*np_sum(np_heaviside(A,0.5))-(j+alpha_pde*rho) * cAMPe
                 self_cAMPext[i] = cAMPe + fcAMPext*dt
             else:
-                self_cAMPext[i] = (alphaf + rho*alpha0 + rho*S/N*np.sum(np_heaviside(A,0.5)))/(j+alpha_pde*rho)
+                self_cAMPext[i] = (alphaf + rho*alpha0 + rho*S/N*np_sum(np_heaviside(A,0.5)))/(j+alpha_pde*rho)
             
             # compute time step 
             A = A + dA*dt + sigma*r

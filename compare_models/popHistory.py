@@ -199,8 +199,9 @@ class History:
             self.kept = min(int(keep_cells), N)
         means = np.zeros([len(names), steps])
         cells = np.zeros([len(names), self.kept, steps])
-        self.arrays = (means, cells)    # what put() fills, also from inside a compiled loop
-        put(self.arrays, 0, *first)
+        self.arrays = (means, cells)    # what put() fills, from inside a compiled loop
+        # the first time step, by put() as Python: compiling it for one call takes longer
+        put.py_func(self.arrays, 0, *first)
 
     def finish(self):
         """Give the population what was kept: <name>_mean, and <name> if cells were kept."""
