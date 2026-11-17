@@ -6,7 +6,7 @@ Created on Thu Jul 18 15:39:14 2019
 """
 import numpy as np
 from numba import njit
-from popHistory import CellPopulation, History, noise, noise_source, np_mean, put, stimulus
+from popHistory import CellPopulation, History, noise_generator, np_mean, put, stimulus
 
 class Cell():
     def __init__(self,params,initialVals,t):
@@ -116,10 +116,10 @@ class Population_scNoise(CellPopulation):
         self.t = t
         self.initialVals = initialVals
         
-    def run(self,dt,r,a,cAMPe_in,keep_cells=False,sigma=1):
-        # r is the noise: an array, or a random generator to draw it from at each time
-        # step with strength sigma. keep_cells says whether p, b and g are kept for every
-        # cell or only as p_mean, b_mean and g_mean. See popHistory.py
+    def run(self,dt,rng,a,cAMPe_in,keep_cells=False,sigma=1):
+        # rng is the random generator that the noise of each time step is drawn from, with
+        # strength sigma. keep_cells says whether p, b and g are kept for every cell or only as
+        # p_mean, b_mean and g_mean. See popHistory.py
         
         # pull parameter values 
         k1=self.param['k1']   
@@ -150,22 +150,25 @@ class Population_scNoise(CellPopulation):
         # takes them
         history = History(self,['p','b','g'],[p,b,g],keep_cells)
         cAMPe_in = stimulus(cAMPe_in,len(self.t))
-        r = noise_source(r,len(self.t),N,dt,sigma)
+        rng = noise_generator(rng,N)
 
         # take the time steps; the loop is steps(), below
-        self.steps(p,b,g,k1,k2,L1,L2,c,lamda,theta,e,q,sig,ki,kt,kc,h,a,cAMPe_in,dt,self.t,r,
-                   history.arrays)
+        self.steps(p,b,g,k1,k2,L1,L2,c,lamda,theta,e,q,sig,ki,kt,kc,h,a,cAMPe_in,dt,N,sigma,
+                   self.t,rng,history.arrays)
 
         history.finish()
 
     @staticmethod
     @njit(error_model='numpy',cache=True)
-    def steps(p,b,g,k1,k2,L1,L2,c,lamda,theta,e,q,sig,ki,kt,kc,h,a,cAMPe_in,dt,t,r,history):
+    def steps(p,b,g,k1,k2,L1,L2,c,lamda,theta,e,q,sig,ki,kt,kc,h,a,cAMPe_in,dt,N,sigma,t,rng,
+              history):
         # The loop of run(). numba compiles this method: popHistory.py says what to keep
         # to when changing it.
     
         # run model for full time 
         for i in range(1,len(t)):
+            # draw the noise of this time step
+            r = np.sqrt(dt)*rng.normal(0,1,N)*sigma
         
             # calculate model equations from p, b and g of the previous timestep
             f1 = (k1 + k2*g)/(1+g)
@@ -175,6 +178,6 @@ class Population_scNoise(CellPopulation):
         
             # update variable values; campExt_influx: contant cAMP input to the system
             p, b, g = (p + dt*(-f1*p + f2*(1-p)),
-                       b + dt*(q*sig*PI - (ki+kt)*b) + noise(r,i),
+                       b + dt*(q*sig*PI - (ki+kt)*b) + r,
                        g + dt*(kt/h*np_mean(b)-kc*(g-cAMPe_in[i])))
             put(history,i,p,b,g)

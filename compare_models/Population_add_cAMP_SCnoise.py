@@ -51,9 +51,9 @@ extracellularAs = np.array([10,20,100])
 # set time separation variable 
 time_separation = 0
 
-# initialize random generator and set random values 
-rng = np.random.default_rng(seed=1)
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N))
+# every run below draws its noise from a new random generator with this seed, so that
+# all of them have the same noise
+seed = 1
 
 # preallocate A trace arrays
 As = np.zeros((len(extracellularAs),len(t)))
@@ -70,7 +70,8 @@ for i in range(len(extracellularAs)):
     Sgro_pop = sg.Sgro2015_pop(A0,R0,cAMPext0,SgroPopParam,t)
     
     # run population 
-    Sgro_pop.run(dt,time_separation,extracellularA_trace,r,keep_cells=True)
+    rng = np.random.default_rng(seed)
+    Sgro_pop.run(dt,time_separation,extracellularA_trace,rng,keep_cells=True)
     
     # Save A traces to arrays
     A_trace_offset=1.5
@@ -122,10 +123,10 @@ ext_input_arr =  np.array([0.001,10,1000])
 # set time separation variable 
 time_separation = 0
 
-# initialize random generator and set random steps 
+# every run below draws its noise from a new random generator with this seed, so that
+# all of them have the same noise
+seed = 1
 eta = 0.002 # noise stength
-rng = np.random.default_rng(seed=1)
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N))
 
 # preallocate trace arrays
 thetais = np.zeros([len(ext_input_arr),Nc,len(t)])
@@ -144,7 +145,8 @@ for i in range(len(ext_input_arr)):
     Gregor_pop = gf.Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam, t)
     
     # run population
-    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r,keep_cells=True)
+    rng = np.random.default_rng(seed)
+    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,rng,keep_cells=True)
     
     # save traces 
     thetais[i] = Gregor_pop.thetai
@@ -204,10 +206,10 @@ ps = np.zeros([len(cAMPe_amounts),N,len(t)])
 bs = np.zeros_like(ps)
 gs = np.zeros_like(ps)
 
-# initialize random generator and set random values 
-rng = np.random.default_rng(seed=1)
+# every run below draws its noise from a new random generator with this seed, so that
+# all of them have the same noise
+seed = 1
 sigma = 10      # noise strength
-r = math.sqrt(dt) * rng.normal(0,1,size=(len(t),N)) * sigma
 
 # run model for each cAMPe amount 
 for i in range(len(cAMPe_amounts)):
@@ -220,7 +222,8 @@ for i in range(len(cAMPe_amounts)):
     pop = gbf.Population_scNoise([p0,a0,b0,g0],Goldbeter3PopParam,t)
     
     # run population 
-    pop.run(dt,r,a0,cAMPe_trace,keep_cells=True)
+    rng = np.random.default_rng(seed)
+    pop.run(dt,rng,a0,cAMPe_trace,keep_cells=True,sigma=sigma)
     
     # save traces
     ps[i] = pop.p
@@ -263,10 +266,10 @@ dt = 0.001
 t_tot = 60*Nt_Maeda
 t = np.arange(0,t_tot,dt)
 
-# initialize random generator and set random values 
-rng = np.random.default_rng(seed=1)
+# every run below draws its noise from a new random generator with this seed, so that
+# all of them have the same noise
+seed = 1
 sigma = 0.1      # noise strength
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N)) * sigma
 
 # define extracellular cAMP input amounts 
 cAMPe_in = np.array([0.005, 0.05, 0.5])
@@ -285,7 +288,8 @@ for i in range(len(cAMPe_in)):
     pop = mlf.Population_scNoise([1,1],initialVals,MaedaPopParam,t)
     
     # run simulation 
-    pop.run(dt,camp_input_trace,r,keep_cells=True)
+    rng = np.random.default_rng(seed)
+    pop.run(dt,camp_input_trace,rng,keep_cells=True,sigma=sigma)
     
     # store cAMPi trace value
     cAMPi_traces[i] = pop.cAMPi[:,int(len(t)/2):]/Nh_Maeda
@@ -321,10 +325,10 @@ dt=0.001
 t_tot=30 *Nt_Kamino
 t = np.arange(0,t_tot,dt)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
-# initialize random generator and set random values 
-rng = np.random.default_rng(seed=1)
+# every run below draws its noise from a new random generator with this seed, so that
+# all of them have the same noise
+seed = 1
 sigma =  0.01   # noise strength
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N)) * sigma
 
 # define cAMPe amounts  
 cAMPe_in = np.array([0.001,0.002,0.1])
@@ -345,7 +349,8 @@ for i in range(len(cAMPe_in)):
     pop = kf.Population_scNoise([x0,y0,z0],params,t)
     
     # run simulation
-    pop.run(camp_input_trace,dt,r,keep_cells=True)
+    rng = np.random.default_rng(seed)
+    pop.run(camp_input_trace,dt,rng,keep_cells=True,sigma=sigma)
 
     # save traces
     x_traces[i] = pop.x
