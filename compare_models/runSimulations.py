@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """Run the simulation scripts that generate the data for the figures.
 
-Each script is run in its own Python process, exactly as it would be by hand, and --jobs
-says how many processes run at a time. The scripts of the density and flow-rate sweep
-simulate one grid point per run, so each of them is run once for every point of its grid;
-that is 9,150 runs and nearly all of the work. When every grid point of the sweep has its
-file, the consolidate script collects them for the figures.
+Each script is run in its own Python process, exactly as it would be by hand. As many run
+at a time as the computer has processors, or as --jobs says. The scripts of the density and
+flow-rate sweep simulate one grid point per run, so each of them is run once for every point
+of its grid; that is 9,150 runs and nearly all of the work. When every grid point of the
+sweep has its file, the consolidate script collects them for the figures.
 
 Without arguments every script is run except those in EXCLUDE; name scripts, or the start
 of the names of several, to run a subset. The data directory is the one the scripts use
@@ -90,6 +90,14 @@ def grid_points(script, data_dir):
             for i in range(points) for j in range(points)]
 
 
+def processors():
+    """How many processors this process may use."""
+    try:
+        return len(os.sched_getaffinity(0))     # Linux: what taskset or a cluster job allows
+    except AttributeError:                      # macOS and Windows cannot say
+        return os.cpu_count() or 1
+
+
 def hms(seconds):
     seconds = int(round(seconds))
     return f'{seconds // 3600}:{seconds // 60 % 60:02d}:{seconds % 60:02d}'
@@ -160,9 +168,9 @@ def main(argv=None):
                         help='a script (SingleCell_singleSpike.py) or the start of the names '
                              'of several (SingleCell, Population_DensityFlowSweep_Kamino); '
                              'default: every script except ' + ' '.join(EXCLUDE))
-    parser.add_argument('--jobs', metavar='N', type=int, default=1,
-                        help='how many processes to run at a time (default: %(default)s; '
-                             f'this computer has {os.cpu_count()} processors)')
+    parser.add_argument('--jobs', metavar='N', type=int, default=processors(),
+                        help='how many processes to run at a time (default: one for each '
+                             'processor, %(default)s here)')
     parser.add_argument('--resume', action='store_true',
                         help='skip the grid points of the sweep whose file is already there')
     parser.add_argument('--dry-run', action='store_true',
@@ -190,9 +198,10 @@ def main(argv=None):
     todo = {s: [(indices, output) for indices, output in points
                 if not (args.resume and output.is_file())] for s, points in sweep.items()}
     total = sum(len(points) for points in todo.values())
+    jobs = max(1, min(args.jobs, len(once) + total))    # no more processes than runs
 
     print(f'data directory: {PROJECT_DIR}')
-    print(f'{len(scripts)} script(s), {args.jobs} process(es) at a time:')
+    print(f'{len(scripts)} script(s), {jobs} process(es) at a time:')
     for s in scripts:
         note = ''
         if s in sweep:
@@ -218,7 +227,7 @@ def main(argv=None):
     reported = began
     interrupted = False
     print()
-    with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = [pool.submit(runner.run, s) for s in once]
         futures += [pool.submit(runner.run, s, indices, output)
                     for s, points in todo.items() for indices, output in points]

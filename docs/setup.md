@@ -79,18 +79,20 @@ to read. A script is run directly:
 ```bash
 uv run compare_models/SingleCell_adaptiveSpike.py
 ```
-`compare_models/runSimulations.py` runs them in bulk, each in its own process:
+`compare_models/runSimulations.py` runs them in bulk, each in its own process and as many at
+a time as the computer has processors:
 ```bash
 uv run compare_models/runSimulations.py --dry-run     # list what a full run would do
-uv run compare_models/runSimulations.py --jobs 4      # run everything, four at a time
+uv run compare_models/runSimulations.py               # run everything
+uv run compare_models/runSimulations.py --jobs 2      # the same, two at a time
 uv run compare_models/runSimulations.py SingleCell    # the scripts whose names start so
 uv run compare_models/runSimulations.py SingleCell_singleSpike.py Population_add_cAMP_SCnoise.py
 uv run compare_models/runSimulations.py --help
 ```
-A full run includes the sweep described below, which is nearly all of its work; `--jobs`
-shares the work among processes that run at the same time. Scripts that fail are reported
-at the end and the rest still run, unless `--stop-on-error` is given. `--log` keeps each
-script's output in a file.
+A full run includes the sweep described below, which is nearly all of its work. `--jobs`
+sets how many processes run at the same time, for a computer that is shared or short of
+memory. Scripts that fail are reported at the end and the rest still run, unless
+`--stop-on-error` is given. `--log` keeps each script's output in a file.
 
 | Figure | Script                              | Writes to                      | Time    |
 |--------|-------------------------------------|--------------------------------|---------|
@@ -104,10 +106,11 @@ script's output in a file.
 | S4     | `SingleCell_Entrainment.py`         | `sc_Entrainment_data/`         | 1 min   |
 | S5     | `SingleCell_timescaleSeparation.py` | `sc_timescaleSeparation_data/` | 1 s     |
 
-The times are from one run on a four-core Linux machine. `Population_add_cAMP_SCnoise.py`
-needs about 7 GB of memory and writes 5.3 GB; the other scripts in the table need less than
-1 GB and write 65 MB between them. `Population_add_cAMP.py` is the Figure 3 experiment
-without noise in the single cells; no figure uses its results, so a full run leaves it out.
+The times are of each script run by itself on a four-core Linux machine.
+`Population_add_cAMP_SCnoise.py` needs about 7 GB of memory and writes 5.3 GB; the other
+scripts in the table need less than 1 GB and write 65 MB between them.
+`Population_add_cAMP.py` is the Figure 3 experiment without noise in the single cells; no
+figure uses its results, so a full run leaves it out.
 
 Noise is drawn from a random number generator with a fixed seed, so running a script again
 reproduces its results.
@@ -147,12 +150,12 @@ scripts have a file for every grid point, it runs
 `Population_DensityFlowSweep_Consolidate.py`, which collects the firing rates into one small
 file per script for the figures:
 ```bash
-uv run compare_models/runSimulations.py Population_DensityFlowSweep --jobs 4
+uv run compare_models/runSimulations.py Population_DensityFlowSweep
 ```
 Ctrl-C stops it, and running it again with `--resume` carries on with the grid points that
 have no file yet. A grid point that fails is named in the summary and its file removed, so
-`--resume` tries it again. On a four-core machine, three processes ran the 676 grid points
-of one script in under 8 minutes, against about 21 minutes for one process.
+`--resume` tries it again. On a four-core machine the 676 grid points of one script took
+6 minutes, four at a time, against about 21 minutes for one process (`--jobs 1`).
 
 The lab ran the sweep on an LSF cluster instead. `Population_DensityFlowSweep_GenerateBsubs.py`
 writes the job lists for that: twelve text files in `compare_models/`, one per script, with
