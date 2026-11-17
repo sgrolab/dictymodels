@@ -70,7 +70,7 @@ for i in range(len(extracellularAs)):
     Sgro_pop = sg.Sgro2015_pop(A0,R0,cAMPext0,SgroPopParam,t)
     
     # run population 
-    Sgro_pop.run(dt,time_separation,extracellularA_trace,r)
+    Sgro_pop.run(dt,time_separation,extracellularA_trace,r,keep_cells=True)
     
     # Save A traces to arrays
     A_trace_offset=1.5
@@ -144,7 +144,7 @@ for i in range(len(ext_input_arr)):
     Gregor_pop = gf.Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam, t)
     
     # run population
-    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r)
+    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r,keep_cells=True)
     
     # save traces 
     thetais[i] = Gregor_pop.thetai
@@ -220,7 +220,7 @@ for i in range(len(cAMPe_amounts)):
     pop = gbf.Population_scNoise([p0,a0,b0,g0],Goldbeter3PopParam,t)
     
     # run population 
-    pop.run(dt,r,a0,cAMPe_trace)
+    pop.run(dt,r,a0,cAMPe_trace,keep_cells=True)
     
     # save traces
     ps[i] = pop.p
@@ -285,7 +285,7 @@ for i in range(len(cAMPe_in)):
     pop = mlf.Population_scNoise([1,1],initialVals,MaedaPopParam,t)
     
     # run simulation 
-    pop.run(dt,camp_input_trace,r)
+    pop.run(dt,camp_input_trace,r,keep_cells=True)
     
     # store cAMPi trace value
     cAMPi_traces[i] = pop.cAMPi[:,int(len(t)/2):]/Nh_Maeda
@@ -345,7 +345,7 @@ for i in range(len(cAMPe_in)):
     pop = kf.Population_scNoise([x0,y0,z0],params,t)
     
     # run simulation
-    pop.run(camp_input_trace,dt,r)
+    pop.run(camp_input_trace,dt,r,keep_cells=True)
 
     # save traces
     x_traces[i] = pop.x

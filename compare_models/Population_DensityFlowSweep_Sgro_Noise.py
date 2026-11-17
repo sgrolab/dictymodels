@@ -58,7 +58,8 @@ time_separation = 0
 
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N))
+def r(steps):   # the noise of the next time steps, drawn when the run asks for it
+    return math.sqrt(dt)*rng.normal(0,1,size = (steps,N))
 
 # define extracellular stim amounts
 extracellularA_trace = np.zeros(len(t))
@@ -71,7 +72,7 @@ Sgro_pop.run(dt,time_separation,extracellularA_trace,r)
 
 # normalize back 80% of trace 
 traceStart = 0.2
-As = (np.mean(Sgro_pop.A,axis=0)[int(len(t)*traceStart):]-Nh_Sgro_offset)/Nh_Sgro
+As = (Sgro_pop.A_mean[int(len(t)*traceStart):]-Nh_Sgro_offset)/Nh_Sgro
 
 # analyze trace for firing rate and peak height 
 firingRate = 0

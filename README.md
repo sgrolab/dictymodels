@@ -41,6 +41,8 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
 - `docs/` - Installation and usage instructions (`setup.md`)
 - `compare_models/*Func.py` - The five models, one file each, with classes for a single cell
   and for a population of cells
+- `compare_models/popHistory.py` - What a run of a population keeps (the mean over the cells
+  by default, every cell on request) and how it is given its noise
 - `compare_models/SingleCell_*.py`, `compare_models/Population_add_cAMP*.py` - One script per
   experiment; each writes its results to the data directory
 - `compare_models/Population_DensityFlowSweep_*.py` - The sweep over cell density and flow
@@ -62,8 +64,8 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
   write their results
 - About 7 GB of free memory and 6 GB of disk for Figure 3; the other figures outside the
   sweep need far less
-- For Figures 4 and S1, the sweep: 9,150 runs that take about 44 hours of computing in all,
-  up to 12 GB of memory each, and about 110 GB of disk (see `docs/setup.md`)
+- For Figures 4 and S1, the sweep: 9,150 runs that take about 40 hours of computing in all,
+  less than 0.3 GB of memory each, and about 110 GB of disk (see `docs/setup.md`)
 
 ## Installation and Usage
 See `docs/setup.md` for installing the environment, configuring the data directory, running

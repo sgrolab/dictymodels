@@ -54,7 +54,8 @@ t = np.arange(0,t_tot,dt)
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
 sigma =  0   # noise strength
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N)) * sigma
+def r(steps):   # the noise of the next time steps, drawn when the run asks for it
+    return math.sqrt(dt)*rng.normal(0,1,size = (steps,N)) * sigma
 
 # define cAMPe amounts  
 camp_input_trace=np.zeros(len(t))
@@ -67,7 +68,7 @@ pop.run(camp_input_trace,dt,r)
 
 # normalize back 80% of trace 
 traceStart = 0.2
-As = (np.mean(pop.y,axis=0)[int(len(t)*traceStart):]-Nh_Kamino_offset)/Nh_Kamino
+As = (pop.y_mean[int(len(t)*traceStart):]-Nh_Kamino_offset)/Nh_Kamino
 
 # analyze trace for firing rate and peak height 
 firingRate = 0

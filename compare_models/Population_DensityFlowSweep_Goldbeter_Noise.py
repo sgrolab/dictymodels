@@ -68,7 +68,8 @@ cAMPe_trace = np.zeros(len(t))
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
 sigma = 10      # noise strength
-r = math.sqrt(dt) * rng.normal(0,1,size=(len(t),N)) * sigma
+def r(steps):   # the noise of the next time steps, drawn when the run asks for it
+    return math.sqrt(dt) * rng.normal(0,1,size=(steps,N)) * sigma
 
 # initialize population
 pop = gbf.Population_scNoise([p0,a0,b0,g0],Goldbeter3PopParam,t)
@@ -78,7 +79,7 @@ pop.run(dt,r,a0,cAMPe_trace)
 
 # normalize back 80% of trace 
 traceStart = 0.2
-bs = np.mean(pop.b,axis=0)[int(len(t)*traceStart):]/Nh_Goldbeter
+bs = pop.b_mean[int(len(t)*traceStart):]/Nh_Goldbeter
 
 # analyze trace for firing rate and peak height 
 firingRate = 0

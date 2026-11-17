@@ -57,7 +57,8 @@ t = np.arange(0,t_tot,dt)
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
 sigma = 0      # noise strength
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N)) * sigma
+def r(steps):   # the noise of the next time steps, drawn when the run asks for it
+    return math.sqrt(dt)*rng.normal(0,1,size = (steps,N)) * sigma
 
 # define extracellular cAMP input amounts 
 cAMPe_in = np.zeros(len(t))
@@ -70,7 +71,7 @@ pop.run(dt,cAMPe_in,r,rhoVals[rhoIndex],gammaVals[gammaIndex])
 
 # normalize back 50% of cAMPi trace 
 traceStart = 0.5
-cAMPi = np.mean(pop.cAMPi,axis=0)[int(len(t)*traceStart):]/Nh_Maeda
+cAMPi = pop.cAMPi_mean[int(len(t)*traceStart):]/Nh_Maeda
 
 # analyze trace for firing rate and peak height 
 firingRate = 0

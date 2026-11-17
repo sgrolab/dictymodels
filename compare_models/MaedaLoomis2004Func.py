@@ -6,6 +6,7 @@ Created on Fri Jul 19 10:10:49 2019
 """
 
 import numpy as np
+from popHistory import CellPopulation, History, noise_rows
 
 class Cell():
     def __init__(self,pos,initialVals,AgentParam,t):
@@ -135,32 +136,22 @@ class Population():
             if self.cAMPe[i] < 0 :
                 self.cAMPe[i] = 0
 
-class Population_scNoise():
+class Population_scNoise(CellPopulation):
     def __init__(self,pos,initialVals,params,t):
         self.pos=pos
         self.AgentParam=params
         self.t = t
-        N = self.AgentParam['N']
+        self.initialVals = initialVals
         
-        # preallocate variable arrays 
-        self.ACA = np.zeros([N,len(t)])
-        self.PKA = np.zeros([N,len(t)])
-        self.ERK2 = np.zeros([N,len(t)])
-        self.RegA = np.zeros([N,len(t)])
-        self.cAMPi = np.zeros([N,len(t)])
+        # preallocate the array of external cAMP, which the cells share, and set its
+        # initial value
         self.cAMPe = np.zeros([len(t)])
-        self.CAR1 = np.zeros([N,len(t)])
-        
-        # set initial values
-        self.ACA[:,0] = initialVals[0]
-        self.PKA[:,0] = initialVals[1]
-        self.ERK2[:,0] = initialVals[2]
-        self.RegA[:,0] = initialVals[3]
-        self.cAMPi[:,0] = initialVals[4]
         self.cAMPe[0] = initialVals[5]
-        self.CAR1[:,0] = initialVals[6] 
-    
-    def run(self,dt,cAMPe_in,r,rho=1,gamma=0):
+
+    def run(self,dt,cAMPe_in,r,rho=1,gamma=0,keep_cells=False):
+        # r is the noise, an array or a function; keep_cells says whether ACA, PKA, ERK2,
+        # RegA, cAMPi and CAR1 are kept for every cell or only as ACA_mean and so on: see
+        # popHistory.py
         
         # get parameter values from dictionary
         k1=self.AgentParam['k1']   
@@ -177,28 +168,47 @@ class Population_scNoise():
         k12=self.AgentParam['k12']  
         k13=self.AgentParam['k13']  
         k14=self.AgentParam['k14']
+        N = self.AgentParam['N']
+
+        # set initial values, one for each cell
+        ACA = np.zeros(N)
+        PKA = np.zeros(N)
+        ERK2 = np.zeros(N)
+        RegA = np.zeros(N)
+        cAMPi = np.zeros(N)
+        CAR1 = np.zeros(N)
+        ACA[:] = self.initialVals[0]
+        PKA[:] = self.initialVals[1]
+        ERK2[:] = self.initialVals[2]
+        RegA[:] = self.initialVals[3]
+        cAMPi[:] = self.initialVals[4]
+        CAR1[:] = self.initialVals[6]
+
+        # what is kept of the run, and the noise of each time step after the first
+        history = History(self,['ACA','PKA','ERK2','RegA','cAMPi','CAR1'],
+                          [ACA,PKA,ERK2,RegA,cAMPi,CAR1],keep_cells)
+        noise = noise_rows(r,len(self.t))
+        next(noise)
         
         # run simulation 
         for i in range(1,len(self.t)):
         
-            # get variable values from previous timestep 
-            ACA = self.ACA[:,i-1]
-            PKA = self.PKA[:,i-1]
-            ERK2 = self.ERK2[:,i-1]
-            RegA = self.RegA[:,i-1]
-            cAMPi = self.cAMPi[:,i-1]
+            # get external cAMP from previous timestep
             cAMPe = self.cAMPe[i-1]
-            CAR1 = self.CAR1[:,i-1]
             
-            # compute next values
-            self.ACA[:,i] = ACA + (k1*CAR1 - k2*ACA*PKA)*dt
-            self.PKA[:,i] = PKA + (k3*cAMPi - k4*PKA)*dt
-            self.ERK2[:,i] = ERK2 + (k5*CAR1-k6*PKA*ERK2)*dt
-            self.RegA[:,i] = RegA + (k7-k8*ERK2*RegA)*dt
-            self.cAMPi[:,i] = cAMPi + (k9*ACA-k10*RegA*cAMPi)*dt + r[i]
+            # compute next values, all from the values of the previous timestep
             self.cAMPe[i] = cAMPe + (k11*rho*np.mean(ACA)-(k12+gamma)*(cAMPe - cAMPe_in[i]))*dt
-            self.CAR1[:,i] = CAR1 + (k13*cAMPe - k14*CAR1)*dt
+            ACA, PKA, ERK2, RegA, cAMPi, CAR1 = (
+                ACA + (k1*CAR1 - k2*ACA*PKA)*dt,
+                PKA + (k3*cAMPi - k4*PKA)*dt,
+                ERK2 + (k5*CAR1-k6*PKA*ERK2)*dt,
+                RegA + (k7-k8*ERK2*RegA)*dt,
+                cAMPi + (k9*ACA-k10*RegA*cAMPi)*dt + next(noise),
+                CAR1 + (k13*cAMPe - k14*CAR1)*dt)
+            history.put(i,ACA,PKA,ERK2,RegA,cAMPi,CAR1)
             
             # correct cAMPe if less than 0
             if self.cAMPe[i] < 0 :
                 self.cAMPe[i] = 0
+
+        history.finish()

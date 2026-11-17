@@ -65,7 +65,8 @@ time_separation = 0
 # initialize random generator and set random steps 
 eta = 0.002 # noise stength
 rng = np.random.default_rng(seed=1)
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),Nc))
+def r(steps):   # the noise of the next time steps, drawn when the run asks for it
+    return math.sqrt(dt)*rng.normal(0,1,size = (steps,Nc))
 
 # initialize cell population 
 Gregor_pop = gf.Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam, t)
@@ -75,7 +76,7 @@ Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r)
 
 # normalize back 80% of cAMPi trace 
 traceStart = 0.2
-cAMPi = np.mean(Gregor_pop.cAMPi,axis=0)[int(len(t)*traceStart):]/Nh_Gregor
+cAMPi = Gregor_pop.cAMPi_mean[int(len(t)*traceStart):]/Nh_Gregor
 
 # analyze trace for firing rate and peak height 
 firingRate = 0
