@@ -100,8 +100,9 @@ class Population_scNoise(CellPopulation): # population with noisy single cells
         
     def run(self,z0_influx, dt, rng, overriding_sig='none', keep_cells=False, sigma=1):
         # rng is the random generator that the noise of each time step is drawn from, with
-        # strength sigma. keep_cells says whether x, y and z are kept for every cell or only as
-        # x_mean, y_mean and z_mean. See popHistory.py
+        # strength sigma. keep_cells says for how many cells x, y and z are kept: every one
+        # (True), the first so many (a number) or none (False). x_mean, y_mean and z_mean are
+        # always kept. See popHistory.py
         
         # get parameter values
         tau=self.Param['tau']   

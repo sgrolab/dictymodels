@@ -151,8 +151,9 @@ class Population_scNoise(CellPopulation):
 
     def run(self,dt,cAMPe_in,rng,rho=1,gamma=0,keep_cells=False,sigma=1):
         # rng is the random generator that the noise of each time step is drawn from, with
-        # strength sigma. keep_cells says whether ACA, PKA, ERK2, RegA, cAMPi and CAR1 are
-        # kept for every cell or only as ACA_mean and so on. See popHistory.py
+        # strength sigma. keep_cells says for how many cells ACA, PKA, ERK2, RegA, cAMPi and
+        # CAR1 are kept: every one (True), the first so many (a number) or none (False).
+        # ACA_mean and so on are always kept. See popHistory.py
         
         # get parameter values from dictionary
         k1=self.AgentParam['k1']   

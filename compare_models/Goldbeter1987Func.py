@@ -118,8 +118,9 @@ class Population_scNoise(CellPopulation):
         
     def run(self,dt,rng,a,cAMPe_in,keep_cells=False,sigma=1):
         # rng is the random generator that the noise of each time step is drawn from, with
-        # strength sigma. keep_cells says whether p, b and g are kept for every cell or only as
-        # p_mean, b_mean and g_mean. See popHistory.py
+        # strength sigma. keep_cells says for how many cells p, b and g are kept: every one
+        # (True), the first so many (a number) or none (False). p_mean, b_mean and g_mean are
+        # always kept. See popHistory.py
         
         # pull parameter values 
         k1=self.param['k1']   

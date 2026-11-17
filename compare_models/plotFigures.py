@@ -203,11 +203,11 @@ def figure_03():
         ts_Sgro,As_Sgro,As_sc_Sgro = pickle.load(f)
     with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Goldbeter.pickle',
               'rb') as f:
-        ts_Gb,ps_Gb,bs_Gb,gs_Gb = pickle.load(f)
+        ts_Gb,ps_Gb,bs_Gb,gs_Gb,b_means_Gb = pickle.load(f)
     with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Maeda.pickle','rb') as f:
-        t_ML,cAMPis_ML = pickle.load(f)
+        t_ML,cAMPis_ML,cAMPi_means_ML = pickle.load(f)
     with open(PROJECT_DIR / 'popAddcAMPscNoise_data/popAddcAMPscNoise_Kamino.pickle','rb') as f:
-        t_Kamino,xs_Kamino,ys_Kamino,zs_Kamino = pickle.load(f)
+        t_Kamino,xs_Kamino,ys_Kamino,zs_Kamino,y_means_Kamino = pickle.load(f)
 
     # Figure 3 (population add cAMP): plot
 
@@ -340,7 +340,7 @@ def figure_03():
     ax.set_title('Receptor Desensitization',color=mycolors[7],fontsize=title_font_size)
     for i in range(10):
         ax.plot(ts_Gb, bs_Gb[0,i], alpha=0.2, color='grey',linewidth=2)
-    ax.plot(ts_Gb, np.mean(bs_Gb[0],axis=0), alpha=0.8, color=mycolors[7],linewidth=trace_width)
+    ax.plot(ts_Gb, b_means_Gb[0], alpha=0.8, color=mycolors[7],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlim([0,30])
@@ -351,7 +351,7 @@ def figure_03():
     ax = fig.add_subplot(grid[5,0])
     for i in range(10):
         ax.plot(ts_Gb, bs_Gb[1,i], alpha=0.2, color='grey',linewidth=2)
-    ax.plot(ts_Gb, np.mean(bs_Gb[1],axis=0), alpha=0.8, color=mycolors[7],linewidth=trace_width)
+    ax.plot(ts_Gb, b_means_Gb[1], alpha=0.8, color=mycolors[7],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlim([0,30])
@@ -363,7 +363,7 @@ def figure_03():
     ax = fig.add_subplot(grid[6,0])
     for i in range(10):
         ax.plot(ts_Gb, bs_Gb[2,i], alpha=0.2, color='grey',linewidth=2)
-    ax.plot(ts_Gb, np.mean(bs_Gb[2],axis=0), alpha=0.8, color=mycolors[7],linewidth=trace_width)
+    ax.plot(ts_Gb, b_means_Gb[2], alpha=0.8, color=mycolors[7],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)
@@ -377,7 +377,7 @@ def figure_03():
     ax.set_title('CDINFB',color=mycolors[8],fontsize=title_font_size)
     for i in range(10):
         ax.plot(t_ML, cAMPis_ML[0,i], alpha=0.2, color='grey',linewidth=trace_width)
-    ax.plot(t_ML, np.mean(cAMPis_ML[0],axis=0), alpha=0.8, color=mycolors[8],linewidth=trace_width)
+    ax.plot(t_ML, cAMPi_means_ML[0], alpha=0.8, color=mycolors[8],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlim([0,30])
@@ -388,7 +388,7 @@ def figure_03():
     ax = fig.add_subplot(grid[5,1])
     for i in range(10):
         ax.plot(t_ML, cAMPis_ML[1,i], alpha=0.2, color='grey',linewidth=trace_width)
-    ax.plot(t_ML, np.mean(cAMPis_ML[1],axis=0), alpha=0.8, color=mycolors[8],linewidth=trace_width)
+    ax.plot(t_ML, cAMPi_means_ML[1], alpha=0.8, color=mycolors[8],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlim([0,30])
@@ -400,7 +400,7 @@ def figure_03():
     ax = fig.add_subplot(grid[6,1])
     for i in range(10):
         ax.plot(t_ML, cAMPis_ML[2,i], alpha=0.2, color='grey',linewidth=trace_width)
-    ax.plot(t_ML, np.mean(cAMPis_ML[2],axis=0), alpha=0.8, color=mycolors[8],linewidth=trace_width)
+    ax.plot(t_ML, cAMPi_means_ML[2], alpha=0.8, color=mycolors[8],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlim([0,30])
@@ -414,7 +414,7 @@ def figure_03():
     ax.set_title('IFFL',color=mycolors[0],fontsize=title_font_size)
     for i in range(10):
         ax.plot(t_Kamino,ys_Kamino[0,i],alpha=0.2,color='grey',linewidth=2)
-    ax.plot(t_Kamino, np.mean(ys_Kamino[0],axis=0), alpha=0.8, color=mycolors[0],linewidth=trace_width)
+    ax.plot(t_Kamino, y_means_Kamino[0], alpha=0.8, color=mycolors[0],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'Low $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlim([0,30])
@@ -425,7 +425,7 @@ def figure_03():
     ax = fig.add_subplot(grid[5,2])
     for i in range(10):
         ax.plot(t_Kamino,ys_Kamino[1,i],alpha=0.2,color='grey',linewidth=2)
-    ax.plot(t_Kamino, np.mean(ys_Kamino[1],axis=0), alpha=0.8, color=mycolors[0],linewidth=trace_width)
+    ax.plot(t_Kamino, y_means_Kamino[1], alpha=0.8, color=mycolors[0],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'Moderate $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlim([0,30])
@@ -437,7 +437,7 @@ def figure_03():
     ax = fig.add_subplot(grid[6,2])
     for i in range(10):
         ax.plot(t_Kamino,ys_Kamino[2,i],alpha=0.2,color='grey',linewidth=2)
-    ax.plot(t_Kamino, np.mean(ys_Kamino[2],axis=0), alpha=0.8, color=mycolors[0],linewidth=trace_width)
+    ax.plot(t_Kamino, y_means_Kamino[2], alpha=0.8, color=mycolors[0],linewidth=trace_width)
     ax.vlines(15,-1,10,color='k',linestyle='dashed')
     ax.text(29.5,1.2,'High $cAMP_e$ Input',fontsize=12,horizontalalignment='right')
     ax.set_xlabel('Time (A.U.)',fontsize=label_font_size)

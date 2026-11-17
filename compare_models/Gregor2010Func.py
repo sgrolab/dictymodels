@@ -60,9 +60,10 @@ class Gregor2010_pop(CellPopulation):
         
     def run(self,dt,eta,rho,k,Vt,time_separation,campExt_influx,rng=None,
             keep_cells=False):
-        # rng is the random generator that the noise of each time step is drawn from.
-        # keep_cells says whether cAMPi and thetai are kept for every cell or only as
-        # cAMPi_mean and thetai_mean. See popHistory.py
+        # rng is the random generator that the noise of each time step is drawn from. keep_cells
+        # says for how many cells cAMPi and thetai are kept: every one (True), the first so many
+        # (a number) or none (False). cAMPi_mean and thetai_mean are always kept. See
+        # popHistory.py
 
         # pull model parameters
         Amax=self.PopParam['Amax']   

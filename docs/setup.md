@@ -107,7 +107,7 @@ memory. Scripts that fail are reported at the end and the rest still run, unless
 | S5     | `SingleCell_timescaleSeparation.py` | `sc_timescaleSeparation_data/` | 1 s     |
 
 The times are of each script run by itself on a four-core Linux machine.
-`Population_add_cAMP_SCnoise.py` needs about 7 GB of memory and writes 5.3 GB; the other
+`Population_add_cAMP_SCnoise.py` needs about 1 GB of memory and writes 0.6 GB; the other
 scripts in the table need less than 1 GB and write 65 MB between them.
 `Population_add_cAMP.py` is the Figure 3 experiment without noise in the single cells; no
 figure uses its results, so a full run leaves it out.
@@ -181,7 +181,7 @@ uv run compare_models/plotFigures.py --save figs --format pdf --dpi 300
 uv run compare_models/plotFigures.py --help
 ```
 A figure whose data has not been generated yet is reported as failed and the others are
-still drawn. Figure 3 loads 5.3 GB of traces and needs about 7 GB of memory.
+still drawn. Figure 3 draws ninety long traces and needs about 3 GB of memory.
 
 Each figure is a function, `figure_02` ... `figure_S05`. In Spyder or VS Code, with the
 interpreter and working directory set as described under Simulations, `import plotFigures`
@@ -219,10 +219,11 @@ The classes for a population of noisy cells (`Population_scNoise`, `Gregor2010_p
 `Sgro2015_pop`) keep only the mean of each variable over the cells, for example
 `pop.y_mean`, because every variable of every cell at every time step can take gigabytes.
 To look inside a run, call `run(..., keep_cells=True)`: each variable is then also kept for
-every cell, as `pop.y`, an array of cells by time steps. `Population_add_cAMP_SCnoise.py`
-does this for Figure 3, which shows single cells. `run()` is given a numpy random generator
-and draws the noise of each time step from it when it gets there, so none of the noise is
-held in memory. See `popHistory.py`.
+every cell, as `pop.y`, an array of cells by time steps. With a number, `keep_cells=10`,
+only the first ten cells are kept; `Population_add_cAMP_SCnoise.py` does this for Figure 3,
+which shows ten single cells beside the mean. `run()` is given a numpy random generator and
+draws the noise of each time step from it when it gets there, so none of the noise is held
+in memory. See `popHistory.py`.
 
 The loop over the time steps of these classes is their method `steps()`, which numba
 compiles the first time it is called. That takes about a second and makes the loop about

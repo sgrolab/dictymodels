@@ -63,9 +63,9 @@ class Sgro2015_pop(CellPopulation):
     
     
     def run(self,dt,time_separation,extracellularA_trace,rng=None,keep_cells=False):
-        # rng is the random generator that the noise of each time step is drawn from.
-        # keep_cells says whether A and R are kept for every cell or only as A_mean
-        # and R_mean. See popHistory.py
+        # rng is the random generator that the noise of each time step is drawn from. keep_cells
+        # says for how many cells A and R are kept: every one (True), the first so many (a
+        # number) or none (False). A_mean and R_mean are always kept. See popHistory.py
 
         # pull parameters from dictionary 
         e=self.PopParam['e']   

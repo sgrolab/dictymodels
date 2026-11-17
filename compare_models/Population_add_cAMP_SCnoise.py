@@ -18,6 +18,10 @@ from config import CODE_DIR, output_dir
 with open(CODE_DIR / 'normParams.pickle','rb') as f:
     Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
+# how many cells each run keeps the traces of; Figure 3 draws them beside the mean
+# over all the cells
+N_traces = 10
+
 #%% Sgro 2015
 
 import Sgro2015Func as sg
@@ -57,7 +61,7 @@ seed = 1
 
 # preallocate A trace arrays
 As = np.zeros((len(extracellularAs),len(t)))
-As_sc = np.zeros((len(extracellularAs),N,len(t)))
+As_sc = np.zeros((len(extracellularAs),N_traces,len(t)))
 
 # iterate through each extracellular A amount 
 for i in range(len(extracellularAs)):
@@ -71,12 +75,12 @@ for i in range(len(extracellularAs)):
     
     # run population 
     rng = np.random.default_rng(seed)
-    Sgro_pop.run(dt,time_separation,extracellularA_trace,rng,keep_cells=True)
+    Sgro_pop.run(dt,time_separation,extracellularA_trace,rng,keep_cells=N_traces)
     
     # Save A traces to arrays
     A_trace_offset=1.5
     As_sc[i,:,:] = (Sgro_pop.A+A_trace_offset)/Nh_Sgro
-    As[i,:] = np.mean(As_sc[i,:,:], axis = 0)
+    As[i,:] = (Sgro_pop.A_mean+A_trace_offset)/Nh_Sgro
 
 # save adjusted time trace
 ts = t/Nt_Sgro
@@ -129,10 +133,10 @@ seed = 1
 eta = 0.002 # noise stength
 
 # preallocate trace arrays
-thetais = np.zeros([len(ext_input_arr),Nc,len(t)])
+thetais = np.zeros([len(ext_input_arr),N_traces,len(t)])
 cAMPes = np.zeros([len(ext_input_arr),len(t)])
 cAMPis = np.zeros((len(ext_input_arr),len(t)))
-cAMPis_sc = np.zeros((len(ext_input_arr),Nc,len(t)))
+cAMPis_sc = np.zeros((len(ext_input_arr),N_traces,len(t)))
 
 # iterate through each extracellular cAMP amount 
 for i in range(len(ext_input_arr)):
@@ -146,13 +150,13 @@ for i in range(len(ext_input_arr)):
     
     # run population
     rng = np.random.default_rng(seed)
-    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,rng,keep_cells=True)
+    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,rng,keep_cells=N_traces)
     
     # save traces 
     thetais[i] = Gregor_pop.thetai
     cAMPes[i] = Gregor_pop.cAMPe
     cAMPis_sc[i] = Gregor_pop.cAMPi/Nh_Gregor   # adjust trace
-    cAMPis[i] = np.mean(cAMPis_sc[i],axis=0)
+    cAMPis[i] = Gregor_pop.cAMPi_mean/Nh_Gregor
 
 # save adjusted time trace 
 ts = np.array(t)/Nt_Gregor
@@ -202,9 +206,10 @@ t=np.arange(0,t_tot,dt)
 cAMPe_amounts = np.array([0.01,0.02,0.1])
 
 # preallocate arrays
-ps = np.zeros([len(cAMPe_amounts),N,len(t)])
+ps = np.zeros([len(cAMPe_amounts),N_traces,len(t)])
 bs = np.zeros_like(ps)
 gs = np.zeros_like(ps)
+b_means = np.zeros([len(cAMPe_amounts),len(t)])
 
 # every run below draws its noise from a new random generator with this seed, so that
 # all of them have the same noise
@@ -223,20 +228,22 @@ for i in range(len(cAMPe_amounts)):
     
     # run population 
     rng = np.random.default_rng(seed)
-    pop.run(dt,rng,a0,cAMPe_trace,keep_cells=True,sigma=sigma)
+    pop.run(dt,rng,a0,cAMPe_trace,keep_cells=N_traces,sigma=sigma)
     
     # save traces
     ps[i] = pop.p
     bs[i] = pop.b
     gs[i] = pop.g
+    b_means[i] = pop.b_mean
 
 bs = bs/Nh_Goldbeter
+b_means = b_means/Nh_Goldbeter
 ts = t/Nt_Goldbeter
 
 # export to pickle file
 with open(output_dir('popAddcAMPscNoise_data') / 'popAddcAMPscNoise_Goldbeter.pickle',
           'wb') as f:
-    pickle.dump([ts,ps,bs,gs],f,pickle.HIGHEST_PROTOCOL)
+    pickle.dump([ts,ps,bs,gs,b_means],f,pickle.HIGHEST_PROTOCOL)
 
 #%% Maeda & Loomis 2004
 import MaedaLoomis2004Func as mlf
@@ -275,7 +282,8 @@ sigma = 0.1      # noise strength
 cAMPe_in = np.array([0.005, 0.05, 0.5])
 
 # preallocate trace arrays
-cAMPi_traces = np.zeros([len(cAMPe_in),N,int(len(t)/2)])
+cAMPi_traces = np.zeros([len(cAMPe_in),N_traces,int(len(t)/2)])
+cAMPi_means = np.zeros([len(cAMPe_in),int(len(t)/2)])
 
 # iterate through each eCAMP amount 
 for i in range(len(cAMPe_in)):
@@ -289,15 +297,16 @@ for i in range(len(cAMPe_in)):
     
     # run simulation 
     rng = np.random.default_rng(seed)
-    pop.run(dt,camp_input_trace,rng,keep_cells=True,sigma=sigma)
+    pop.run(dt,camp_input_trace,rng,keep_cells=N_traces,sigma=sigma)
     
     # store cAMPi trace value
+    cAMPi_means[i] = pop.cAMPi_mean[int(len(t)/2):]/Nh_Maeda
     cAMPi_traces[i] = pop.cAMPi[:,int(len(t)/2):]/Nh_Maeda
 
 
 # export time and cAMPi data
 with open(output_dir('popAddcAMPscNoise_data') / 'popAddcAMPscNoise_Maeda.pickle','wb') as f:
-    pickle.dump([t,cAMPi_traces],f,pickle.HIGHEST_PROTOCOL)
+    pickle.dump([t,cAMPi_traces,cAMPi_means],f,pickle.HIGHEST_PROTOCOL)
 
 
 #%% Kamino 2017, fig 5D group oscillations
@@ -334,9 +343,10 @@ sigma =  0.01   # noise strength
 cAMPe_in = np.array([0.001,0.002,0.1])
 
 # preallocate trace arrays
-x_traces = np.zeros([len(cAMPe_in),N,len(t)])
+x_traces = np.zeros([len(cAMPe_in),N_traces,len(t)])
 y_traces = np.zeros_like(x_traces)
 z_traces = np.zeros_like(x_traces)
+y_means = np.zeros([len(cAMPe_in),len(t)])
 
 # iterate through each cAMPe amount and run population
 for i in range(len(cAMPe_in)):
@@ -350,17 +360,18 @@ for i in range(len(cAMPe_in)):
     
     # run simulation
     rng = np.random.default_rng(seed)
-    pop.run(camp_input_trace,dt,rng,keep_cells=True,sigma=sigma)
+    pop.run(camp_input_trace,dt,rng,keep_cells=N_traces,sigma=sigma)
 
     # save traces
     x_traces[i] = pop.x
     y_traces[i] = (pop.y-Nh_Kamino_offset)/Nh_Kamino # normalize y trace 
     z_traces[i] = pop.z
+    y_means[i] = (pop.y_mean-Nh_Kamino_offset)/Nh_Kamino
 
 # save adjusted t trace 
 t = t/Nt_Kamino
 
 # save to pickle file 
 with open(output_dir('popAddcAMPscNoise_data') / 'popAddcAMPscNoise_Kamino.pickle','wb') as f:
-    pickle.dump([t,x_traces,y_traces,z_traces],f,pickle.HIGHEST_PROTOCOL)
+    pickle.dump([t,x_traces,y_traces,z_traces,y_means],f,pickle.HIGHEST_PROTOCOL)
 

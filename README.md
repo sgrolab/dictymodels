@@ -67,8 +67,8 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
   `uv run`
 - A data directory, pointed to by the `ROOT_DIR` environment variable, where the simulations
   write their results
-- About 7 GB of free memory and 6 GB of disk for Figure 3; the other figures outside the
-  sweep need far less
+- About 3 GB of free memory to draw Figure 3, and 0.6 GB of disk for its data; the other
+  figures outside the sweep need less
 - For Figures 4 and S1, the sweep: 9,150 runs that take about 9 hours of computing in all,
   shared among the computer's processors, with less than 0.4 GB of memory for each processor
   and about 110 GB of disk (see `docs/setup.md`)

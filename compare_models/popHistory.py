@@ -6,8 +6,10 @@ A run steps N cells through len(t) time points. Every variable of every cell at 
 point is N x len(t) numbers, which for a sweep job is gigabytes, so by default run() keeps
 only the mean of each variable over the cells, as <name>_mean. Call run(..., keep_cells=True)
 to also keep each variable for every cell, as <name>, an N x len(t) array. That is what the
-models always did before and is meant for looking inside a run. Variables that all cells
-share, such as the external cAMP of the Maeda, Gregor and Sgro models, are always kept.
+models always did before and is meant for looking inside a run. With a number, as in
+run(..., keep_cells=10), <name> holds the first so many cells only, which is what Figure 3
+draws beside the mean. Variables that all cells share, such as the external cAMP of the
+Maeda, Gregor and Sgro models, are always kept.
 
 The noise is drawn from the numpy random generator that run() is given, rng. A run draws the
 noise of each time step when it gets there, and keeps none of it. The scripts used to draw
@@ -177,23 +179,26 @@ def put(history, i, *values):
         for cell in range(len(value)):
             total += value[cell]
         means[k, i] = total/len(value)
-        if cells.shape[1] > 0:
-            for cell in range(len(value)):
-                cells[k, cell, i] = value[cell]
+        for cell in range(cells.shape[1]):      # the cells that are kept
+            cells[k, cell, i] = value[cell]
 
 
 class History:
     """What is kept of the variables of the cells of a population during its run()."""
 
     def __init__(self, pop, names, first, keep_cells):
-        """pop is the population, names the variables in the order put() is given them, and
-        first their values at the first time step, one for each cell."""
+        """pop is the population, names the variables in the order put() is given them,
+        first their values at the first time step, one for each cell, and keep_cells for
+        how many cells they are kept: True for all, a number for the first so many."""
         self.pop = pop
         self.names = names
-        self.keep_cells = keep_cells
-        steps = len(pop.t)
+        steps, N = len(pop.t), len(first[0])
+        if isinstance(keep_cells, (bool, np.bool_)):
+            self.kept = N if keep_cells else 0
+        else:
+            self.kept = min(int(keep_cells), N)
         means = np.zeros([len(names), steps])
-        cells = np.zeros([len(names), len(first[0]), steps] if keep_cells else [0, 0, 0])
+        cells = np.zeros([len(names), self.kept, steps])
         self.arrays = (means, cells)    # what put() fills, also from inside a compiled loop
         put(self.arrays, 0, *first)
 
@@ -202,7 +207,7 @@ class History:
         means, cells = self.arrays
         for k, name in enumerate(self.names):
             setattr(self.pop, name + '_mean', means[k])
-            if self.keep_cells:
+            if self.kept:
                 setattr(self.pop, name, cells[k])
 
 
