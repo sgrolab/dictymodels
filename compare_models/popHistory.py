@@ -9,14 +9,13 @@ to also keep each variable for every cell, as <name>, an N x len(t) array. That 
 models always did before and is meant for looking inside a run. Variables that all cells
 share, such as the external cAMP of the Maeda, Gregor and Sgro models, are always kept.
 
-The noise r is either the whole len(t) x N array, as before, or a function that returns the
-next rows of it when called with a number of rows. Given a function, a run draws its noise as
-it goes and never holds more than BLOCK rows.
+The noise r is either the whole len(t) x N array, as before, or the numpy random generator
+to draw it from. Given a generator, a run draws the noise of each time step when it gets
+there, the numbers the whole array would have held, and keeps none of it.
 
 The loop over the time steps is the method steps() of each class, which numba compiles the
 first time it is called; that makes it about ten times faster. Its statements are the numpy
-statements the loop always had. Compiled code cannot call a noise function, so run() hands
-steps() the noise a block of rows at a time, and steps() takes the time steps of that block.
+statements the loop always had.
 
 numba keeps each compiled loop in compare_models/__pycache__ and uses it again in later
 runs, which saves most of a second each time, until the model file that holds the loop is
@@ -35,27 +34,44 @@ digit, if three things are kept to when changing one:
     inf or nan as in numpy instead of stopping the run.
 numba compiles for the processor it runs on; other machines can differ in the last digit.
 """
+import math
+
 import numpy as np
 from numba import njit
 
-BLOCK = 1000    # time steps of noise held at once, and taken by one call of a compiled loop
+
+def noise_source(r, steps, N, dt, sigma=1):
+    """Return the noise of a run of N cells as a compiled loop takes it: see noise().
+
+    r is the noise itself, an array of time steps x cells, or a numpy random generator.
+    From a generator the loop draws the noise of each time step as
+    math.sqrt(dt)*r.normal(0,1,N)*sigma. Those are the numbers that
+    math.sqrt(dt)*r.normal(0,1,size=(steps,N))*sigma would hold, which is how the scripts
+    used to make the array; sigma is used only then."""
+    if isinstance(r, np.random.Generator):
+        r.normal(0, 1, N)   # the row of the first time step, which takes no noise
+        return np.zeros((0, N)), r, math.sqrt(dt), float(sigma)
+    if callable(r):
+        raise TypeError('the noise must be an array of time steps x cells or a numpy random '
+                        'generator, not a function')
+    rows = np.asarray(r, dtype=float)
+    if rows.ndim == 0 or len(rows) < steps:
+        raise ValueError(f'the noise needs a row for each of the {steps} time steps, but '
+                         f'its shape is {rows.shape}')
+    rows = rows.reshape(len(rows), -1)
+    if rows.shape[1] != N:      # one value per time step is the same for every cell
+        rows = np.broadcast_to(rows, (len(rows), N))
+    return np.ascontiguousarray(rows), np.random.default_rng(), 0.0, 0.0
 
 
-def noise_blocks(r, steps, N):
-    """Iterate over the noise of a run of N cells, BLOCK time steps at a time, as pairs
-    (start, noise): noise[k] is the noise of the cells at time step start + k.
-
-    r is a steps x N array, or a function r(n) that returns the next n rows of one."""
-    for start in range(0, steps, BLOCK):
-        rows = min(BLOCK, steps - start)
-        noise = np.asarray(r(rows) if callable(r) else r[start:start + rows], dtype=float)
-        if len(noise) != rows:
-            raise ValueError(f'the noise has {start + len(noise)} rows, but there are '
-                             f'{steps} time steps')
-        noise = noise.reshape(rows, -1)
-        if noise.shape[1] != N:     # one value per time step is the same for every cell
-            noise = np.broadcast_to(noise, (rows, N))
-        yield start, np.ascontiguousarray(noise)
+@njit(error_model='numpy')
+def noise(r, i):
+    """Return the noise of the cells at time step i, r being what noise_source() made of
+    the noise given to run(): row i of the array, or drawn now from the generator."""
+    rows, generator, sqrt_dt, sigma = r
+    if len(rows) > 0:
+        return rows[i]
+    return sqrt_dt*generator.normal(0.0, 1.0, rows.shape[1])*sigma
 
 
 def stimulus(values, steps):

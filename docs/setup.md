@@ -221,8 +221,9 @@ The classes for a population of noisy cells (`Population_scNoise`, `Gregor2010_p
 To look inside a run, call `run(..., keep_cells=True)`: each variable is then also kept for
 every cell, as `pop.y`, an array of cells by time steps. `Population_add_cAMP_SCnoise.py`
 does this for Figure 3, which shows single cells. The noise can be given to `run()` whole,
-as an array of time steps by cells, or as a function that returns the next rows of one, so
-that it is drawn while the run proceeds, as the sweep scripts do. See `popHistory.py`.
+as an array of time steps by cells, or as the numpy random generator to draw it from. The
+run then draws the noise of each time step when it gets there and holds none of it, as the
+sweep scripts do. See `popHistory.py`.
 
 The loop over the time steps of these classes is their method `steps()`, which numba
 compiles the first time it is called. That takes about a second and makes the loop about

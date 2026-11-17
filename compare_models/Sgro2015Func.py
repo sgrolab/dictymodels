@@ -6,7 +6,7 @@ Created on Tue Dec  4 19:23:30 2018
 """
 import numpy as np
 from numba import njit
-from popHistory import CellPopulation, History, noise_blocks, np_heaviside, put, stimulus
+from popHistory import CellPopulation, History, noise, noise_source, np_heaviside, put, stimulus
 
 class Cell():
     def __init__(self,pos,state,AgentParam,t):
@@ -63,8 +63,9 @@ class Sgro2015_pop(CellPopulation):
     
     
     def run(self,dt,time_separation,extracellularA_trace,r=0,keep_cells=False):
-        # r is the noise, an array or a function; keep_cells says whether A and R are kept
-        # for every cell or only as A_mean and R_mean: see popHistory.py
+        # r is the noise: an array, or a random generator to draw it from at each time
+        # step. keep_cells says whether A and R are kept for every cell or only as A_mean
+        # and R_mean. See popHistory.py
 
         # pull parameters from dictionary 
         e=self.PopParam['e']   
@@ -81,33 +82,33 @@ class Sgro2015_pop(CellPopulation):
         j = self.PopParam['j']
         
         # if no random seed specified, generate 
-        if not callable(r) and r.size == 0:
+        if isinstance(r,np.ndarray) and r.size == 0:
             r = np.sqrt(dt)*np.random.normal(0,1,size = (len(self.t),N))
         
         # set initial A and R for all cells
         A = self.initialVals[0]
         R = self.initialVals[1]
 
-        # what is kept of the run, and the stimulus as the compiled loop takes it
+        # what is kept of the run, and the stimulus and the noise as the compiled loop
+        # takes them
         history = History(self,['A','R'],[A,R],keep_cells)
         extracellularA_trace = stimulus(extracellularA_trace,len(self.t))
+        r = noise_source(r,len(self.t),N,dt)
 
-        # take the time steps, a block of noise at a time; the loop is steps(), below
-        for start, noise in noise_blocks(r,len(self.t),N):
-            A, R = self.steps(A,R,e,g,c0,sigma,N,a,alpha0,alpha_pde,Kd,S,rho,j,time_separation,
-                              self.cAMPext,extracellularA_trace,dt,noise,start,history.arrays)
+        # take the time steps; the loop is steps(), below
+        self.steps(A,R,e,g,c0,sigma,N,a,alpha0,alpha_pde,Kd,S,rho,j,time_separation,
+                   self.cAMPext,extracellularA_trace,dt,self.t,r,history.arrays)
 
         history.finish()
 
     @staticmethod
     @njit(error_model='numpy',cache=True)
     def steps(A,R,e,g,c0,sigma,N,a,alpha0,alpha_pde,Kd,S,rho,j,time_separation,self_cAMPext,
-              extracellularA_trace,dt,noise,start,history):
-        # The loop of run() over the time steps start, start+1, ..., one for each row of
-        # noise; it returns the variables at the last of them. numba compiles this
-        # method: popHistory.py says what to keep to when changing it.
+              extracellularA_trace,dt,t,r,history):
+        # The loop of run(). numba compiles this method: popHistory.py says what to keep
+        # to when changing it.
 
-        for i in range(max(start,1),start+len(noise)):
+        for i in range(1,len(t)):
             # get cAMPe value from previous timestep; A and R are those of that timestep
             cAMPe = self_cAMPext[i-1]
             
@@ -124,8 +125,6 @@ class Sgro2015_pop(CellPopulation):
                 self_cAMPext[i] = (alphaf + rho*alpha0 + rho*S/N*np.sum(np_heaviside(A,0.5)))/(j+alpha_pde*rho)
             
             # compute time step 
-            A = A + dA*dt + sigma*noise[i-start]
+            A = A + dA*dt + sigma*noise(r,i)
             R = R + dR*dt
             put(history,i,A,R)
-
-        return A, R

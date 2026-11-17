@@ -54,8 +54,7 @@ t = np.arange(0,t_tot,dt)
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
 sigma =  0.01   # noise strength
-def r(steps):   # the noise of the next time steps, drawn when the run asks for it
-    return math.sqrt(dt)*rng.normal(0,1,size = (steps,N)) * sigma
+# the run draws its noise from rng at each time step: math.sqrt(dt)*rng.normal(0,1,N)*sigma
 
 # define cAMPe amounts  
 camp_input_trace=np.zeros(len(t))
@@ -64,7 +63,7 @@ camp_input_trace=np.zeros(len(t))
 pop = kf.Population_scNoise([x0,y0,z0],params,t)
 
 # run simulation
-pop.run(camp_input_trace,dt,r)
+pop.run(camp_input_trace,dt,rng,sigma=sigma)
 
 # normalize back 80% of trace 
 traceStart = 0.2

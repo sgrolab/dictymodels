@@ -6,7 +6,7 @@ Created on Fri Jul 19 10:35:46 2019
 """
 import numpy as np
 from numba import njit
-from popHistory import CellPopulation, History, noise_blocks, np_mean, put, stimulus
+from popHistory import CellPopulation, History, noise, noise_source, np_mean, put, stimulus
 
 class Cell():
     def __init__(self,initialVals,Param,t):
@@ -98,9 +98,10 @@ class Population_scNoise(CellPopulation): # population with noisy single cells
         self.t = t
         self.initialVals = initialVals
         
-    def run(self,z0_influx, dt, r, overriding_sig='none', keep_cells=False):
-        # r is the noise, an array or a function; keep_cells says whether x, y and z are
-        # kept for every cell or only as x_mean, y_mean and z_mean: see popHistory.py
+    def run(self,z0_influx, dt, r, overriding_sig='none', keep_cells=False, sigma=1):
+        # r is the noise: an array, or a random generator to draw it from at each time
+        # step with strength sigma. keep_cells says whether x, y and z are kept for every
+        # cell or only as x_mean, y_mean and z_mean. See popHistory.py
         
         # get parameter values
         tau=self.Param['tau']   
@@ -120,26 +121,25 @@ class Population_scNoise(CellPopulation): # population with noisy single cells
         y[:] = self.initialVals[1]
         z[:] = self.initialVals[2]
 
-        # what is kept of the run, and the stimulus as the compiled loop takes it
+        # what is kept of the run, and the stimulus and the noise as the compiled loop
+        # takes them
         history = History(self,['x','y','z'],[x,y,z],keep_cells)
         z0_influx = stimulus(z0_influx,len(self.t))
+        r = noise_source(r,len(self.t),N,dt,sigma)
 
-        # take the time steps, a block of noise at a time; the loop is steps(), below
-        for start, noise in noise_blocks(r,len(self.t),N):
-            x, y, z = self.steps(x,y,z,tau,n,K,delta,kt,gamma,rho,z0_influx,dt,noise,start,
-                                 history.arrays)
+        # take the time steps; the loop is steps(), below
+        self.steps(x,y,z,tau,n,K,delta,kt,gamma,rho,z0_influx,dt,self.t,r,history.arrays)
 
         history.finish()
 
     @staticmethod
     @njit(error_model='numpy',cache=True)
-    def steps(x,y,z,tau,n,K,delta,kt,gamma,rho,z0_influx,dt,noise,start,history):
-        # The loop of run() over the time steps start, start+1, ..., one for each row of
-        # noise; it returns the variables at the last of them. numba compiles this
-        # method: popHistory.py says what to keep to when changing it.
+    def steps(x,y,z,tau,n,K,delta,kt,gamma,rho,z0_influx,dt,t,r,history):
+        # The loop of run(). numba compiles this method: popHistory.py says what to keep
+        # to when changing it.
         
         # run simulation 
-        for i in range(max(start,1),start+len(noise)):
+        for i in range(1,len(t)):
             
             # calculate next values from x, y and z of the last time step
             dx = (z + delta - x)/tau
@@ -148,8 +148,6 @@ class Population_scNoise(CellPopulation): # population with noisy single cells
         
             # apply time step
             x = x + dx*dt
-            y = y + dy*dt + noise[i-start]
+            y = y + dy*dt + noise(r,i)
             z = z + dz*dt
             put(history,i,x,y,z)
-
-        return x, y, z

@@ -58,8 +58,7 @@ time_separation = 0
 
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
-def r(steps):   # the noise of the next time steps, drawn when the run asks for it
-    return math.sqrt(dt)*rng.normal(0,1,size = (steps,N))
+# the run draws its noise from rng at each time step: math.sqrt(dt)*rng.normal(0,1,N)
 
 # define extracellular stim amounts
 extracellularA_trace = np.zeros(len(t))
@@ -68,7 +67,7 @@ extracellularA_trace = np.zeros(len(t))
 Sgro_pop = sg.Sgro2015_pop(A0,R0,cAMPext0,SgroPopParam,t)
 
 # run population 
-Sgro_pop.run(dt,time_separation,extracellularA_trace,r)
+Sgro_pop.run(dt,time_separation,extracellularA_trace,rng)
 
 # normalize back 80% of trace 
 traceStart = 0.2

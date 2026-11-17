@@ -6,7 +6,7 @@ Created on Wed Jul 17 19:54:45 2019
 """
 import numpy as np
 from numba import njit
-from popHistory import CellPopulation, History, noise_blocks, np_sum, put, stimulus
+from popHistory import CellPopulation, History, noise, noise_source, np_sum, put, stimulus
 
 class Cell():
     def __init__(self,pos,state,AgentParam,t):
@@ -60,8 +60,9 @@ class Gregor2010_pop(CellPopulation):
         
     def run(self,dt,eta,rho,k,Vt,time_separation,campExt_influx,r =np.array([]),
             keep_cells=False):
-        # r is the noise, an array or a function; keep_cells says whether cAMPi and thetai
-        # are kept for every cell or only as cAMPi_mean and thetai_mean: see popHistory.py
+        # r is the noise: an array, or a random generator to draw it from at each time
+        # step. keep_cells says whether cAMPi and thetai are kept for every cell or only
+        # as cAMPi_mean and thetai_mean. See popHistory.py
 
         # pull model parameters
         Amax=self.PopParam['Amax']   
@@ -76,7 +77,7 @@ class Gregor2010_pop(CellPopulation):
         Nc=self.PopParam['Nc']
         
         # if no random seed specified, generate random steps 
-        if not callable(r) and r.size == 0:
+        if isinstance(r,np.ndarray) and r.size == 0:
             r = np.sqrt(dt)*np.random.normal(0,1,size = (len(self.t),Nc))
 
         # set initial values, one for each cell
@@ -85,28 +86,27 @@ class Gregor2010_pop(CellPopulation):
         cAMPi[:] = self.initialVals[0]
         thetai[:] = self.initialVals[1]
 
-        # what is kept of the run, and the stimulus as the compiled loop takes it
+        # what is kept of the run, and the stimulus and the noise as the compiled loop
+        # takes them
         history = History(self,['cAMPi','thetai'],[cAMPi,thetai],keep_cells)
         campExt_influx = stimulus(campExt_influx,len(self.t))
+        r = noise_source(r,len(self.t),Nc,dt)
 
-        # take the time steps, a block of noise at a time; the loop is steps(), below
-        for start, noise in noise_blocks(r,len(self.t),Nc):
-            cAMPi, thetai = self.steps(cAMPi,thetai,Amax,Abas,w,Vc,St,Sc,K,c_sec,c_excite,Nc,
-                                       eta,rho,k,Vt,time_separation,self.cAMPe,campExt_influx,
-                                       dt,noise,start,history.arrays)
+        # take the time steps; the loop is steps(), below
+        self.steps(cAMPi,thetai,Amax,Abas,w,Vc,St,Sc,K,c_sec,c_excite,Nc,eta,rho,k,Vt,
+                   time_separation,self.cAMPe,campExt_influx,dt,self.t,r,history.arrays)
 
         history.finish()
 
     @staticmethod
     @njit(error_model='numpy',cache=True)
     def steps(cAMPi,thetai,Amax,Abas,w,Vc,St,Sc,K,c_sec,c_excite,Nc,eta,rho,k,Vt,
-              time_separation,self_cAMPe,campExt_influx,dt,noise,start,history):
-        # The loop of run() over the time steps start, start+1, ..., one for each row of
-        # noise; it returns the variables at the last of them. numba compiles this
-        # method: popHistory.py says what to keep to when changing it.
+              time_separation,self_cAMPe,campExt_influx,dt,t,r,history):
+        # The loop of run(). numba compiles this method: popHistory.py says what to keep
+        # to when changing it.
         
         # run model for full time 
-        for i in range(max(start,1),start+len(noise)):
+        for i in range(1,len(t)):
             # get cAMPe values from previous timestep
             cAMPe = self_cAMPe[i-1]
             cAMPe_in = campExt_influx[i]
@@ -120,8 +120,6 @@ class Gregor2010_pop(CellPopulation):
             # calculate next time step for intracellular variables, both from thetai of
             # the previous timestep
             thetai, cAMPi = (
-                thetai + dt*(w*(1-K/(cAMPe+K)*c_excite*np.sin(thetai))) + eta*noise[i-start],
+                thetai + dt*(w*(1-K/(cAMPe+K)*c_excite*np.sin(thetai))) + eta*noise(r,i),
                 ((-Amax+Abas)*np.sin(thetai)+(Amax+Abas))/2)
             put(history,i,cAMPi,thetai)
-
-        return cAMPi, thetai

@@ -65,14 +65,13 @@ time_separation = 0
 # initialize random generator and set random steps 
 eta = 0.002 # noise stength
 rng = np.random.default_rng(seed=1)
-def r(steps):   # the noise of the next time steps, drawn when the run asks for it
-    return math.sqrt(dt)*rng.normal(0,1,size = (steps,Nc))
+# the run draws its noise from rng at each time step: math.sqrt(dt)*rng.normal(0,1,Nc)
 
 # initialize cell population 
 Gregor_pop = gf.Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam, t)
 
 # run population
-Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r)
+Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,rng)
 
 # normalize back 80% of cAMPi trace 
 traceStart = 0.2
