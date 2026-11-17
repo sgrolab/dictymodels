@@ -47,6 +47,8 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
   experiment; each writes its results to the data directory
 - `compare_models/Population_DensityFlowSweep_*.py` - The sweep over cell density and flow
   rate behind Figures 4 and S1, one grid point per run
+- `compare_models/runSimulations.py` - Runs those scripts in bulk, several at a time if
+  asked, the sweep one grid point after another (`--help` for options)
 - `compare_models/plotFigures.py` - Draws Figures 2 to 6 and S1 to S5 from those results
   (`--help` for options)
 - `compare_models/config.py` - Tells the scripts where the experimental data and the data
@@ -73,8 +75,9 @@ the simulations and plotting the figures. In short:
 ```bash
 uv sync
 echo "ROOT_DIR=/path/to/your/data/directory" > .env
-uv run compare_models/SingleCell_singleSpike.py              # simulate; takes a second
-uv run compare_models/plotFigures.py --save figs figure_02   # draw Figure 2 from it
+uv run compare_models/runSimulations.py --dry-run     # list the simulations
+uv run compare_models/runSimulations.py SingleCell    # run the single-cell ones
+uv run compare_models/plotFigures.py --save figs      # draw the figures that have data
 ```
 
 ## Citation
