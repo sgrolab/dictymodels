@@ -1,6 +1,6 @@
 """
-What a population of cells keeps of a run, how it is given its noise, and what the compiled
-loops of the five models share.
+What a population of cells keeps of a run, how it is given its noise, what the compiled
+loops of the five models share, and how the sweep scripts find the peaks of a run.
 
 A run steps N cells through len(t) time points. Every variable of every cell at every time
 point is N x len(t) numbers, which for a sweep job is gigabytes, so by default run() keeps
@@ -220,3 +220,84 @@ class CellPopulation:
             f"'{type(self).__name__}' object has no attribute '{name}'. The variables of the "
             "cells exist only after run(): their means over the cells as <name>_mean, and "
             "with run(..., keep_cells=True) also the values of every cell as <name>.")
+
+
+@njit(cache=True)
+def peak_prominences(x, peaks):
+    """The prominence of each of peaks, and where its left and its right base are, as
+    scipy.signal.peak_prominences(x, peaks) gives them. peaks are places in x, in rising
+    order.
+
+    The base of a peak on one side is the lowest sample between it and the nearest sample
+    higher than it, or the end of x; its prominence is its height above the higher of its
+    two bases. scipy walks from each peak to find them. Here one pass over x in each
+    direction finds the base of every sample. A stack holds the samples met so far that
+    are higher than every sample after them, each with the lowest sample since the one
+    below it on the stack. A new sample takes off the stack those that are not higher
+    than it, which no later sample can see past it, and the lowest that they held is its
+    base."""
+    n, count = len(x), len(peaks)
+    lowest = np.empty((2, count))               # of each peak, to its left and to its right
+    bases = np.empty((2, count), dtype=np.intp)
+    at = np.empty(n, dtype=np.intp)             # the stack: where a sample is,
+    least = np.empty(n)                         # the lowest since the one below it,
+    where = np.empty(n, dtype=np.intp)          # and where that lowest is
+    for side in range(2):
+        step = 1 if side == 0 else -1
+        i = 0 if side == 0 else n - 1
+        k = 0 if side == 0 else count - 1       # the next peak that the pass comes to
+        top = 0
+        for _ in range(n):
+            low, base = x[i], i
+            while top > 0 and x[at[top - 1]] <= x[i]:
+                top -= 1
+                if least[top] < low:    # of equal lowest samples, the nearest, as scipy
+                    low, base = least[top], where[top]
+            at[top], least[top], where[top] = i, low, base
+            top += 1
+            if 0 <= k < count and peaks[k] == i:
+                lowest[side, k], bases[side, k] = low, base
+                k += step
+            i += step
+    prominences = np.empty(count)
+    for k in range(count):
+        prominences[k] = x[peaks[k]] - max(lowest[0, k], lowest[1, k])
+    return prominences, bases[0], bases[1]
+
+
+def find_peaks(x, prominence):
+    """The peaks of x whose prominence is within prominence, which is the least it may be
+    or a pair of the least and the greatest (either can be None). Returns what
+    scipy.signal.find_peaks(x, prominence=prominence) returns: the same peaks and the same
+    properties, to the last digit.
+
+    Why the sweep scripts do not use scipy's own: it finds the prominence of every local
+    maximum of x before it drops those outside prominence, and for each one it walks
+    through x, to the left and to the right, until it meets a higher sample. The trace of
+    a population of noisy cells has a local maximum at every fourth or fifth sample, up
+    to 300,000 in a sweep run, and where the population oscillates such a walk is
+    thousands of samples long. scipy then takes 6 to 10 s, most of the time of such a run
+    and a third of the whole sweep, where peak_prominences() takes 0.03 s. That is so in
+    scipy 1.14, which pyproject.toml pins, and still in 1.18 and in the development
+    version of November 2026."""
+    from scipy.signal import find_peaks as scipy_find_peaks    # here: it is slow to import
+    x = np.asarray(x, dtype=np.float64, order='C')
+    try:
+        smallest, greatest = prominence
+    except (TypeError, ValueError):
+        smallest, greatest = prominence, None
+    if (x.ndim != 1 or np.isnan(x).any() or prominence is None
+            or np.ndim(smallest) > 0 or np.ndim(greatest) > 0):
+        # What is not followed here goes to scipy's own, to come out as it does there: an x
+        # that is not a vector or holds a NaN, no prominence, and a prominence that is an
+        # array with a value for each sample.
+        return scipy_find_peaks(x, prominence=prominence)
+    peaks = scipy_find_peaks(x)[0]          # every local maximum; this much is quick
+    prominences, left_bases, right_bases = peak_prominences(x, peaks)
+    keep = np.ones(len(peaks), dtype=bool)
+    if smallest is not None:
+        keep &= smallest <= prominences
+    if greatest is not None:
+        keep &= prominences <= greatest
+    return peaks[keep], {'prominences': prominences[keep], 'left_bases': left_bases[keep],
+                         'right_bases': right_bases[keep]}

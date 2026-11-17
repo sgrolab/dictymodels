@@ -42,8 +42,8 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
 - `compare_models/*Func.py` - The five models, one file each, with classes for a single cell
   and for a population of cells
 - `compare_models/popHistory.py` - What a run of a population keeps (the mean over the cells
-  by default, every cell on request), how it is given its noise, and what the loops that
-  numba compiles share
+  by default, every cell on request), how it is given its noise, what the loops that numba
+  compiles share, and a fast way to find the peaks of a sweep run
 - `compare_models/SingleCell_*.py`, `compare_models/Population_add_cAMP*.py` - One script per
   experiment; each writes its results to the data directory
 - `compare_models/Population_DensityFlowSweep_*.py` - The sweep over cell density and flow
@@ -69,7 +69,7 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
   write their results
 - About 3 GB of free memory to draw Figure 3, and 0.6 GB of disk for its data; the other
   figures outside the sweep need less
-- For Figures 4 and S1, the sweep: 9,150 runs that add up to about 6 hours on one processor
+- For Figures 4 and S1, the sweep: 9,150 runs that add up to about 4 hours on one processor
   core (`runSimulations.py` runs one on every core at a time), with about 0.5 GB of memory
   for each core and about 110 GB of disk (see `docs/setup.md`)
 

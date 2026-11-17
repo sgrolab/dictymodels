@@ -11,7 +11,7 @@ import sys
 import pickle
 import numpy as np
 import math
-from scipy.signal import find_peaks
+from popHistory import find_peaks    # scipy.signal's is slow on a noisy trace: see there
 
 # import code and data locations
 from config import CODE_DIR, output_dir
