@@ -14,7 +14,8 @@ Without arguments every script is run except those in EXCLUDE; name scripts, or 
 of the names of several, to run a subset. The data directory is the one the scripts use
 (ROOT_DIR from the environment or .env).
 
-Ctrl-C stops a run; --resume then carries on with the grid points that have no file yet.
+Ctrl-C stops a run, as do SIGTERM and SIGUSR2; --resume then carries on with the grid points
+that have no file yet.
 """
 import argparse
 import contextlib
@@ -24,6 +25,7 @@ import json
 import os
 import queue
 import runpy
+import signal
 import subprocess
 import sys
 import threading
@@ -36,6 +38,10 @@ from pathlib import Path
 CODE_DIR = Path(__file__).resolve().parent
 SWEEP_PREFIX = 'Population_DensityFlowSweep_'
 CONSOLIDATE = SWEEP_PREFIX + 'Consolidate.py'
+
+# Signals that a cluster sends a job before it kills it: Slurm sends SIGTERM at a time limit,
+# LSF sends SIGUSR2 at a run limit (Windows has no SIGUSR2)
+STOP_SIGNALS = ('SIGTERM', 'SIGUSR2')
 
 # Scripts left out of a full run, and why; they can still be named on the command line
 EXCLUDE = {'Population_add_cAMP.py': 'no figure uses its results'}
@@ -271,6 +277,12 @@ class Runner:
                 process.terminate()
 
 
+def stop_as_ctrl_c(signum, frame):
+    """What the signals in STOP_SIGNALS do to a run: the same as Ctrl-C, so that the runs
+    under way are stopped and their unfinished files removed."""
+    raise KeyboardInterrupt
+
+
 def show_output(text, lines=20):
     """Print the end of what a run wrote, indented."""
     for line in text.rstrip().split('\n')[-lines:] if text.strip() else []:
@@ -342,6 +354,9 @@ def main(argv=None):
         args.log.mkdir(parents=True, exist_ok=True)
 
     runner = Runner(args.log, args.stop_on_error)
+    for name in STOP_SIGNALS:
+        if hasattr(signal, name):
+            signal.signal(getattr(signal, name), stop_as_ctrl_c)
     began = time.monotonic()
     reported = began
     interrupted = False
@@ -400,7 +415,13 @@ def main(argv=None):
             consolidated = 'not run: no file for ' + ', '.join(
                 f'{n:,} grid point(s) of {s}' for s, n in missing.items() if n)
         else:
-            consolidated = runner.run(CONSOLIDATE)
+            try:
+                consolidated = runner.run(CONSOLIDATE)
+            except KeyboardInterrupt:
+                interrupted = True
+                consolidated = 'interrupted before it had ended'
+                print('\ninterrupted: stopping the consolidate script')
+                runner.interrupt()
 
     print("\n===== summary (the time of a sweep script is that of its runs added up) =====")
     bad = 0
@@ -416,7 +437,8 @@ def main(argv=None):
                     show_output(consolidated['text'])
             else:
                 ok = False
-                print(f'not run          {s}')
+                state = 'stopped' if interrupted and consolidated else 'not run'
+                print(f'{state}          {s}')
                 if consolidated:
                     print(f'    {consolidated}')
         elif s in sweep:
@@ -427,8 +449,8 @@ def main(argv=None):
                 line += '; failed: ' + ', '.join(
                     ' '.join(str(i) for i in r['indices']) for r in failures[:10])
                 line += ', ...' if len(failures) > 10 else ''
-            state = 'ok    ' if ok else 'FAILED' if failures else 'not run'
-            print(f'{state}  {seconds}  {s}  {line}')
+            state = 'FAILED' if failures else 'stopped' if ran else 'not run'
+            print(f'{"ok    " if ok else state}  {seconds}  {s}  {line}')
         else:
             ok = bool(ran) and not failures
             print(f'{"ok    " if ok else "FAILED" if ran else "not run"}  {seconds}  {s}')

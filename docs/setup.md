@@ -166,7 +166,9 @@ took 52 seconds, four at a time, against 3.3 minutes for one process (`--jobs 1`
 
 On a cluster, run that command as one job with many processors. Where the scheduler confines
 a job to the processors it was given, `runSimulations.py` counts those; where it does not,
-give `--jobs` the number you asked for.
+give `--jobs` the number you asked for. When the scheduler stops the job at its time limit
+with a signal (SIGUSR2 from LSF, SIGTERM from Slurm), the run ends as by Ctrl-C; submit it
+again with `--resume`.
 
 If you run grid points by hand instead, run the consolidate script by hand afterwards:
 ```bash
