@@ -3,3 +3,9 @@
 
 # ignore the compiled code that Python and numba keep
 __pycache__/
+
+# ignore a virtual environment (the one that uv sync makes already ignores itself)
+.venv/
+
+# ignore the copies that Jupyter keeps of open notebooks
+.ipynb_checkpoints/
