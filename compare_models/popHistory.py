@@ -210,6 +210,8 @@ class History:
             setattr(self.pop, name + '_mean', means[k])
             if self.kept:
                 setattr(self.pop, name, cells[k])
+            elif name in vars(self.pop):    # left by an earlier run that kept cells
+                delattr(self.pop, name)
 
 
 class CellPopulation:
@@ -219,7 +221,8 @@ class CellPopulation:
         raise AttributeError(
             f"'{type(self).__name__}' object has no attribute '{name}'. The variables of the "
             "cells exist only after run(): their means over the cells as <name>_mean, and "
-            "with run(..., keep_cells=True) also the values of every cell as <name>.")
+            "with run(..., keep_cells=True) also the values of every cell as <name>, or "
+            "with keep_cells=10 those of the first 10 cells.")
 
 
 @njit(cache=True)
