@@ -5,7 +5,8 @@ Created on Wed Jul 17 19:54:45 2019
 @author: Chuqiao
 """
 import numpy as np
-from popHistory import CellPopulation, History, noise_rows
+from numba import njit
+from popHistory import CellPopulation, History, noise_blocks, np_sum, put, stimulus
 
 class Cell():
     def __init__(self,pos,state,AgentParam,t):
@@ -84,28 +85,43 @@ class Gregor2010_pop(CellPopulation):
         cAMPi[:] = self.initialVals[0]
         thetai[:] = self.initialVals[1]
 
-        # what is kept of the run, and the noise of each time step after the first
+        # what is kept of the run, and the stimulus as the compiled loop takes it
         history = History(self,['cAMPi','thetai'],[cAMPi,thetai],keep_cells)
-        noise = noise_rows(r,len(self.t))
-        next(noise)
+        campExt_influx = stimulus(campExt_influx,len(self.t))
+
+        # take the time steps, a block of noise at a time; the loop is steps(), below
+        for start, noise in noise_blocks(r,len(self.t),Nc):
+            cAMPi, thetai = self.steps(cAMPi,thetai,Amax,Abas,w,Vc,St,Sc,K,c_sec,c_excite,Nc,
+                                       eta,rho,k,Vt,time_separation,self.cAMPe,campExt_influx,
+                                       dt,noise,start,history.arrays)
+
+        history.finish()
+
+    @staticmethod
+    @njit(error_model='numpy',cache=True)
+    def steps(cAMPi,thetai,Amax,Abas,w,Vc,St,Sc,K,c_sec,c_excite,Nc,eta,rho,k,Vt,
+              time_separation,self_cAMPe,campExt_influx,dt,noise,start,history):
+        # The loop of run() over the time steps start, start+1, ..., one for each row of
+        # noise; it returns the variables at the last of them. numba compiles this
+        # method: popHistory.py says what to keep to when changing it.
         
         # run model for full time 
-        for i in range(1,len(self.t)):
+        for i in range(max(start,1),start+len(noise)):
             # get cAMPe values from previous timestep
-            cAMPe = self.cAMPe[i-1]
+            cAMPe = self_cAMPe[i-1]
             cAMPe_in = campExt_influx[i]
     
             # calculate next external cAMP step with/without time separation
             if time_separation == 1:
-                self.cAMPe[i] = Vc*St/Sc*rho/k*c_sec*1/Nc*np.sum(cAMPi) + cAMPe_in
+                self_cAMPe[i] = Vc*St/Sc*rho/k*c_sec*1/Nc*np_sum(cAMPi) + cAMPe_in
             else:
-                self.cAMPe[i] = cAMPe + dt*(Vc*St/Sc*rho/Vt*c_sec*1/Nc*np.sum(cAMPi)-k/Vt*(cAMPe-cAMPe_in))
+                self_cAMPe[i] = cAMPe + dt*(Vc*St/Sc*rho/Vt*c_sec*1/Nc*np_sum(cAMPi)-k/Vt*(cAMPe-cAMPe_in))
 
             # calculate next time step for intracellular variables, both from thetai of
             # the previous timestep
             thetai, cAMPi = (
-                thetai + dt*(w*(1-K/(cAMPe+K)*c_excite*np.sin(thetai))) + eta*next(noise),
+                thetai + dt*(w*(1-K/(cAMPe+K)*c_excite*np.sin(thetai))) + eta*noise[i-start],
                 ((-Amax+Abas)*np.sin(thetai)+(Amax+Abas))/2)
-            history.put(i,cAMPi,thetai)
+            put(history,i,cAMPi,thetai)
 
-        history.finish()
+        return cAMPi, thetai

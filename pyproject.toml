@@ -10,6 +10,7 @@ requires-python = "==3.12.*"
 # before the dependencies were written down (commit 942489a, 2024-08-07).
 dependencies = [
     "matplotlib==3.9.1.post1",
+    "numba==0.60.0",
     "numpy==2.0.1",
     "openpyxl==3.1.5",
     "pandas==2.2.2",

@@ -5,7 +5,8 @@ Created on Thu Jul 18 15:39:14 2019
 @author: Chuqiao
 """
 import numpy as np
-from popHistory import CellPopulation, History, noise_rows
+from numba import njit
+from popHistory import CellPopulation, History, noise_blocks, np_mean, put, stimulus
 
 class Cell():
     def __init__(self,params,initialVals,t):
@@ -144,13 +145,27 @@ class Population_scNoise(CellPopulation):
         b[:] = self.initialVals[2]
         g[:] = self.initialVals[3]
 
-        # what is kept of the run, and the noise of each time step after the first
+        # what is kept of the run, and the stimulus as the compiled loop takes it
         history = History(self,['p','b','g'],[p,b,g],keep_cells)
-        noise = noise_rows(r,len(self.t))
-        next(noise)
+        cAMPe_in = stimulus(cAMPe_in,len(self.t))
+
+        # take the time steps, a block of noise at a time; the loop is steps(), below
+        for start, noise in noise_blocks(r,len(self.t),N):
+            p, b, g = self.steps(p,b,g,k1,k2,L1,L2,c,lamda,theta,e,q,sig,ki,kt,kc,h,a,cAMPe_in,
+                                 dt,noise,start,history.arrays)
+
+        history.finish()
+
+    @staticmethod
+    @njit(error_model='numpy',cache=True)
+    def steps(p,b,g,k1,k2,L1,L2,c,lamda,theta,e,q,sig,ki,kt,kc,h,a,cAMPe_in,dt,noise,start,
+              history):
+        # The loop of run() over the time steps start, start+1, ..., one for each row of
+        # noise; it returns the variables at the last of them. numba compiles this
+        # method: popHistory.py says what to keep to when changing it.
     
         # run model for full time 
-        for i in range(1,len(self.t)):
+        for i in range(max(start,1),start+len(noise)):
         
             # calculate model equations from p, b and g of the previous timestep
             f1 = (k1 + k2*g)/(1+g)
@@ -160,8 +175,8 @@ class Population_scNoise(CellPopulation):
         
             # update variable values; campExt_influx: contant cAMP input to the system
             p, b, g = (p + dt*(-f1*p + f2*(1-p)),
-                       b + dt*(q*sig*PI - (ki+kt)*b) + next(noise),
-                       g + dt*(kt/h*np.mean(b)-kc*(g-cAMPe_in[i])))
-            history.put(i,p,b,g)
+                       b + dt*(q*sig*PI - (ki+kt)*b) + noise[i-start],
+                       g + dt*(kt/h*np_mean(b)-kc*(g-cAMPe_in[i])))
+            put(history,i,p,b,g)
 
-        history.finish()
+        return p, b, g

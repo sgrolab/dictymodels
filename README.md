@@ -42,7 +42,8 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
 - `compare_models/*Func.py` - The five models, one file each, with classes for a single cell
   and for a population of cells
 - `compare_models/popHistory.py` - What a run of a population keeps (the mean over the cells
-  by default, every cell on request) and how it is given its noise
+  by default, every cell on request), how it is given its noise, and what the loops that
+  numba compiles share
 - `compare_models/SingleCell_*.py`, `compare_models/Population_add_cAMP*.py` - One script per
   experiment; each writes its results to the data directory
 - `compare_models/Population_DensityFlowSweep_*.py` - The sweep over cell density and flow
@@ -62,13 +63,14 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
 ## Requirements
 - Python 3.12
 - The Python packages pinned in `pyproject.toml` and `uv.lock` (numpy, scipy, matplotlib,
-  pandas, openpyxl, python-dotenv), installed with `uv sync` and used through `uv run`
+  numba, pandas, openpyxl, python-dotenv), installed with `uv sync` and used through
+  `uv run`
 - A data directory, pointed to by the `ROOT_DIR` environment variable, where the simulations
   write their results
 - About 7 GB of free memory and 6 GB of disk for Figure 3; the other figures outside the
   sweep need far less
-- For Figures 4 and S1, the sweep: 9,150 runs that take about 40 hours of computing in all,
-  shared among the computer's processors, with less than 0.3 GB of memory for each processor
+- For Figures 4 and S1, the sweep: 9,150 runs that take about 9 hours of computing in all,
+  shared among the computer's processors, with less than 0.4 GB of memory for each processor
   and about 110 GB of disk (see `docs/setup.md`)
 
 ## Installation and Usage

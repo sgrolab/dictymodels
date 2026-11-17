@@ -6,7 +6,8 @@ Created on Fri Jul 19 10:10:49 2019
 """
 
 import numpy as np
-from popHistory import CellPopulation, History, noise_rows
+from numba import njit
+from popHistory import CellPopulation, History, noise_blocks, np_mean, put, stimulus
 
 class Cell():
     def __init__(self,pos,initialVals,AgentParam,t):
@@ -184,31 +185,47 @@ class Population_scNoise(CellPopulation):
         cAMPi[:] = self.initialVals[4]
         CAR1[:] = self.initialVals[6]
 
-        # what is kept of the run, and the noise of each time step after the first
+        # what is kept of the run, and the stimulus as the compiled loop takes it
         history = History(self,['ACA','PKA','ERK2','RegA','cAMPi','CAR1'],
                           [ACA,PKA,ERK2,RegA,cAMPi,CAR1],keep_cells)
-        noise = noise_rows(r,len(self.t))
-        next(noise)
+        cAMPe_in = stimulus(cAMPe_in,len(self.t))
+
+        # take the time steps, a block of noise at a time; the loop is steps(), below
+        for start, noise in noise_blocks(r,len(self.t),N):
+            ACA, PKA, ERK2, RegA, cAMPi, CAR1 = self.steps(ACA,PKA,ERK2,RegA,cAMPi,CAR1,k1,k2,
+                                                           k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,
+                                                           k14,rho,gamma,self.cAMPe,cAMPe_in,dt,
+                                                           noise,start,history.arrays)
+
+        history.finish()
+
+    @staticmethod
+    @njit(error_model='numpy',cache=True)
+    def steps(ACA,PKA,ERK2,RegA,cAMPi,CAR1,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,rho,
+              gamma,self_cAMPe,cAMPe_in,dt,noise,start,history):
+        # The loop of run() over the time steps start, start+1, ..., one for each row of
+        # noise; it returns the variables at the last of them. numba compiles this
+        # method: popHistory.py says what to keep to when changing it.
         
         # run simulation 
-        for i in range(1,len(self.t)):
+        for i in range(max(start,1),start+len(noise)):
         
             # get external cAMP from previous timestep
-            cAMPe = self.cAMPe[i-1]
+            cAMPe = self_cAMPe[i-1]
             
             # compute next values, all from the values of the previous timestep
-            self.cAMPe[i] = cAMPe + (k11*rho*np.mean(ACA)-(k12+gamma)*(cAMPe - cAMPe_in[i]))*dt
+            self_cAMPe[i] = cAMPe + (k11*rho*np_mean(ACA)-(k12+gamma)*(cAMPe - cAMPe_in[i]))*dt
             ACA, PKA, ERK2, RegA, cAMPi, CAR1 = (
                 ACA + (k1*CAR1 - k2*ACA*PKA)*dt,
                 PKA + (k3*cAMPi - k4*PKA)*dt,
                 ERK2 + (k5*CAR1-k6*PKA*ERK2)*dt,
                 RegA + (k7-k8*ERK2*RegA)*dt,
-                cAMPi + (k9*ACA-k10*RegA*cAMPi)*dt + next(noise),
+                cAMPi + (k9*ACA-k10*RegA*cAMPi)*dt + noise[i-start],
                 CAR1 + (k13*cAMPe - k14*CAR1)*dt)
-            history.put(i,ACA,PKA,ERK2,RegA,cAMPi,CAR1)
+            put(history,i,ACA,PKA,ERK2,RegA,cAMPi,CAR1)
             
             # correct cAMPe if less than 0
-            if self.cAMPe[i] < 0 :
-                self.cAMPe[i] = 0
+            if self_cAMPe[i] < 0 :
+                self_cAMPe[i] = 0
 
-        history.finish()
+        return ACA, PKA, ERK2, RegA, cAMPi, CAR1

@@ -5,7 +5,8 @@ Created on Fri Jul 19 10:35:46 2019
 @author: Chuqiao
 """
 import numpy as np
-from popHistory import CellPopulation, History, noise_rows
+from numba import njit
+from popHistory import CellPopulation, History, noise_blocks, np_mean, put, stimulus
 
 class Cell():
     def __init__(self,initialVals,Param,t):
@@ -119,23 +120,36 @@ class Population_scNoise(CellPopulation): # population with noisy single cells
         y[:] = self.initialVals[1]
         z[:] = self.initialVals[2]
 
-        # what is kept of the run, and the noise of each time step after the first
+        # what is kept of the run, and the stimulus as the compiled loop takes it
         history = History(self,['x','y','z'],[x,y,z],keep_cells)
-        noise = noise_rows(r,len(self.t))
-        next(noise)
+        z0_influx = stimulus(z0_influx,len(self.t))
+
+        # take the time steps, a block of noise at a time; the loop is steps(), below
+        for start, noise in noise_blocks(r,len(self.t),N):
+            x, y, z = self.steps(x,y,z,tau,n,K,delta,kt,gamma,rho,z0_influx,dt,noise,start,
+                                 history.arrays)
+
+        history.finish()
+
+    @staticmethod
+    @njit(error_model='numpy',cache=True)
+    def steps(x,y,z,tau,n,K,delta,kt,gamma,rho,z0_influx,dt,noise,start,history):
+        # The loop of run() over the time steps start, start+1, ..., one for each row of
+        # noise; it returns the variables at the last of them. numba compiles this
+        # method: popHistory.py says what to keep to when changing it.
         
         # run simulation 
-        for i in range(1,len(self.t)):
+        for i in range(max(start,1),start+len(noise)):
             
             # calculate next values from x, y and z of the last time step
             dx = (z + delta - x)/tau
             dy = (z + delta)**n/((z + delta)**n + (K*x)**n) - y
-            dz = rho*kt*np.mean(y) - gamma*(z-z0_influx[i])
+            dz = rho*kt*np_mean(y) - gamma*(z-z0_influx[i])
         
             # apply time step
             x = x + dx*dt
-            y = y + dy*dt + next(noise)
+            y = y + dy*dt + noise[i-start]
             z = z + dz*dt
-            history.put(i,x,y,z)
+            put(history,i,x,y,z)
 
-        history.finish()
+        return x, y, z

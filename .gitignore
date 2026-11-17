@@ -1,2 +1,5 @@
 # ignore .env file
 .env
+
+# ignore the compiled code that Python and numba keep
+__pycache__/
