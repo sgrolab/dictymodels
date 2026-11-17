@@ -29,9 +29,6 @@ CONSOLIDATE = SWEEP_PREFIX + 'Consolidate.py'
 # Scripts left out of a full run, and why; they can still be named on the command line
 EXCLUDE = {'Population_add_cAMP.py': 'no figure uses its results'}
 
-# Scripts with the names of simulations that are not simulations
-NOT_SIMULATIONS = {SWEEP_PREFIX + 'GenerateBsubs.py'}
-
 # The sweep scripts, by their names after SWEEP_PREFIX. Each takes two indices on the command
 # line, simulates that point of its grid and writes one file under pop_firingRate_data/.
 # Here are the number of values of each index and the file of a grid point, which repeat
@@ -58,7 +55,7 @@ def all_scripts():
     def named(pattern):
         return sorted((p.name for p in CODE_DIR.glob(pattern)), key=str.lower)
     sweep = [SWEEP_PREFIX + name + '.py' for name in SWEEP]
-    found = set(named(SWEEP_PREFIX + '*.py')) - NOT_SIMULATIONS - {CONSOLIDATE}
+    found = set(named(SWEEP_PREFIX + '*.py')) - {CONSOLIDATE}
     if found != set(sweep):
         sys.exit('SWEEP does not match the sweep scripts: '
                  + ' '.join(sorted(found ^ set(sweep))))

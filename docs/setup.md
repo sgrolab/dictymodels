@@ -157,10 +157,11 @@ have no file yet. A grid point that fails is named in the summary and its file r
 `--resume` tries it again. On a four-core machine the 676 grid points of one script took
 6 minutes, four at a time, against about 21 minutes for one process (`--jobs 1`).
 
-The lab ran the sweep on an LSF cluster instead. `Population_DensityFlowSweep_GenerateBsubs.py`
-writes the job lists for that: twelve text files in `compare_models/`, one per script, with
-one `bsub` command per grid point. It adds to files that already exist, so delete old lists
-before running it again. After a sweep run that way, run the consolidate script by hand:
+On a cluster, run that command as one job with many processors. Where the scheduler confines
+a job to the processors it was given, `runSimulations.py` counts those; where it does not,
+give `--jobs` the number you asked for.
+
+If you run grid points by hand instead, run the consolidate script by hand afterwards:
 ```bash
 uv run compare_models/Population_DensityFlowSweep_Consolidate.py
 ```
