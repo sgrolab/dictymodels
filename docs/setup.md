@@ -98,7 +98,7 @@ memory. Scripts that fail are reported at the end and the rest still run, unless
 |--------|-------------------------------------|--------------------------------|---------|
 | 2      | `SingleCell_singleSpike.py`         | `sc_singleSpike_data/`         | 1 s     |
 | 3      | `Population_add_cAMP_SCnoise.py`    | `popAddcAMPscNoise_data/`      | 15 s    |
-| 4, S1  | the sweep, described below          | `pop_firingRate_data/`         | 9 h     |
+| 4, S1  | the sweep, described below          | `pop_firingRate_data/`         | 6 h     |
 | 5      | `SingleCell_adaptiveSpike.py`       | `sc_adaptiveSpike_data/`       | 1 s     |
 | 5      | `SingleCell_bifurcationDynamics.py` | `sc_bifurcationDynamics_data/` | 1 s     |
 | 6, S2  | `SingleCell_FoldChangeDetection.py` | `sc_foldChange_data/`          | 6.5 min |
@@ -132,22 +132,28 @@ uv run compare_models/Population_DensityFlowSweep_Sgro_Noise.py 13 20
 # writes <ROOT_DIR>/pop_firingRate_data/noise/Sgro/j_13_rho_20.pickle
 ```
 
-| Model     | Scripts | Grid    | Indices | Each run      | All runs       |
-|-----------|---------|---------|---------|---------------|----------------|
-| Sgro      | 2       | 26 x 26 | 0 to 25 | 1 s, 0.2 GB   | 25 min, 2.3 GB |
-| Gregor    | 2       | 26 x 26 | 0 to 25 | 1 s, 0.2 GB   | 26 min, 2.6 GB |
-| Goldbeter | 2       | 25 x 25 | 0 to 24 | 1 s, 0.2 GB   | 22 min, 3.3 GB |
-| Maeda     | 2       | 26 x 26 | 0 to 25 | 4.5 s, 0.4 GB | 1.7 h, 23 GB   |
-| Kamino    | 4       | 31 x 31 | 0 to 30 | 5.5 s, 0.3 GB | 5.8 h, 77 GB   |
+| Model     | Scripts | Grid    | Indices | Each run          | All runs      |
+|-----------|---------|---------|---------|-------------------|---------------|
+| Sgro      | 2       | 26 x 26 | 0 to 25 | 1 s, 0.2 GB       | 6 min, 2.3 GB |
+| Gregor    | 2       | 26 x 26 | 0 to 25 | 1 s, 0.2 GB       | 7 min, 2.6 GB |
+| Goldbeter | 2       | 25 x 25 | 0 to 24 | 1 s, 0.2 GB       | 6 min, 3.3 GB |
+| Maeda     | 2       | 26 x 26 | 0 to 25 | 3 to 10 s, 0.4 GB | 1.3 h, 23 GB  |
+| Kamino    | 4       | 31 x 31 | 0 to 30 | 3 to 12 s, 0.3 GB | 4.2 h, 77 GB  |
 
-"Each run" is the time and peak memory of one grid point. "All runs" is the time on one
-processor core and the disk space for all of that model's scripts. In all that is 9,150
-runs, about 9 hours and 110 GB. One grid point of each script was timed, so the totals are
-estimates. The first run of a model takes about a second longer, while numba compiles its
-loop; a run as short as Sgro's is mostly starting Python and its libraries.
+"Each run" is the time and peak memory of one grid point run by hand, as above; with noise
+in the single cells, a Maeda or Kamino run takes up to four times longer at some grid points
+than at others. "All runs" is the time on one processor core, run by `runSimulations.py`,
+and the disk space for all of that model's scripts. In all that is 9,150 runs, about 6 hours
+and 110 GB. Twenty-five grid points spread over the grid of each script were timed, so the
+totals are estimates. A run by hand spends half a second starting Python and its libraries,
+which is most of a run as short as Sgro's, and the first run of a model takes about a second
+longer while numba compiles its loop.
 
-`runSimulations.py` runs a sweep script once for every point of its grid. When all twelve
-scripts have a file for every grid point, it runs
+`runSimulations.py` runs a sweep script once for every point of its grid, without starting
+Python for each: it keeps one process going for each processor, which runs a script for one
+grid point, from its first line to its last, and then takes the next grid point that is
+left. The files are the same as those of runs by hand, and such a process needs about 0.5 GB
+of memory. When all twelve scripts have a file for every grid point, it runs
 `Population_DensityFlowSweep_Consolidate.py`, which collects the firing rates into one small
 file per script for the figures:
 ```bash
@@ -155,8 +161,8 @@ uv run compare_models/runSimulations.py Population_DensityFlowSweep
 ```
 Ctrl-C stops it, and running it again with `--resume` carries on with the grid points that
 have no file yet. A grid point that fails is named in the summary and its file removed, so
-`--resume` tries it again. On a four-core machine the 676 grid points of one script took
-4 minutes, four at a time, against about 13 minutes for one process (`--jobs 1`).
+`--resume` tries it again. On a four-core machine the 676 grid points of one Sgro script
+took 52 seconds, four at a time, against 3.3 minutes for one process (`--jobs 1`).
 
 On a cluster, run that command as one job with many processors. Where the scheduler confines
 a job to the processors it was given, `runSimulations.py` counts those; where it does not,
