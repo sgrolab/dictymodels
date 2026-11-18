@@ -63,7 +63,7 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
 ## Requirements
 - Python 3.12
 - The Python packages pinned in `pyproject.toml` and `uv.lock` (numpy, scipy, matplotlib,
-  numba, pandas, openpyxl, python-dotenv), installed with `uv sync` and used through
+  numba, pandas, openpyxl, python-dotenv, tqdm), installed with `uv sync` and used through
   `uv run`
 - A data directory, pointed to by the `ROOT_DIR` environment variable, where the simulations
   write their results

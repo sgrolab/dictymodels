@@ -7,8 +7,10 @@ flow-rate sweep simulate one grid point per run, so each of them is run once for
 of its grid; that is 9,150 runs and nearly all of the work. Starting Python and loading its
 libraries would be a large part of so short a run, so the sweep is run by processes that
 stay: each runs a sweep script for one grid point, from its first line to its last, and
-then takes the next grid point that is left. When every grid point of the sweep has its
-file, the consolidate script collects them for the figures.
+then takes the next grid point that is left. The slowest sweep scripts are run first, so
+that the processes come to the end of the sweep together, and in a terminal a bar shows how
+far the sweep is. When every grid point of the sweep has its file, the consolidate script
+collects them for the figures.
 
 Without arguments every script is run except those in EXCLUDE; name scripts, or the start
 of the names of several, to run a subset. The data directory is the one the scripts use
@@ -61,13 +63,26 @@ SWEEP = {
     'Kamino_noNoise_log': (31, 'no_noise/Kamino_log/j_%.2i_rho_%.2i.pickle'),
 }
 
+# About how many seconds a grid point of each model takes in a process that stays, measured
+# on the four-core machine of docs/setup.md. Only how they compare matters: the sweep
+# scripts are run slowest first, and the progress bar counts each run by its time.
+SECONDS = {'Sgro': 0.25, 'Gregor': 0.28, 'Goldbeter': 0.25, 'Maeda': 2.8, 'Kamino': 2.4}
+
+
+def run_time(script):
+    """About how long one grid point of a sweep script takes: see SECONDS."""
+    return SECONDS[script[len(SWEEP_PREFIX):].split('_')[0]]
+
 
 def all_scripts():
     """The simulation scripts in the order they are run: single cells, populations, the
-    sweep, and last the script that consolidates the sweep."""
+    sweep, and last the script that consolidates the sweep. The sweep scripts are in the
+    order of how long a grid point takes, slowest first: the processes take their runs from
+    one queue, so with the short runs last they come to its end within a short run of each
+    other."""
     def named(pattern):
         return sorted((p.name for p in CODE_DIR.glob(pattern)), key=str.lower)
-    sweep = [SWEEP_PREFIX + name + '.py' for name in SWEEP]
+    sweep = sorted((SWEEP_PREFIX + name + '.py' for name in SWEEP), key=run_time, reverse=True)
     found = set(named(SWEEP_PREFIX + '*.py')) - {CONSOLIDATE}
     if found != set(sweep):
         sys.exit('SWEEP does not match the sweep scripts: '
@@ -286,10 +301,10 @@ def stop_as_ctrl_c(signum, frame):
     raise KeyboardInterrupt
 
 
-def show_output(text, lines=20):
+def show_output(text, say=print, lines=20):
     """Print the end of what a run wrote, indented."""
     for line in text.rstrip().split('\n')[-lines:] if text.strip() else []:
-        print('    ' + line)
+        say('    ' + line)
 
 
 def main(argv=None):
@@ -363,6 +378,15 @@ def main(argv=None):
     interrupted = False
     print()
     results = []
+    # How far the sweep is: a bar where the output is a terminal, a line a minute where it
+    # is not (disable=None). The bar counts each run by run_time(), not as one, so that the
+    # time it says is left holds while the slow scripts run as well as after them.
+    from tqdm import tqdm   # here: the processes of --points have no use for it
+    bar = tqdm(total=sum(len(points) * run_time(s) for s, points in todo.items()),
+               desc=f'0 of {total:,} sweep runs, 0 failed', file=sys.stdout,
+               disable=None if total else True, dynamic_ncols=True,
+               bar_format='{percentage:3.0f}%|{bar}| {desc} [{elapsed}<{remaining}]')
+    say = tqdm.write    # prints a line above the bar
     for s in once:
         runner.work.put((s, (), None))
     for s, points in todo.items():
@@ -386,22 +410,27 @@ def main(argv=None):
                 results.append(result)
                 name = ' '.join([result['script']] + [str(i) for i in result['indices']])
                 if result['code'] != 0:
-                    print(f'FAILED  {hms(result["seconds"])}  {name}  ({result["code"]})')
-                    show_output(result['text'])
+                    say(f'FAILED  {hms(result["seconds"])}  {name}  ({result["code"]})')
+                    show_output(result['text'], say)
                 elif not result['indices']:
-                    print(f'ok      {hms(result["seconds"])}  {name}')
-                    show_output(result['text'])
+                    say(f'ok      {hms(result["seconds"])}  {name}')
+                    show_output(result['text'], say)
                 if result['indices']:
                     done += 1
                     failed += result['code'] != 0
-                    if done == total or time.monotonic() - reported > 60:
+                    bar.set_description_str(
+                        f'{done:,} of {total:,} sweep runs, {failed:,} failed', refresh=False)
+                    bar.update(run_time(result['script']))
+                    if bar.disable and (done == total or time.monotonic() - reported > 60):
                         reported = time.monotonic()
                         print(f'  {done:,} of {total:,} sweep runs done, {failed:,} failed, '
                               f'{hms(reported - began)} elapsed', flush=True)
         except KeyboardInterrupt:
+            bar.close()
             interrupted = True
             print('\ninterrupted: stopping the runs under way')
             runner.interrupt()
+    bar.close()
     cut = set()     # the scripts with a run that the interrupt stopped
     while not runner.results.empty():   # all threads have ended: what an interrupt left
         result = runner.results.get()
