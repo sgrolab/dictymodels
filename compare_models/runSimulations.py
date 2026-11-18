@@ -213,7 +213,12 @@ class Runner:
         process = self.start([sys.executable, str(CODE_DIR / script)])
         if process is None:
             return None
-        text = process.communicate()[0]
+        try:
+            text = process.communicate()[0]
+        except KeyboardInterrupt:   # in the main thread, which runs the consolidate script
+            process.terminate()
+            self.end(process)       # it has ended before this is passed on
+            raise
         return self.finish({'script': script, 'indices': (), 'code': self.end(process),
                             'seconds': time.monotonic() - start, 'text': text})
 
@@ -234,9 +239,11 @@ class Runner:
             pass
         text, said = '', None
         for line in iter(process.stdout.readline, ''):
-            if line.startswith('{"done"'):
+            at = line.find('{"done"')   # not always where the line starts: what a run wrote
+            if at >= 0:                 # past Python may not have ended its line
                 try:
-                    said = json.loads(line)
+                    said = json.loads(line[at:])
+                    text += (line[:at] + '\n') if at else ''
                     break
                 except ValueError:
                     pass
@@ -401,27 +408,37 @@ def main(argv=None):
             interrupted = True
             print('\ninterrupted: stopping the runs under way')
             runner.interrupt()
+    cut = set()     # the scripts with a run that the interrupt stopped
     while not runner.results.empty():   # all threads have ended: what an interrupt left
         result = runner.results.get()
-        if not isinstance(result, Future):
+        if isinstance(result, Future):
+            continue
+        if interrupted and result['code'] != 0:
+            cut.add(result['script'])   # stopped, not failed: its file is gone, to run again
+        else:
             results.append(result)
 
     # the consolidate script, if it was asked for and the sweep is all there
     consolidated = None
+    started = False
     if CONSOLIDATE in scripts and not runner.stop.is_set():
-        missing = {s: sum(not output.is_file() for _, output in grid_points(s, PROJECT_DIR))
-                   for s in all_scripts() if s.startswith(SWEEP_PREFIX) and s != CONSOLIDATE}
-        if any(missing.values()):
-            consolidated = 'not run: no file for ' + ', '.join(
-                f'{n:,} grid point(s) of {s}' for s, n in missing.items() if n)
-        else:
-            try:
+        try:
+            missing = {
+                s: sum(not output.is_file() for _, output in grid_points(s, PROJECT_DIR))
+                for s in all_scripts() if s.startswith(SWEEP_PREFIX) and s != CONSOLIDATE}
+            if any(missing.values()):
+                consolidated = 'not run: no file for ' + ', '.join(
+                    f'{n:,} grid point(s) of {s}' for s, n in missing.items() if n)
+            else:
+                started = True
                 consolidated = runner.run(CONSOLIDATE)
-            except KeyboardInterrupt:
-                interrupted = True
-                consolidated = 'interrupted before it had ended'
-                print('\ninterrupted: stopping the consolidate script')
-                runner.interrupt()
+        except KeyboardInterrupt:
+            interrupted = True
+            consolidated = 'interrupted before it ' + \
+                           ('had ended' if started else 'was started')
+            print('\ninterrupted: stopping the consolidate script' if started else
+                  '\ninterrupted: the consolidate script is not started')
+            runner.interrupt()
 
     print("\n===== summary (the time of a sweep script is that of its runs added up) =====")
     bad = 0
@@ -437,7 +454,7 @@ def main(argv=None):
                     show_output(consolidated['text'])
             else:
                 ok = False
-                state = 'stopped' if interrupted and consolidated else 'not run'
+                state = 'stopped' if started else 'not run'
                 print(f'{state}          {s}')
                 if consolidated:
                     print(f'    {consolidated}')
@@ -449,11 +466,12 @@ def main(argv=None):
                 line += '; failed: ' + ', '.join(
                     ' '.join(str(i) for i in r['indices']) for r in failures[:10])
                 line += ', ...' if len(failures) > 10 else ''
-            state = 'FAILED' if failures else 'stopped' if ran else 'not run'
+            state = 'FAILED' if failures else 'stopped' if ran or s in cut else 'not run'
             print(f'{"ok    " if ok else state}  {seconds}  {s}  {line}')
         else:
             ok = bool(ran) and not failures
-            print(f'{"ok    " if ok else "FAILED" if ran else "not run"}  {seconds}  {s}')
+            state = 'FAILED' if ran else 'stopped' if s in cut else 'not run'
+            print(f'{"ok    " if ok else state}  {seconds}  {s}')
         bad += not ok
     print(f'{len(scripts) - bad} script(s) ok, {bad} not; '
           f'{hms(time.monotonic() - began)} elapsed')
