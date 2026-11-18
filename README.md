@@ -47,6 +47,9 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
   experiment; each writes its results to the data directory
 - `compare_models/Population_DensityFlowSweep_*.py` - The sweep over cell density and flow
   rate behind Figures 4 and S1, one grid point per run
+- `compare_models/runSimulations.py` - Runs those scripts in bulk, as many at a time as the
+  computer has processors, and the sweep scripts once for every grid point (`--help` for
+  options)
 - `compare_models/plotFigures.py` - Draws Figures 2 to 6 and S1 to S5 from those results
   (`--help` for options)
 - `compare_models/config.py` - Tells the scripts where the experimental data and the data
@@ -65,7 +68,8 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
 - About 7 GB of free memory and 6 GB of disk for Figure 3; the other figures outside the
   sweep need far less
 - For Figures 4 and S1, the sweep: 9,150 runs that take about 40 hours of computing in all,
-  less than 0.3 GB of memory each, and about 110 GB of disk (see `docs/setup.md`)
+  shared among the computer's processors, with less than 0.3 GB of memory for each processor
+  and about 110 GB of disk (see `docs/setup.md`)
 
 ## Installation and Usage
 See `docs/setup.md` for installing the environment, configuring the data directory, running
@@ -73,8 +77,9 @@ the simulations and plotting the figures. In short:
 ```bash
 uv sync
 echo "ROOT_DIR=/path/to/your/data/directory" > .env
-uv run compare_models/SingleCell_singleSpike.py              # simulate; takes a second
-uv run compare_models/plotFigures.py --save figs figure_02   # draw Figure 2 from it
+uv run compare_models/runSimulations.py --dry-run     # list the simulations
+uv run compare_models/runSimulations.py SingleCell    # run the single-cell ones
+uv run compare_models/plotFigures.py --save figs      # draw the figures that have data
 ```
 
 ## Citation

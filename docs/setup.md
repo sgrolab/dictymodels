@@ -79,6 +79,20 @@ to read. A script is run directly:
 ```bash
 uv run compare_models/SingleCell_adaptiveSpike.py
 ```
+`compare_models/runSimulations.py` runs them in bulk, each in its own process and as many at
+a time as the computer has processors:
+```bash
+uv run compare_models/runSimulations.py --dry-run     # list what a full run would do
+uv run compare_models/runSimulations.py               # run everything
+uv run compare_models/runSimulations.py --jobs 2      # the same, two at a time
+uv run compare_models/runSimulations.py SingleCell    # the scripts whose names start so
+uv run compare_models/runSimulations.py SingleCell_singleSpike.py Population_add_cAMP_SCnoise.py
+uv run compare_models/runSimulations.py --help
+```
+A full run includes the sweep described below, which is nearly all of its work. `--jobs`
+sets how many processes run at the same time, for a computer that is shared or short of
+memory. Scripts that fail are reported at the end and the rest still run, unless
+`--stop-on-error` is given. `--log` keeps each script's output in a file.
 
 | Figure | Script                              | Writes to                      | Time    |
 |--------|-------------------------------------|--------------------------------|---------|
@@ -92,10 +106,11 @@ uv run compare_models/SingleCell_adaptiveSpike.py
 | S4     | `SingleCell_Entrainment.py`         | `sc_Entrainment_data/`         | 1 min   |
 | S5     | `SingleCell_timescaleSeparation.py` | `sc_timescaleSeparation_data/` | 1 s     |
 
-The times are from one run on a four-core Linux machine. `Population_add_cAMP_SCnoise.py`
-needs about 7 GB of memory and writes 5.3 GB; the other scripts in the table need less than
-1 GB and write 65 MB between them. `Population_add_cAMP.py` is the Figure 3 experiment
-without noise in the single cells; no figure uses its results.
+The times are of each script run by itself on a four-core Linux machine.
+`Population_add_cAMP_SCnoise.py` needs about 7 GB of memory and writes 5.3 GB; the other
+scripts in the table need less than 1 GB and write 65 MB between them.
+`Population_add_cAMP.py` is the Figure 3 experiment without noise in the single cells; no
+figure uses its results, so a full run leaves it out.
 
 Noise is drawn from a random number generator with a fixed seed, so running a script again
 reproduces its results.
@@ -130,25 +145,29 @@ processor core and the disk space for all of that model's scripts. In all that i
 runs, about 40 hours and 110 GB. One grid point of each script was timed, so the totals are
 estimates.
 
-The lab ran the sweep on an LSF cluster. `Population_DensityFlowSweep_GenerateBsubs.py`
-writes the job lists for it: twelve text files in `compare_models/`, one per script, with
-one `bsub` command per grid point. It adds to files that already exist, so delete old lists
-before running it again. On a single machine, a loop over the two indices does the same
-work:
+`runSimulations.py` runs a sweep script once for every point of its grid. When all twelve
+scripts have a file for every grid point, it runs
+`Population_DensityFlowSweep_Consolidate.py`, which collects the firing rates into one small
+file per script for the figures:
 ```bash
-for i in $(seq 0 25); do for j in $(seq 0 25); do
-    uv run compare_models/Population_DensityFlowSweep_Sgro_Noise.py $i $j
-done; done
+uv run compare_models/runSimulations.py Population_DensityFlowSweep
 ```
+Ctrl-C stops it, and running it again with `--resume` carries on with the grid points that
+have no file yet. A grid point that fails is named in the summary and its file removed, so
+`--resume` tries it again. On a four-core machine the 676 grid points of one script took
+6 minutes, four at a time, against about 21 minutes for one process (`--jobs 1`).
 
-When every run of all twelve scripts has finished, collect the firing rates into one small
-file per script:
+On a cluster, run that command as one job with many processors. Where the scheduler confines
+a job to the processors it was given, `runSimulations.py` counts those; where it does not,
+give `--jobs` the number you asked for.
+
+If you run grid points by hand instead, run the consolidate script by hand afterwards:
 ```bash
 uv run compare_models/Population_DensityFlowSweep_Consolidate.py
 ```
 It reads all twelve result folders and stops if one is missing. A grid point that has no
 file is left at zero without a warning, so first check that each folder holds one file per
-grid point (676, 625 or 961).
+grid point (676, 625 or 961). `runSimulations.py` makes that check itself.
 
 ### Figures
 `compare_models/plotFigures.py` draws Figures 2 to 6 and S1 to S5 of the paper from the data
