@@ -229,7 +229,7 @@ class CellPopulation:
 def peak_prominences(x, peaks):
     """The prominence of each of peaks, and where its left and its right base are, as
     scipy.signal.peak_prominences(x, peaks) gives them. peaks are places in x, in rising
-    order.
+    order; a place may be named more than once.
 
     The base of a peak on one side is the lowest sample between it and the nearest sample
     higher than it, or the end of x; its prominence is its height above the higher of its
@@ -242,7 +242,9 @@ def peak_prominences(x, peaks):
     n, count = len(x), len(peaks)
     lowest = np.empty((2, count))               # of each peak, to its left and to its right
     bases = np.empty((2, count), dtype=np.intp)
-    at = np.empty(n, dtype=np.intp)             # the stack: where a sample is,
+    if count == 0:      # no peak: nothing that the two passes would find
+        return np.empty(0), bases[0], bases[1]
+    height = np.empty(n)                        # the stack: a sample,
     least = np.empty(n)                         # the lowest since the one below it,
     where = np.empty(n, dtype=np.intp)          # and where that lowest is
     for side in range(2):
@@ -251,14 +253,15 @@ def peak_prominences(x, peaks):
         k = 0 if side == 0 else count - 1       # the next peak that the pass comes to
         top = 0
         for _ in range(n):
-            low, base = x[i], i
-            while top > 0 and x[at[top - 1]] <= x[i]:
+            xi = x[i]
+            low, base = xi, i
+            while top > 0 and height[top - 1] <= xi:
                 top -= 1
                 if least[top] < low:    # of equal lowest samples, the nearest, as scipy
                     low, base = least[top], where[top]
-            at[top], least[top], where[top] = i, low, base
+            height[top], least[top], where[top] = xi, low, base
             top += 1
-            if 0 <= k < count and peaks[k] == i:
+            while 0 <= k < count and peaks[k] == i:
                 lowest[side, k], bases[side, k] = low, base
                 k += step
             i += step
