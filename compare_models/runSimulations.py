@@ -14,8 +14,8 @@ Without arguments every script is run except those in EXCLUDE; name scripts, or 
 of the names of several, to run a subset. The data directory is the one the scripts use
 (ROOT_DIR from the environment or .env).
 
-Ctrl-C stops a run, as do SIGTERM and SIGUSR2; --resume then carries on with the grid points
-that have no file yet.
+Ctrl-C stops a run, as does SIGTERM, which is what `kill` sends; --resume then carries on
+with the grid points that have no file yet.
 """
 import argparse
 import contextlib
@@ -38,10 +38,6 @@ from pathlib import Path
 CODE_DIR = Path(__file__).resolve().parent
 SWEEP_PREFIX = 'Population_DensityFlowSweep_'
 CONSOLIDATE = SWEEP_PREFIX + 'Consolidate.py'
-
-# Signals that a cluster sends a job before it kills it: Slurm sends SIGTERM at a time limit,
-# LSF sends SIGUSR2 at a run limit (Windows has no SIGUSR2)
-STOP_SIGNALS = ('SIGTERM', 'SIGUSR2')
 
 # Scripts left out of a full run, and why; they can still be named on the command line
 EXCLUDE = {'Population_add_cAMP.py': 'no figure uses its results'}
@@ -107,7 +103,7 @@ def grid_points(script, data_dir):
 def processors():
     """How many processors this process may use."""
     try:
-        return len(os.sched_getaffinity(0))     # Linux: what taskset or a cluster job allows
+        return len(os.sched_getaffinity(0))     # Linux: no more than taskset allows
     except AttributeError:                      # macOS and Windows cannot say
         return os.cpu_count() or 1
 
@@ -285,8 +281,8 @@ class Runner:
 
 
 def stop_as_ctrl_c(signum, frame):
-    """What the signals in STOP_SIGNALS do to a run: the same as Ctrl-C, so that the runs
-    under way are stopped and their unfinished files removed."""
+    """What SIGTERM does to a run: the same as Ctrl-C, so that the runs under way are
+    stopped and their unfinished files removed."""
     raise KeyboardInterrupt
 
 
@@ -361,9 +357,7 @@ def main(argv=None):
         args.log.mkdir(parents=True, exist_ok=True)
 
     runner = Runner(args.log, args.stop_on_error)
-    for name in STOP_SIGNALS:
-        if hasattr(signal, name):
-            signal.signal(getattr(signal, name), stop_as_ctrl_c)
+    signal.signal(signal.SIGTERM, stop_as_ctrl_c)
     began = time.monotonic()
     reported = began
     interrupted = False
