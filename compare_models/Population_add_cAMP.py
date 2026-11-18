@@ -70,7 +70,7 @@ for i in range(len(extracellularAs)):
     Sgro_pop = sg.Sgro2015_pop(A0,R0,cAMPext0,SgroPopParam,t)
     
     # run population 
-    Sgro_pop.run(dt,time_separation,extracellularA_trace,r)
+    Sgro_pop.run(dt,time_separation,extracellularA_trace,r,keep_cells=True)
     
     # Save A traces to arrays
     A_trace_offset=1.5
@@ -147,7 +147,7 @@ for i in range(len(ext_input_arr)):
     Gregor_pop = gf.Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam, t)
     
     # run population
-    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r)
+    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r,keep_cells=True)
     
     # save traces 
     thetais[i] = Gregor_pop.thetai

@@ -84,7 +84,7 @@ uv run compare_models/SingleCell_adaptiveSpike.py
 |--------|-------------------------------------|--------------------------------|---------|
 | 2      | `SingleCell_singleSpike.py`         | `sc_singleSpike_data/`         | 1 s     |
 | 3      | `Population_add_cAMP_SCnoise.py`    | `popAddcAMPscNoise_data/`      | 1 min   |
-| 4, S1  | the sweep, described below          | `pop_firingRate_data/`         | 44 h    |
+| 4, S1  | the sweep, described below          | `pop_firingRate_data/`         | 40 h    |
 | 5      | `SingleCell_adaptiveSpike.py`       | `sc_adaptiveSpike_data/`       | 1 s     |
 | 5      | `SingleCell_bifurcationDynamics.py` | `sc_bifurcationDynamics_data/` | 1 s     |
 | 6, S2  | `SingleCell_FoldChangeDetection.py` | `sc_foldChange_data/`          | 6.5 min |
@@ -119,15 +119,15 @@ uv run compare_models/Population_DensityFlowSweep_Sgro_Noise.py 13 20
 
 | Model     | Scripts | Grid    | Indices | Each run      | All runs       |
 |-----------|---------|---------|---------|---------------|----------------|
-| Sgro      | 2       | 26 x 26 | 0 to 25 | 2 s, 0.4 GB   | 45 min, 2.3 GB |
-| Gregor    | 2       | 26 x 26 | 0 to 25 | 2 s, 0.4 GB   | 40 min, 2.6 GB |
-| Goldbeter | 2       | 25 x 25 | 0 to 24 | 4.5 s, 0.7 GB | 1.5 h, 3.3 GB  |
-| Maeda     | 2       | 26 x 26 | 0 to 25 | 43 s, 12 GB   | 16 h, 23 GB    |
-| Kamino    | 4       | 31 x 31 | 0 to 30 | 23 s, 5 GB    | 25 h, 77 GB    |
+| Sgro      | 2       | 26 x 26 | 0 to 25 | 2 s, 0.1 GB   | 41 min, 2.3 GB |
+| Gregor    | 2       | 26 x 26 | 0 to 25 | 2 s, 0.1 GB   | 37 min, 2.6 GB |
+| Goldbeter | 2       | 25 x 25 | 0 to 24 | 4 s, 0.1 GB   | 1.4 h, 3.3 GB  |
+| Maeda     | 2       | 26 x 26 | 0 to 25 | 37 s, 0.2 GB  | 14 h, 23 GB    |
+| Kamino    | 4       | 31 x 31 | 0 to 30 | 21 s, 0.2 GB  | 23 h, 77 GB    |
 
 "Each run" is the time and peak memory of one grid point. "All runs" is the time on one
 processor core and the disk space for all of that model's scripts. In all that is 9,150
-runs, about 44 hours and 110 GB. One grid point of each script was timed, so the totals are
+runs, about 40 hours and 110 GB. One grid point of each script was timed, so the totals are
 estimates.
 
 The lab ran the sweep on an LSF cluster. `Population_DensityFlowSweep_GenerateBsubs.py`
@@ -194,3 +194,12 @@ once and is the shortest example of them all. To put the models on common scales
 experiment scripts divide time by `Nt_<model>` and the response by `Nh_<model>`, the
 normalization constants that every script reads at its top. Figure 2 of the paper shows how
 they were chosen.
+
+The classes for a population of noisy cells (`Population_scNoise`, `Gregor2010_pop` and
+`Sgro2015_pop`) keep only the mean of each variable over the cells, for example
+`pop.y_mean`, because every variable of every cell at every time step can take gigabytes.
+To look inside a run, call `run(..., keep_cells=True)`: each variable is then also kept for
+every cell, as `pop.y`, an array of cells by time steps. `Population_add_cAMP_SCnoise.py`
+does this for Figure 3, which shows single cells. The noise can be given to `run()` whole,
+as an array of time steps by cells, or as a function that returns the next rows of one, so
+that it is drawn while the run proceeds, as the sweep scripts do. See `popHistory.py`.

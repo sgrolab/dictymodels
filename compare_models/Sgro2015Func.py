@@ -5,6 +5,7 @@ Created on Tue Dec  4 19:23:30 2018
 @author: Chuqiao
 """
 import numpy as np
+from popHistory import CellPopulation, History, noise_rows
 
 class Cell():
     def __init__(self,pos,state,AgentParam,t):
@@ -44,28 +45,26 @@ class Cell():
             self.R[i] = R + dR*dt
     
         
-class Sgro2015_pop():
+class Sgro2015_pop(CellPopulation):
     def __init__(self,A0,R0,cAMPext0,PopParam,t):
         self.PopParam=PopParam
         N=self.PopParam['N']
         self.t = t
         
-        # preallocate A and R matrices         
-        self.A = np.zeros([N,len(t)])
-        self.R = np.zeros([N,len(t)])
+        # initial A and R for all cells
+        self.initialVals = [A0*np.ones(N),R0*np.ones(N)]
         
-        # preallocate external cAMP array 
+        # preallocate external cAMP array, which the cells share
         self.cAMPext = np.zeros(len(t))
-        
-        # set initial A and R for all cells 
-        self.A[:,0] = A0*np.ones(N)
-        self.R[:,0] = R0*np.ones(N) 
         
         # set initial cAMPe amount 
         self.cAMPext[0] = cAMPext0
     
     
-    def run(self,dt,time_separation,extracellularA_trace,r=0):
+    def run(self,dt,time_separation,extracellularA_trace,r=0,keep_cells=False):
+        # r is the noise, an array or a function; keep_cells says whether A and R are kept
+        # for every cell or only as A_mean and R_mean: see popHistory.py
+
         # pull parameters from dictionary 
         e=self.PopParam['e']   
         g=self.PopParam['g'] 
@@ -81,13 +80,20 @@ class Sgro2015_pop():
         j = self.PopParam['j']
         
         # if no random seed specified, generate 
-        if r.size == 0:
+        if not callable(r) and r.size == 0:
             r = np.sqrt(dt)*np.random.normal(0,1,size = (len(self.t),N))
         
+        # set initial A and R for all cells
+        A = self.initialVals[0]
+        R = self.initialVals[1]
+
+        # what is kept of the run, and the noise of each time step after the first
+        history = History(self,['A','R'],[A,R],keep_cells)
+        noise = noise_rows(r,len(self.t))
+        next(noise)
+
         for i in range(1,len(self.t)):
-            # get A, R, and cAMPe values from previous timestep
-            A = self.A[:,i-1]
-            R = self.R[:,i-1]
+            # get cAMPe value from previous timestep; A and R are those of that timestep
             cAMPe = self.cAMPext[i-1]
             
             # compute differential 
@@ -103,5 +109,8 @@ class Sgro2015_pop():
                 self.cAMPext[i] = (alphaf + rho*alpha0 + rho*S/N*np.sum(np.heaviside(A,0.5)))/(j+alpha_pde*rho)
             
             # compute time step 
-            self.A[:,i] = A + dA*dt + sigma*r[i,:]
-            self.R[:,i] = R + dR*dt
+            A = A + dA*dt + sigma*next(noise)
+            R = R + dR*dt
+            history.put(i,A,R)
+
+        history.finish()

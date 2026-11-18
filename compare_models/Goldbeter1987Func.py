@@ -5,6 +5,7 @@ Created on Thu Jul 18 15:39:14 2019
 @author: Chuqiao
 """
 import numpy as np
+from popHistory import CellPopulation, History, noise_rows
 
 class Cell():
     def __init__(self,params,initialVals,t):
@@ -108,24 +109,16 @@ class Population():
             self.b[i] = b + dt*(q*sig*PI-(ki+kt)*b)
             self.g[i] = g + dt*(kt/h*b-kc*(g-cAMPe_in[i])) # campExt_influx: contant cAMP input to the system
     
-class Population_scNoise():
+class Population_scNoise(CellPopulation):
     def __init__(self,initialVals,params,t):
         self.param = params
         self.t = t
-        N = self.param['N']
+        self.initialVals = initialVals
         
-        self.p = np.zeros([N,len(t)])
-        self.a = np.zeros([N,len(t)])
-        self.b = np.zeros([N,len(t)])
-        self.g = np.zeros([N,len(t)])
+    def run(self,dt,r,a,cAMPe_in,keep_cells=False):
+        # r is the noise, an array or a function; keep_cells says whether p, b and g are
+        # kept for every cell or only as p_mean, b_mean and g_mean: see popHistory.py
         
-        # set initial values
-        self.p[:,0] = initialVals[0]
-        self.a[:,0] = initialVals[1]
-        self.b[:,0] = initialVals[2]
-        self.g[:,0] = initialVals[3]
-    
-    def run(self,dt,r,a,cAMPe_in):
         # pull parameter values 
         k1=self.param['k1']   
         k2=self.param['k2']  
@@ -141,23 +134,34 @@ class Population_scNoise():
         kt=self.param['kt']  
         kc=self.param['kc']  
         h=self.param['h']  
+        N = self.param['N']
+
+        # set initial values, one for each cell
+        p = np.zeros(N)
+        b = np.zeros(N)
+        g = np.zeros(N)
+        p[:] = self.initialVals[0]
+        b[:] = self.initialVals[2]
+        g[:] = self.initialVals[3]
+
+        # what is kept of the run, and the noise of each time step after the first
+        history = History(self,['p','b','g'],[p,b,g],keep_cells)
+        noise = noise_rows(r,len(self.t))
+        next(noise)
     
         # run model for full time 
         for i in range(1,len(self.t)):
         
-            # get variable values from previous timestep
-            p = self.p[:,i-1]
-            b = self.b[:,i-1]
-            g = self.g[:,i-1]
-            
-            # calculate model equations
+            # calculate model equations from p, b and g of the previous timestep
             f1 = (k1 + k2*g)/(1+g)
             f2 = (k1*L1 + k2*L2*c*g)/(1+c*g)
             Ysq = (p*g/(1+g))**2
             PI = a*(lamda*theta + e*Ysq)/(1 + theta*a + (1 + a)*e*Ysq)
         
-            # update variable values
-            self.p[:,i] = p + dt*(-f1*p + f2*(1-p))
-            self.b[:,i] = b + dt*(q*sig*PI - (ki+kt)*b) + r[i]
-            self.g[:,i] = g + dt*(kt/h*np.mean(b)-kc*(g-cAMPe_in[i])) # campExt_influx: contant cAMP input to the system
-        
+            # update variable values; campExt_influx: contant cAMP input to the system
+            p, b, g = (p + dt*(-f1*p + f2*(1-p)),
+                       b + dt*(q*sig*PI - (ki+kt)*b) + next(noise),
+                       g + dt*(kt/h*np.mean(b)-kc*(g-cAMPe_in[i])))
+            history.put(i,p,b,g)
+
+        history.finish()
