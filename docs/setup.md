@@ -156,7 +156,10 @@ second, where scipy's takes up to 10 seconds on the trace of a population of noi
 Python for each: it keeps one process going for each processor, which runs a script for one
 grid point, from its first line to its last, and then takes the next grid point that is
 left. The files are the same as those of runs by hand, and such a process needs about 0.5 GB
-of memory. When all twelve scripts have a file for every grid point, it runs
+of memory. It runs the slowest scripts first (Maeda, then Kamino), so that the processes
+reach the end of the sweep together. In a terminal a bar shows how many runs are done and
+how long the rest should take; where the output goes to a file there is a line a minute
+with the count. When all twelve scripts have a file for every grid point, it runs
 `Population_DensityFlowSweep_Consolidate.py`, which collects the firing rates into one small
 file per script for the figures:
 ```bash
