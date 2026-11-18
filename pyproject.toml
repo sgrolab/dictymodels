@@ -1,0 +1,25 @@
+[project]
+name = "dictymodels"
+version = "0.1.0"
+description = "Five models of cAMP signaling in Dictyostelium, compared on common scales"
+readme = "README.md"
+# The newest Python of the date below, and the newest the pinned packages have wheels for.
+requires-python = "==3.12.*"
+# Exact versions, because numpy, scipy and matplotlib change behaviour between minor releases.
+# These are the newest releases that existed when the model and figure code was last changed
+# before the dependencies were written down (commit 942489a, 2024-08-07).
+dependencies = [
+    "matplotlib==3.9.1.post1",
+    "numpy==2.0.1",
+    "openpyxl==3.1.5",
+    "pandas==2.2.2",
+    "python-dotenv==1.0.1",
+    "scipy==1.14.0",
+]
+
+[tool.uv]
+# The scripts run in place from compare_models/, so there is no package to build or install.
+package = false
+# The time of commit 942489a. Holds the indirect dependencies (pillow, contourpy, ...) to the
+# same date whenever uv.lock is regenerated.
+exclude-newer = "2024-08-07T17:17:40Z"
