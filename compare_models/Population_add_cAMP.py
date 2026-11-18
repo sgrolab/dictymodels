@@ -7,16 +7,15 @@ Created on Mon Aug 19 2019
 Population oscillations with added [cAMP]ext
 
 """
-import sys
 import pickle
 import numpy as np
 import math
 
-# add path for function files
-sys.path.insert(0,'//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+# import code and data locations
+from config import CODE_DIR, output_dir
 
 # import normalization parameters
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/normParams.pickle','rb') as f:
+with open(CODE_DIR / 'normParams.pickle','rb') as f:
     Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
 #%% Sgro 2015
@@ -81,7 +80,7 @@ for i in range(len(extracellularAs)):
 # save adjusted time trace
 ts = t/Nt_Sgro
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/popAddcAMP_data/popAddcAMP_Sgro.pickle','wb') as f:
+with open(output_dir('popAddcAMP_data') / 'popAddcAMP_Sgro.pickle','wb') as f:
     pickle.dump([ts,As,As_sc],f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -159,7 +158,7 @@ for i in range(len(ext_input_arr)):
 # save adjusted time trace 
 ts = np.array(t)/Nt_Gregor
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/popAddcAMP_data/popAddcAMP_Gregor.pickle','wb') as f:
+with open(output_dir('popAddcAMP_data') / 'popAddcAMP_Gregor.pickle','wb') as f:
     pickle.dump([ts,thetais,cAMPes,cAMPis_sc,cAMPis],f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -229,7 +228,7 @@ bs = bs/Nh_Goldbeter
 ts = t//Nt_Goldbeter
 
 # export to pickle file
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/popAddcAMP_data/popAddcAMP_Goldbeter.pickle','wb') as f:
+with open(output_dir('popAddcAMP_data') / 'popAddcAMP_Goldbeter.pickle','wb') as f:
     pickle.dump([ts,ps,bs,gs],f,pickle.HIGHEST_PROTOCOL)
 
 #%% Maeda & Loomis 2004
@@ -284,7 +283,7 @@ for i in range(len(cAMPe_in)):
 t = np.arange(0,t_tot/2,dt)/Nt_Maeda
 
 # export time and cAMPi data
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/popAddcAMP_data/popAddcAMP_Maeda.pickle','wb') as f:
+with open(output_dir('popAddcAMP_data') / 'popAddcAMP_Maeda.pickle','wb') as f:
     pickle.dump([t,cAMPi_traces],f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -342,6 +341,6 @@ for i in range(len(cAMPe_in)):
 t = t/Nt_Kamino
 
 # save to pickle file 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/popAddcAMP_data/popAddcAMP_Kamino.pickle','wb') as f:
+with open(output_dir('popAddcAMP_data') / 'popAddcAMP_Kamino.pickle','wb') as f:
     pickle.dump([t,x_traces,y_traces,z_traces],f,pickle.HIGHEST_PROTOCOL)
 

@@ -1,15 +1,15 @@
 #%% Single Cell, Step vs Ramp Input
 
-import os, sys, pickle 
+import os, pickle
 import numpy as np 
 import matplotlib.pyplot as plt 
 import pandas as pd 
 
-# add path for function files
-sys.path.insert(0,'//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+# import code and data locations
+from config import CODE_DIR, output_dir
 
 # import normalization parameters
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/normParams.pickle','rb') as f:
+with open(CODE_DIR / 'normParams.pickle','rb') as f:
     Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
 #%% Sgro 
@@ -84,7 +84,7 @@ for i in range(len(peakWidths)):
             # store mean of correlation coefficients 
             Rs[i,j] = np.mean(sampleRs)
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Sgro.pickle','wb') as f:
+with open(output_dir('sc_Entrainment_data') / 'entrainment_Sgro.pickle','wb') as f:
     pickle.dump(Rs,f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -170,7 +170,7 @@ for i in range(len(peakWidths)):
             # store mean of correlation coefficients 
             Rs[i,j] = np.mean(sampleRs)
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Goldbeter.pickle','wb') as f:
+with open(output_dir('sc_Entrainment_data') / 'entrainment_Goldbeter.pickle','wb') as f:
     pickle.dump(Rs,f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -248,7 +248,7 @@ for i in range(len(peakWidths)):
             # store mean of correlation coefficients 
             Rs[i,j] = np.mean(sampleRs)
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Maeda.pickle','wb') as f:
+with open(output_dir('sc_Entrainment_data') / 'entrainment_Maeda.pickle','wb') as f:
     pickle.dump(Rs,f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -325,6 +325,6 @@ for i in range(len(peakWidths)):
             # store mean of correlation coefficients 
             Rs[i,j] = np.mean(sampleRs)
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_Entrainment_data/entrainment_Kamino.pickle','wb') as f:
+with open(output_dir('sc_Entrainment_data') / 'entrainment_Kamino.pickle','wb') as f:
     pickle.dump(Rs,f,pickle.HIGHEST_PROTOCOL)
 

@@ -1,15 +1,15 @@
 # Single Cell, Fold Change Detection 
 
-import sys, pickle 
+import pickle
 import numpy as np 
 import matplotlib.pyplot as plt 
 from scipy.signal import find_peaks
 
-# add path for function files
-sys.path.insert(0,'//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+# import code and data locations
+from config import CODE_DIR, output_dir
 
 # import normalization parameters
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/normParams.pickle','rb') as f:
+with open(CODE_DIR / 'normParams.pickle','rb') as f:
     Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
 #%% Kamino 2017 (IFFL)
@@ -71,7 +71,7 @@ for i in range(len(cAMPe_in_priming)):
         if Pk2Pos.size > 0:
             peak2Prom[i,j]=Pk2Props["prominences"][0]
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Kamino.pickle','wb') as f:
+with open(output_dir('sc_foldChange_data') / 'FCD_Kamino.pickle','wb') as f:
     pickle.dump(peak2Prom,f,pickle.HIGHEST_PROTOCOL)
 
 #%% Sgro 2015 (IPNFB) 
@@ -136,7 +136,7 @@ for i in range(len(cAMPe_in_priming)):
             if Pk2Pos.size > 0:
                 peak2Prom[i,j,k]=Pk2Props["prominences"][0]
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Sgro.pickle','wb') as f:
+with open(output_dir('sc_foldChange_data') / 'FCD_Sgro.pickle','wb') as f:
     pickle.dump(peak2Prom,f,pickle.HIGHEST_PROTOCOL)
 
 #%% Goldbeter (Receptor Desensitization) 
@@ -206,7 +206,7 @@ for i in range(len(cAMPe_in_priming)):
         if Pk2Pos.size > 0:
             peak2Prom[i,j]=Pk2Props["prominences"][0]
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_Goldbeter.pickle','wb') as f:
+with open(output_dir('sc_foldChange_data') / 'FCD_Goldbeter.pickle','wb') as f:
     pickle.dump(peak2Prom,f,pickle.HIGHEST_PROTOCOL)
 
 #%% sample for Fig 6A
@@ -251,5 +251,5 @@ cell = kf.Cell([x0,y0,z0],KaminoAgentParam,t)
 cell.run(dt,cAMPe_in)
 
 # save trace 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_foldChange_data/FCD_sample.pickle','wb') as f:
+with open(output_dir('sc_foldChange_data') / 'FCD_sample.pickle','wb') as f:
     pickle.dump([cell.t,cell.y],f,pickle.HIGHEST_PROTOCOL)

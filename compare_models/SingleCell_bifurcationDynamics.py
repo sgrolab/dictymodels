@@ -1,14 +1,14 @@
 # Single Cell, Adaptive Spike 
 
-import os, sys, pickle 
+import os, pickle
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-# add path for function files
-sys.path.insert(0,'//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2')
+# import code and data locations
+from config import CODE_DIR, output_dir
 
 # import normalization parameters
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/dictymodels/compare_models2/normParams.pickle','rb') as f:
+with open(CODE_DIR / 'normParams.pickle','rb') as f:
     Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
 
 
@@ -61,7 +61,8 @@ plt.ylim([-0.5,1.2])
 plt.xlim([0,6])
 
 # save normalized data to pickle file 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Gregor.pickle','wb') as f:
+with open(output_dir('sc_bifurcationDynamics_data') / 'bifurcationDynamics_Gregor.pickle',
+          'wb') as f:
     pickle.dump([cell.t/Nt_Gregor,cell.cAMPi/Nh_Gregor],f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -104,7 +105,8 @@ plt.ylim([-0.5,1.2])
 plt.xlim([0,6])
 
 # save normalized traces to file 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Sgro.pickle','wb') as f:
+with open(output_dir('sc_bifurcationDynamics_data') / 'bifurcationDynamics_Sgro.pickle',
+          'wb') as f:
     pickle.dump([cell.t/Nt_Sgro,(cell.A-Nh_Sgro_offset)/Nh_Sgro],f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -156,7 +158,8 @@ plt.plot(cell.t/Nt_Goldbeter,cell.b/Nh_Goldbeter)
 plt.ylim([-0.5,1.2])
 plt.xlim([0,6])
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Goldbeter.pickle','wb') as f:
+with open(output_dir('sc_bifurcationDynamics_data') / 'bifurcationDynamics_Goldbeter.pickle',
+          'wb') as f:
     pickle.dump([cell.t/Nt_Goldbeter,cell.b/Nh_Goldbeter],f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -201,7 +204,8 @@ plt.plot(cell.t/Nt_Maeda,cell.cAMPi/Nh_Maeda)
 plt.xlim([0,6])
 plt.ylim([-0.5,250])
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_MaedaLoomis.pickle','wb') as f:
+with open(output_dir('sc_bifurcationDynamics_data') / 'bifurcationDynamics_MaedaLoomis.pickle',
+          'wb') as f:
     pickle.dump([cell.t/Nt_Maeda,cell.cAMPi/Nh_Maeda],f,pickle.HIGHEST_PROTOCOL)
 
 
@@ -245,6 +249,7 @@ plt.plot(cell.t/Nt_Kamino,(cell.y-Nh_Kamino_offset)/Nh_Kamino)
 plt.xlim([0,6])
 plt.ylim([-0.5,1.2])
 
-with open('//prfs.hhmi.org/sgrolab/mark/dicty_proj/sc_bifurcationDynamics_data/bifurcationDynamics_Kamino.pickle','wb') as f:
+with open(output_dir('sc_bifurcationDynamics_data') / 'bifurcationDynamics_Kamino.pickle',
+          'wb') as f:
     pickle.dump([cell.t/Nt_Kamino,(cell.y-Nh_Kamino_offset)/Nh_Kamino],f,pickle.HIGHEST_PROTOCOL)
 
