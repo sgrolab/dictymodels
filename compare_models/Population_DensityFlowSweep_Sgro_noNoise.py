@@ -14,13 +14,12 @@ import math
 
 from scipy.signal import find_peaks
 
-# import code and data locations
-from config import CODE_DIR, output_dir
+# import data locations
+from config import output_dir
 import Sgro2015Func as sg
 
 # import normalization parameters
-with open(CODE_DIR / 'normParams.pickle','rb') as f:
-    Nt_Gregor,Nt_Sgro,Nt_Goldbeter,Nt_Maeda,Nt_Kamino,Nh_Gregor,Nh_Sgro,Nh_Goldbeter,Nh_Maeda,Nh_Kamino,Nh_Kamino_offset,Nh_Sgro_offset = pickle.load(f)
+from normParams import Nt_Sgro, Nh_Sgro, Nh_Sgro_offset
 
 # define variable arrays 
 jVals = np.linspace(0,1,26) # 21 j_arr=np.array([0.5]) # 
