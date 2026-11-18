@@ -4,22 +4,35 @@
 Each script is run in its own Python process, exactly as it would be by hand. As many run
 at a time as the computer has processors, or as --jobs says. The scripts of the density and
 flow-rate sweep simulate one grid point per run, so each of them is run once for every point
-of its grid; that is 9,150 runs and nearly all of the work. When every grid point of the
-sweep has its file, the consolidate script collects them for the figures.
+of its grid; that is 9,150 runs and nearly all of the work. Starting Python and loading its
+libraries would be a large part of so short a run, so the sweep is run by processes that
+stay: each runs a sweep script for one grid point, from its first line to its last, and
+then takes the next grid point that is left. When every grid point of the sweep has its
+file, the consolidate script collects them for the figures.
 
 Without arguments every script is run except those in EXCLUDE; name scripts, or the start
 of the names of several, to run a subset. The data directory is the one the scripts use
 (ROOT_DIR from the environment or .env).
 
-Ctrl-C stops a run; --resume then carries on with the grid points that have no file yet.
+Ctrl-C stops a run, as does SIGTERM, which is what `kill` sends; --resume then carries on
+with the grid points that have no file yet.
 """
 import argparse
+import contextlib
+import gc
+import io
+import json
 import os
+import queue
+import runpy
+import signal
 import subprocess
 import sys
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import traceback
+import warnings
+from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
 
 CODE_DIR = Path(__file__).resolve().parent
@@ -90,7 +103,7 @@ def grid_points(script, data_dir):
 def processors():
     """How many processors this process may use."""
     try:
-        return len(os.sched_getaffinity(0))     # Linux: what taskset or a cluster job allows
+        return len(os.sched_getaffinity(0))     # Linux: no more than taskset allows
     except AttributeError:                      # macOS and Windows cannot say
         return os.cpu_count() or 1
 
@@ -100,8 +113,47 @@ def hms(seconds):
     return f'{seconds // 3600}:{seconds // 60 % 60:02d}:{seconds % 60:02d}'
 
 
+def run_points():
+    """What `runSimulations.py --points` does, for Runner.run_point(): run sweep scripts for
+    one grid point after another, here in this process. Each line of its input asks for a
+    run, as SCRIPT I J, and it ends when there are no more.
+
+    Each run is the whole script, from its first line, as `python SCRIPT I J` runs it. Only
+    the libraries, and the loops that numba has compiled, stay from one run to the next.
+    Says how each run went in a line of JSON."""
+    report = sys.stdout
+    try:
+        for line in sys.stdin:
+            if not line.strip():
+                continue
+            script, *indices = line.split()
+            path = str(CODE_DIR / script)
+            text, code = io.StringIO(), 0
+            own_argv, sys.argv = sys.argv, [path] + indices
+            try:
+                with contextlib.redirect_stdout(text), contextlib.redirect_stderr(text), \
+                        warnings.catch_warnings():  # so that a warning is given in every run
+                    runpy.run_path(path, run_name='__main__')
+            except SystemExit as stop:
+                if stop.code is not None and not isinstance(stop.code, int):
+                    text.write(f'{stop.code}\n')
+                code = stop.code if isinstance(stop.code, int) else int(stop.code is not None)
+            except Exception:
+                code = 1
+                text.write(traceback.format_exc())
+            finally:
+                sys.argv = own_argv
+            gc.collect()    # the arrays of the run that has ended
+            print(json.dumps({'done': [script] + indices, 'code': code,
+                              'text': text.getvalue()}), file=report, flush=True)
+    except KeyboardInterrupt:
+        return 130
+    return 0
+
+
 class Runner:
-    """Runs scripts in processes of their own, and stops them when told to."""
+    """Makes the runs in the queue work, in processes, and stops them when told to. How each
+    run went is put in the queue results as soon as it is known."""
 
     def __init__(self, log_dir, stop_on_error):
         self.log_dir = log_dir
@@ -109,25 +161,30 @@ class Runner:
         self.stop = threading.Event()   # set to start no more runs
         self.lock = threading.Lock()
         self.processes = set()
+        self.work = queue.SimpleQueue()     # of each run to make: script, indices, file
+        self.results = queue.Queue()
 
-    def run(self, script, indices=(), output=None):
-        """Run a script, with the indices of a grid point if it is a sweep script. Returns
-        a description of how it went; 'code' is None if it was not started."""
-        result = {'script': script, 'indices': indices, 'code': None, 'seconds': 0.0,
-                  'text': ''}
-        start = time.monotonic()
+    def start(self, command, **options):
+        """Start a process unless no more are to be started; returns it, or None."""
         with self.lock:
             if self.stop.is_set():
-                return result
-            process = subprocess.Popen(
-                [sys.executable, str(CODE_DIR / script)] + [str(i) for i in indices],
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors='replace')
+                return None
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, text=True,
+                                       stderr=subprocess.STDOUT, errors='replace', **options)
             self.processes.add(process)
-        result['text'] = process.communicate()[0]
+        return process
+
+    def end(self, process):
+        """Wait for a process that is ending; returns its exit status."""
+        process.wait()
         with self.lock:
             self.processes.discard(process)
-        result['code'] = process.returncode
-        result['seconds'] = time.monotonic() - start
+        return process.returncode
+
+    def finish(self, result, output=None):
+        """Take in how a run went: 'code' is its exit status. output is the file that the
+        run of a grid point must have written."""
+        script, indices = result['script'], result['indices']
         if output is not None:
             if result['code'] != 0:
                 try:
@@ -142,7 +199,78 @@ class Runner:
         if self.log_dir is not None and (result['text'] or not indices):
             name = '_'.join([script[:-3]] + [str(i) for i in indices]) + '.log'
             (self.log_dir / name).write_text(result['text'])
+        self.results.put(result)
         return result
+
+    def run(self, script):
+        """Run a script in a process of its own; returns how it went, or None if it was not
+        started."""
+        start = time.monotonic()
+        process = self.start([sys.executable, str(CODE_DIR / script)])
+        if process is None:
+            return None
+        try:
+            text = process.communicate()[0]
+        except KeyboardInterrupt:   # in the main thread, which runs the consolidate script
+            process.terminate()
+            self.end(process)       # it has ended before this is passed on
+            raise
+        return self.finish({'script': script, 'indices': (), 'code': self.end(process),
+                            'seconds': time.monotonic() - start, 'text': text})
+
+    def run_point(self, process, script, indices, output):
+        """Run a sweep script for one grid point, whose file is output, in a process that
+        stays for the next: see run_points(). The process is started if None is given.
+        Returns it, or None if it died, in which case this grid point has failed."""
+        start = time.monotonic()
+        if process is None:
+            process = self.start([sys.executable, str(CODE_DIR / 'runSimulations.py'),
+                                  '--points'], stdin=subprocess.PIPE)
+            if process is None:
+                return None
+        try:
+            process.stdin.write(' '.join([script] + [str(i) for i in indices]) + '\n')
+            process.stdin.flush()
+        except OSError:     # it has died: there will be nothing to read either
+            pass
+        text, said = '', None
+        for line in iter(process.stdout.readline, ''):
+            at = line.find('{"done"')   # not always where the line starts: what a run wrote
+            if at >= 0:                 # past Python may not have ended its line
+                try:
+                    said = json.loads(line[at:])
+                    text += (line[:at] + '\n') if at else ''
+                    break
+                except ValueError:
+                    pass
+            text += line    # what the run wrote past Python, or the process itself
+        if said is None:    # the process ended before the run did
+            code, process = self.end(process) or 'died', None
+        else:
+            code, text = said['code'], text + said['text']
+        self.finish({'script': script, 'indices': indices, 'code': code,
+                     'seconds': time.monotonic() - start, 'text': text}, output)
+        return process
+
+    def take(self):
+        """What each thread does: make the runs in the queue, one after another, until none
+        is left. Its grid points all go to one process, which takes the place of the
+        Python that each would otherwise start."""
+        process = None
+        try:
+            while not self.stop.is_set():
+                try:
+                    script, indices, output = self.work.get_nowait()
+                except queue.Empty:
+                    break
+                if indices:
+                    process = self.run_point(process, script, indices, output)
+                else:
+                    self.run(script)
+        finally:
+            if process is not None:
+                process.stdin.close()   # with no more to read, it ends
+                self.end(process)
 
     def interrupt(self):
         """Start no more runs and end those that are under way."""
@@ -152,6 +280,12 @@ class Runner:
                 process.terminate()
 
 
+def stop_as_ctrl_c(signum, frame):
+    """What SIGTERM does to a run: the same as Ctrl-C, so that the runs under way are
+    stopped and their unfinished files removed."""
+    raise KeyboardInterrupt
+
+
 def show_output(text, lines=20):
     """Print the end of what a run wrote, indented."""
     for line in text.rstrip().split('\n')[-lines:] if text.strip() else []:
@@ -159,6 +293,9 @@ def show_output(text, lines=20):
 
 
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv == ['--points']:    # one of the processes of Runner.run_point()
+        return run_points()
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('targets', nargs='*', metavar='TARGET',
@@ -195,7 +332,7 @@ def main(argv=None):
     todo = {s: [(indices, output) for indices, output in points
                 if not (args.resume and output.is_file())] for s, points in sweep.items()}
     total = sum(len(points) for points in todo.values())
-    jobs = max(1, min(args.jobs, len(once) + total))    # no more processes than runs
+    jobs = max(1, min(args.jobs, len(once) + total))    # no more than there is to run
 
     print(f'data directory: {PROJECT_DIR}')
     print(f'{len(scripts)} script(s), {jobs} process(es) at a time:')
@@ -220,21 +357,34 @@ def main(argv=None):
         args.log.mkdir(parents=True, exist_ok=True)
 
     runner = Runner(args.log, args.stop_on_error)
+    signal.signal(signal.SIGTERM, stop_as_ctrl_c)
     began = time.monotonic()
     reported = began
     interrupted = False
     print()
+    results = []
+    for s in once:
+        runner.work.put((s, (), None))
+    for s, points in todo.items():
+        for indices, output in points:
+            runner.work.put((s, indices, output))
     with ThreadPoolExecutor(max_workers=jobs) as pool:
-        futures = [pool.submit(runner.run, s) for s in once]
-        futures += [pool.submit(runner.run, s, indices, output)
-                    for s, points in todo.items() for indices, output in points]
+        futures = [pool.submit(runner.take) for _ in range(jobs)]
+        for future in futures:      # the queue also says when a thread has ended
+            future.add_done_callback(runner.results.put)
         try:
             done = failed = 0
-            for future in as_completed(futures):
-                result = future.result()
-                name = ' '.join([result['script']] + [str(i) for i in result['indices']])
-                if result['code'] is None:
+            while futures:
+                try:
+                    result = runner.results.get(timeout=1)
+                except queue.Empty:
                     continue
+                if isinstance(result, Future):
+                    futures.remove(result)
+                    result.result()     # pass on what went wrong in the thread, if anything
+                    continue
+                results.append(result)
+                name = ' '.join([result['script']] + [str(i) for i in result['indices']])
                 if result['code'] != 0:
                     print(f'FAILED  {hms(result["seconds"])}  {name}  ({result["code"]})')
                     show_output(result['text'])
@@ -252,24 +402,42 @@ def main(argv=None):
             interrupted = True
             print('\ninterrupted: stopping the runs under way')
             runner.interrupt()
-    results = [future.result() for future in futures]   # all have ended by now
+    cut = set()     # the scripts with a run that the interrupt stopped
+    while not runner.results.empty():   # all threads have ended: what an interrupt left
+        result = runner.results.get()
+        if isinstance(result, Future):
+            continue
+        if interrupted and result['code'] != 0:
+            cut.add(result['script'])   # stopped, not failed: its file is gone, to run again
+        else:
+            results.append(result)
 
     # the consolidate script, if it was asked for and the sweep is all there
     consolidated = None
+    started = False
     if CONSOLIDATE in scripts and not runner.stop.is_set():
-        missing = {s: sum(not output.is_file() for _, output in grid_points(s, PROJECT_DIR))
-                   for s in all_scripts() if s.startswith(SWEEP_PREFIX) and s != CONSOLIDATE}
-        if any(missing.values()):
-            consolidated = 'not run: no file for ' + ', '.join(
-                f'{n:,} grid point(s) of {s}' for s, n in missing.items() if n)
-        else:
-            consolidated = runner.run(CONSOLIDATE)
+        try:
+            missing = {
+                s: sum(not output.is_file() for _, output in grid_points(s, PROJECT_DIR))
+                for s in all_scripts() if s.startswith(SWEEP_PREFIX) and s != CONSOLIDATE}
+            if any(missing.values()):
+                consolidated = 'not run: no file for ' + ', '.join(
+                    f'{n:,} grid point(s) of {s}' for s, n in missing.items() if n)
+            else:
+                started = True
+                consolidated = runner.run(CONSOLIDATE)
+        except KeyboardInterrupt:
+            interrupted = True
+            consolidated = 'interrupted before it ' + \
+                           ('had ended' if started else 'was started')
+            print('\ninterrupted: stopping the consolidate script' if started else
+                  '\ninterrupted: the consolidate script is not started')
+            runner.interrupt()
 
     print("\n===== summary (the time of a sweep script is that of its runs added up) =====")
     bad = 0
     for s in scripts:
-        mine = [r for r in results if r['script'] == s]
-        ran = [r for r in mine if r['code'] is not None]
+        ran = [r for r in results if r['script'] == s]
         failures = [r for r in ran if r['code'] != 0]
         seconds = hms(sum(r['seconds'] for r in ran))
         if s == CONSOLIDATE:
@@ -280,21 +448,24 @@ def main(argv=None):
                     show_output(consolidated['text'])
             else:
                 ok = False
-                print(f'not run          {s}')
+                state = 'stopped' if started else 'not run'
+                print(f'{state}          {s}')
                 if consolidated:
                     print(f'    {consolidated}')
         elif s in sweep:
-            ok = not failures and len(ran) == len(mine)
+            ok = not failures and len(ran) == len(todo[s])
             line = f'{len(ran) - len(failures):,} of {len(todo[s]):,} runs ok'
             if failures:
+                failures.sort(key=lambda r: r['indices'])
                 line += '; failed: ' + ', '.join(
                     ' '.join(str(i) for i in r['indices']) for r in failures[:10])
                 line += ', ...' if len(failures) > 10 else ''
-            state = 'ok    ' if ok else 'FAILED' if failures else 'not run'
-            print(f'{state}  {seconds}  {s}  {line}')
+            state = 'FAILED' if failures else 'stopped' if ran or s in cut else 'not run'
+            print(f'{"ok    " if ok else state}  {seconds}  {s}  {line}')
         else:
             ok = bool(ran) and not failures
-            print(f'{"ok    " if ok else "FAILED" if ran else "not run"}  {seconds}  {s}')
+            state = 'FAILED' if ran else 'stopped' if s in cut else 'not run'
+            print(f'{"ok    " if ok else state}  {seconds}  {s}')
         bad += not ok
     print(f'{len(scripts) - bad} script(s) ok, {bad} not; '
           f'{hms(time.monotonic() - began)} elapsed')

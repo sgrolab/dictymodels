@@ -69,9 +69,9 @@ positive-negative feedback, and IFFL for incoherent feedforward loop.
   write their results
 - About 3 GB of free memory to draw Figure 3, and 0.6 GB of disk for its data; the other
   figures outside the sweep need less
-- For Figures 4 and S1, the sweep: 9,150 runs that take about 9 hours of computing in all,
-  shared among the computer's processors, with less than 0.4 GB of memory for each processor
-  and about 110 GB of disk (see `docs/setup.md`)
+- For Figures 4 and S1, the sweep: 9,150 runs that add up to about 6 hours on one processor
+  core (`runSimulations.py` runs one on every core at a time), with about 0.5 GB of memory
+  for each core and about 110 GB of disk (see `docs/setup.md`)
 
 ## Installation and Usage
 See `docs/setup.md` for installing the environment, configuring the data directory, running
