@@ -97,8 +97,8 @@ memory. Scripts that fail are reported at the end and the rest still run, unless
 | Figure | Script                              | Writes to                      | Time    |
 |--------|-------------------------------------|--------------------------------|---------|
 | 2      | `SingleCell_singleSpike.py`         | `sc_singleSpike_data/`         | 1 s     |
-| 3      | `Population_add_cAMP_SCnoise.py`    | `popAddcAMPscNoise_data/`      | 1 min   |
-| 4, S1  | the sweep, described below          | `pop_firingRate_data/`         | 40 h    |
+| 3      | `Population_add_cAMP_SCnoise.py`    | `popAddcAMPscNoise_data/`      | 15 s    |
+| 4, S1  | the sweep, described below          | `pop_firingRate_data/`         | 9 h     |
 | 5      | `SingleCell_adaptiveSpike.py`       | `sc_adaptiveSpike_data/`       | 1 s     |
 | 5      | `SingleCell_bifurcationDynamics.py` | `sc_bifurcationDynamics_data/` | 1 s     |
 | 6, S2  | `SingleCell_FoldChangeDetection.py` | `sc_foldChange_data/`          | 6.5 min |
@@ -134,16 +134,17 @@ uv run compare_models/Population_DensityFlowSweep_Sgro_Noise.py 13 20
 
 | Model     | Scripts | Grid    | Indices | Each run      | All runs       |
 |-----------|---------|---------|---------|---------------|----------------|
-| Sgro      | 2       | 26 x 26 | 0 to 25 | 2 s, 0.1 GB   | 41 min, 2.3 GB |
-| Gregor    | 2       | 26 x 26 | 0 to 25 | 2 s, 0.1 GB   | 37 min, 2.6 GB |
-| Goldbeter | 2       | 25 x 25 | 0 to 24 | 4 s, 0.1 GB   | 1.4 h, 3.3 GB  |
-| Maeda     | 2       | 26 x 26 | 0 to 25 | 37 s, 0.2 GB  | 14 h, 23 GB    |
-| Kamino    | 4       | 31 x 31 | 0 to 30 | 21 s, 0.2 GB  | 23 h, 77 GB    |
+| Sgro      | 2       | 26 x 26 | 0 to 25 | 1 s, 0.2 GB   | 25 min, 2.3 GB |
+| Gregor    | 2       | 26 x 26 | 0 to 25 | 1 s, 0.2 GB   | 26 min, 2.6 GB |
+| Goldbeter | 2       | 25 x 25 | 0 to 24 | 1 s, 0.2 GB   | 22 min, 3.3 GB |
+| Maeda     | 2       | 26 x 26 | 0 to 25 | 4.5 s, 0.4 GB | 1.7 h, 23 GB   |
+| Kamino    | 4       | 31 x 31 | 0 to 30 | 5.5 s, 0.3 GB | 5.8 h, 77 GB   |
 
 "Each run" is the time and peak memory of one grid point. "All runs" is the time on one
 processor core and the disk space for all of that model's scripts. In all that is 9,150
-runs, about 40 hours and 110 GB. One grid point of each script was timed, so the totals are
-estimates.
+runs, about 9 hours and 110 GB. One grid point of each script was timed, so the totals are
+estimates. The first run of a model takes about a second longer, while numba compiles its
+loop; a run as short as Sgro's is mostly starting Python and its libraries.
 
 `runSimulations.py` runs a sweep script once for every point of its grid. When all twelve
 scripts have a file for every grid point, it runs
@@ -155,7 +156,7 @@ uv run compare_models/runSimulations.py Population_DensityFlowSweep
 Ctrl-C stops it, and running it again with `--resume` carries on with the grid points that
 have no file yet. A grid point that fails is named in the summary and its file removed, so
 `--resume` tries it again. On a four-core machine the 676 grid points of one script took
-6 minutes, four at a time, against about 21 minutes for one process (`--jobs 1`).
+4 minutes, four at a time, against about 13 minutes for one process (`--jobs 1`).
 
 On a cluster, run that command as one job with many processors. Where the scheduler confines
 a job to the processors it was given, `runSimulations.py` counts those; where it does not,
@@ -220,5 +221,15 @@ The classes for a population of noisy cells (`Population_scNoise`, `Gregor2010_p
 To look inside a run, call `run(..., keep_cells=True)`: each variable is then also kept for
 every cell, as `pop.y`, an array of cells by time steps. `Population_add_cAMP_SCnoise.py`
 does this for Figure 3, which shows single cells. The noise can be given to `run()` whole,
-as an array of time steps by cells, or as a function that returns the next rows of one, so
-that it is drawn while the run proceeds, as the sweep scripts do. See `popHistory.py`.
+as an array of time steps by cells, or as the numpy random generator to draw it from. The
+run then draws the noise of each time step when it gets there and holds none of it, as the
+sweep scripts do. See `popHistory.py`.
+
+The loop over the time steps of these classes is their method `steps()`, which numba
+compiles the first time it is called. That takes about a second and makes the loop about
+ten times faster. numba keeps the compiled loop in `compare_models/__pycache__/` and uses
+it again in later runs, until the model file changes. Its statements are ordinary numpy.
+The top of `popHistory.py` lists three things to keep to when changing them, so that the
+results stay the same to the last digit. After changing a compiled function in
+`popHistory.py` itself, delete `compare_models/__pycache__/`: numba does not notice a
+change in that file.

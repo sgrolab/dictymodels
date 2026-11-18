@@ -56,8 +56,7 @@ t = np.arange(0,t_tot,dt)
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
 sigma = 0      # noise strength
-def r(steps):   # the noise of the next time steps, drawn when the run asks for it
-    return math.sqrt(dt)*rng.normal(0,1,size = (steps,N)) * sigma
+# the run draws its noise from rng at each time step: math.sqrt(dt)*rng.normal(0,1,N)*sigma
 
 # define extracellular cAMP input amounts 
 cAMPe_in = np.zeros(len(t))
@@ -66,7 +65,7 @@ cAMPe_in = np.zeros(len(t))
 pop = mlf.Population_scNoise([1,1],initialVals,MaedaPopParam,t)
 
 # run simulation 
-pop.run(dt,cAMPe_in,r,rhoVals[rhoIndex],gammaVals[gammaIndex])
+pop.run(dt,cAMPe_in,rng,rhoVals[rhoIndex],gammaVals[gammaIndex],sigma=sigma)
 
 # normalize back 50% of cAMPi trace 
 traceStart = 0.5

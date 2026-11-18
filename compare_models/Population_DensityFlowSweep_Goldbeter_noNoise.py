@@ -67,14 +67,13 @@ cAMPe_trace = np.zeros(len(t))
 # initialize random generator and set random values 
 rng = np.random.default_rng(seed=1)
 sigma = 0      # noise strength
-def r(steps):   # the noise of the next time steps, drawn when the run asks for it
-    return math.sqrt(dt) * rng.normal(0,1,size=(steps,N)) * sigma
+# the run draws its noise from rng at each time step: math.sqrt(dt)*rng.normal(0,1,N)*sigma
 
 # initialize population
 pop = gbf.Population_scNoise([p0,a0,b0,g0],Goldbeter3PopParam,t)
 
 # run population 
-pop.run(dt,r,a0,cAMPe_trace)
+pop.run(dt,rng,a0,cAMPe_trace,sigma=sigma)
 
 # normalize back 80% of trace 
 traceStart = 0.2
