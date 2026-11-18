@@ -7,7 +7,7 @@ Created on Fri Jul 19 10:10:49 2019
 
 import numpy as np
 from numba import njit
-from popHistory import CellPopulation, History, noise, noise_source, np_mean, put, stimulus
+from popHistory import CellPopulation, History, noise_generator, np_mean, put, stimulus
 
 class Cell():
     def __init__(self,pos,initialVals,AgentParam,t):
@@ -149,10 +149,11 @@ class Population_scNoise(CellPopulation):
         self.cAMPe = np.zeros([len(t)])
         self.cAMPe[0] = initialVals[5]
 
-    def run(self,dt,cAMPe_in,r,rho=1,gamma=0,keep_cells=False,sigma=1):
-        # r is the noise: an array, or a random generator to draw it from at each time
-        # step with strength sigma. keep_cells says whether ACA, PKA, ERK2, RegA, cAMPi and
-        # CAR1 are kept for every cell or only as ACA_mean and so on. See popHistory.py
+    def run(self,dt,cAMPe_in,rng,rho=1,gamma=0,keep_cells=False,sigma=1):
+        # rng is the random generator that the noise of each time step is drawn from, with
+        # strength sigma. keep_cells says for how many cells ACA, PKA, ERK2, RegA, cAMPi and
+        # CAR1 are kept: every one (True), the first so many (a number) or none (False).
+        # ACA_mean and so on are always kept. See popHistory.py
         
         # get parameter values from dictionary
         k1=self.AgentParam['k1']   
@@ -190,23 +191,25 @@ class Population_scNoise(CellPopulation):
         history = History(self,['ACA','PKA','ERK2','RegA','cAMPi','CAR1'],
                           [ACA,PKA,ERK2,RegA,cAMPi,CAR1],keep_cells)
         cAMPe_in = stimulus(cAMPe_in,len(self.t))
-        r = noise_source(r,len(self.t),N,dt,sigma)
+        rng = noise_generator(rng,N)
 
         # take the time steps; the loop is steps(), below
         self.steps(ACA,PKA,ERK2,RegA,cAMPi,CAR1,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,
-                   rho,gamma,self.cAMPe,cAMPe_in,dt,self.t,r,history.arrays)
+                   rho,gamma,self.cAMPe,cAMPe_in,dt,N,sigma,self.t,rng,history.arrays)
 
         history.finish()
 
     @staticmethod
     @njit(error_model='numpy',cache=True)
     def steps(ACA,PKA,ERK2,RegA,cAMPi,CAR1,k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12,k13,k14,rho,
-              gamma,self_cAMPe,cAMPe_in,dt,t,r,history):
+              gamma,self_cAMPe,cAMPe_in,dt,N,sigma,t,rng,history):
         # The loop of run(). numba compiles this method: popHistory.py says what to keep
         # to when changing it.
         
         # run simulation 
         for i in range(1,len(t)):
+            # draw the noise of this time step
+            r = np.sqrt(dt)*rng.normal(0,1,N)*sigma
         
             # get external cAMP from previous timestep
             cAMPe = self_cAMPe[i-1]
@@ -218,7 +221,7 @@ class Population_scNoise(CellPopulation):
                 PKA + (k3*cAMPi - k4*PKA)*dt,
                 ERK2 + (k5*CAR1-k6*PKA*ERK2)*dt,
                 RegA + (k7-k8*ERK2*RegA)*dt,
-                cAMPi + (k9*ACA-k10*RegA*cAMPi)*dt + noise(r,i),
+                cAMPi + (k9*ACA-k10*RegA*cAMPi)*dt + r,
                 CAR1 + (k13*cAMPe - k14*CAR1)*dt)
             put(history,i,ACA,PKA,ERK2,RegA,cAMPi,CAR1)
             

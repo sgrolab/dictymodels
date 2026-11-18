@@ -51,9 +51,9 @@ extracellularAs = np.array([10,20,100])
 # set time separation variable 
 time_separation = 0
 
-# initialize random generator and set random values 
-rng = np.random.default_rng(seed=1)
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N))
+# every run below draws its noise from a new random generator with this seed, so that
+# all of them have the same noise
+seed = 1
 
 # preallocate A trace arrays
 As = np.zeros((len(extracellularAs),len(t)))
@@ -70,7 +70,8 @@ for i in range(len(extracellularAs)):
     Sgro_pop = sg.Sgro2015_pop(A0,R0,cAMPext0,SgroPopParam,t)
     
     # run population 
-    Sgro_pop.run(dt,time_separation,extracellularA_trace,r,keep_cells=True)
+    rng = np.random.default_rng(seed)
+    Sgro_pop.run(dt,time_separation,extracellularA_trace,rng,keep_cells=True)
     
     # Save A traces to arrays
     A_trace_offset=1.5
@@ -122,13 +123,9 @@ ext_input_arr =  np.array([0.001,10,1000])
 # set time separation variable 
 time_separation = 0
 
-# initialize random generator and set random steps 
-rng = np.random.default_rng(seed=1)
-r = math.sqrt(dt)*rng.normal(0,1,size = (len(t),N))
-
-# fix random seed
-np.random.seed(1)
-r = math.sqrt(dt)*np.random.normal(0,1,size = (len(t),Nc))
+# every run below draws its noise from a new random generator with this seed, so that
+# all of them have the same noise
+seed = 1
 
 # preallocate trace arrays
 thetais = np.zeros([len(ext_input_arr),Nc,len(t)])
@@ -147,7 +144,8 @@ for i in range(len(ext_input_arr)):
     Gregor_pop = gf.Gregor2010_pop(campCyto0, thetai0, campExt0, GregorPopParam, t)
     
     # run population
-    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,r,keep_cells=True)
+    rng = np.random.default_rng(seed)
+    Gregor_pop.run(dt,eta,rho,k,Vt,time_separation,extracellularA_trace,rng,keep_cells=True)
     
     # save traces 
     thetais[i] = Gregor_pop.thetai
